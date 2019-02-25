@@ -21,9 +21,9 @@ Uses data sampling and column naming
 
 Download the latest version
 
-- [Mac]()
-- [Linux]()
-- [Windows]()
+- [Mac](https://github.com/ankane/pdscan/releases/download/v0.1.0/pdscan_0.1.0_Darwin_x86_64.zip)
+- [Linux](https://github.com/ankane/pdscan/releases/download/v0.1.0/pdscan_0.1.0_Linux_x86_64.zip)
+- [Windows](https://github.com/ankane/pdscan/releases/download/v0.1.0/pdscan_0.1.0_Windows_x86_64.zip)
 
 Unzip and follow the instructions for your data store
 
