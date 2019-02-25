@@ -17,6 +17,8 @@ Uses data sampling and column naming
 
 :boom: Zero runtime dependencies and minimal database load
 
+[![Build Status](https://travis-ci.org/ankane/pdscan.svg?branch=master)](https://travis-ci.org/ankane/pdscan)
+
 ## Installation
 
 Download the latest version
