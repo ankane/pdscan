@@ -90,11 +90,15 @@ CREATE EXTENSION tsm_system_rows;
 ./pdscan s3://bucket/path/to/file.txt
 ```
 
+> Requires `s3:GetObject` permission.
+
 You can also specify a prefix by ending with a `/`.
 
 ```sh
 ./pdscan s3://bucket/path/to/directory/
 ```
+
+> Requires `s3:ListBucket` and `s3:GetObject` permissions.
 
 ### Others
 
