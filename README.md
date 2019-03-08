@@ -52,6 +52,8 @@ You can also specify a directory.
 ./pdscan file://path/to/directory
 ```
 
+For absolute paths, use `file:///`.
+
 ### MySQL & MariaDB
 
 ```sh
