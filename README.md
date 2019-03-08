@@ -13,7 +13,7 @@ Scan your data stores for unencrypted personal data (PII)
 - Location data
 - OAuth tokens
 
-Uses data sampling and column naming
+Uses data sampling and naming, and works with compressed files
 
 :boom: Zero runtime dependencies and minimal database load
 
@@ -29,12 +29,28 @@ Download the latest version
 
 Unzip and follow the instructions for your data store
 
+Data Stores
+
+- [Files](#files-master)
 - [MySQL & MariaDB](#mysql--mariadb)
 - [Postgres](#postgres)
 - [SQLite](#sqlite)
+- [S3](#s3-master)
 - [Others](#others)
 
 ## Data Stores
+
+### Files [master]
+
+```sh
+./pdscan file://path/to/file.txt
+```
+
+You can also specify a directory.
+
+```sh
+./pdscan file://path/to/directory
+```
 
 ### MySQL & MariaDB
 
@@ -66,6 +82,18 @@ CREATE EXTENSION tsm_system_rows;
 ./pdscan sqlite:/path/to/dbname.sqlite3
 ```
 
+### S3 [master]
+
+```sh
+./pdscan s3://bucket/path/to/file.txt
+```
+
+You can also specify a prefix by ending with a `/`.
+
+```sh
+./pdscan s3://bucket/path/to/directory/
+```
+
 ### Others
 
 Feel free to [submit a PR](https://github.com/ankane/pdscan/pulls)
@@ -92,7 +120,6 @@ Change sample size
 
 ## Roadmap
 
-- Add support for files, compressed files, and S3 (`s3://`)
 - Add more data stores (SQL Server, MongoDB, Elasticsearch, Memcached, Redis)
 - Improve rules
 - Highlight matches

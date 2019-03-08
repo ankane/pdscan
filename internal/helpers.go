@@ -1,12 +1,26 @@
 package internal
 
 import (
+	"archive/zip"
+	"bufio"
+	"bytes"
+	"compress/gzip"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"log"
+	"net/url"
+	"os"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/fatih/color"
+	"github.com/h2non/filetype"
 )
 
 type nameRule struct {
@@ -102,70 +116,100 @@ var tokenizer = regexp.MustCompile(`\W+`)
 var space = regexp.MustCompile(`\s+`)
 var urlPassword = regexp.MustCompile(`((\/\/|%2F%2F)\S+(:|%3A))\S+(@|%40)`)
 
-func checkTableData(table table, columnNames []string, columnValues [][]string) []ruleMatch {
-	tableMatchList := []ruleMatch{}
+func findMatches(colIdentifier string, values []string, onlyValues bool) []ruleMatch {
+	matchList := []ruleMatch{}
 
-	for i, col := range columnNames {
-		matchList := []ruleMatch{}
+	count := len(values)
 
-		// check values
-		values := columnValues[i]
-		count := len(values)
-
-		colIdentifier := table.displayName() + "." + col
-
-		if count > 0 {
-			for _, rule := range regexRules {
-				matchedData := []string{}
-
-				for _, v := range values {
-					if rule.Regex.MatchString(v) {
-						matchedData = append(matchedData, v)
-					}
-				}
-
-				if rule.Name == "email" {
-					// filter out false positives with URL credentials
-					newMatchedData := matchedData
-					matchedData = []string{}
-					for _, v := range newMatchedData {
-						// replace urls and check for email match again
-						v2 := urlPassword.ReplaceAllString(v, "[FILTERED]")
-						if rule.Regex.MatchString(v2) {
-							matchedData = append(matchedData, v)
-						}
-					}
-				}
-
-				// TODO filter out masked IPs (end with .0)
-
-				if len(matchedData) > 0 {
-					confidence := "low"
-					if rule.Name == "email" || float64(len(matchedData))/float64(count) > 0.5 {
-						confidence = "high"
-					}
-					matchList = append(matchList, ruleMatch{RuleName: rule.Name, DisplayName: rule.DisplayName, Confidence: confidence, Identifier: colIdentifier, MatchedData: matchedData})
-				}
-			}
-
-			// find names
+	if count > 0 {
+		for _, rule := range regexRules {
 			matchedData := []string{}
 
 			for _, v := range values {
-				tokens := tokenizer.Split(strings.ToLower(v), -1)
-				if anyMatches(lastNames, tokens) {
+				if rule.Regex.MatchString(v) {
 					matchedData = append(matchedData, v)
 				}
 			}
 
+			if rule.Name == "email" {
+				// filter out false positives with URL credentials
+				newMatchedData := matchedData
+				matchedData = []string{}
+				for _, v := range newMatchedData {
+					// replace urls and check for email match again
+					v2 := urlPassword.ReplaceAllString(v, "[FILTERED]")
+					if rule.Regex.MatchString(v2) {
+						matchedData = append(matchedData, v)
+					}
+				}
+			}
+
+			// TODO filter out masked IPs (end with .0)
+
 			if len(matchedData) > 0 {
 				confidence := "low"
-				if float64(len(matchedData))/float64(count) > 0.1 && len(unique(matchedData)) >= 10 {
+				if rule.Name == "email" || float64(len(matchedData))/float64(count) > 0.5 {
 					confidence = "high"
 				}
-				matchList = append(matchList, ruleMatch{RuleName: "last_name", DisplayName: "last names", Confidence: confidence, Identifier: colIdentifier, MatchedData: matchedData})
+
+				if onlyValues {
+					var matchedValues []string
+					for _, v := range matchedData {
+						v3 := rule.Regex.FindAllString(v, -1)
+						matchedValues = append(matchedValues, v3...)
+					}
+					matchedData = matchedValues
+				}
+
+				matchList = append(matchList, ruleMatch{RuleName: rule.Name, DisplayName: rule.DisplayName, Confidence: confidence, Identifier: colIdentifier, MatchedData: matchedData})
 			}
 		}
+
+		// find names
+		matchedData := []string{}
+
+		for _, v := range values {
+			tokens := tokenizer.Split(strings.ToLower(v), -1)
+			if anyMatches(lastNames, tokens) {
+				matchedData = append(matchedData, v)
+			}
+		}
+
+		if len(matchedData) > 0 {
+			confidence := "low"
+			if float64(len(matchedData))/float64(count) > 0.1 && len(unique(matchedData)) >= 10 {
+				confidence = "high"
+			}
+
+			if onlyValues {
+				var matchedValues []string
+				for _, v := range matchedData {
+					tokens := tokenizer.Split(strings.ToLower(v), -1)
+					for _, v2 := range tokens {
+						if stringInSlice(v2, lastNames) {
+							matchedValues = append(matchedValues, v2)
+						}
+					}
+				}
+				matchedData = matchedValues
+			}
+
+			matchList = append(matchList, ruleMatch{RuleName: "last_name", DisplayName: "last names", Confidence: confidence, Identifier: colIdentifier, MatchedData: matchedData})
+		}
+	}
+
+	return matchList
+}
+
+func checkTableData(table table, columnNames []string, columnValues [][]string) []ruleMatch {
+	tableMatchList := []ruleMatch{}
+
+	for i, col := range columnNames {
+		// check values
+		values := columnValues[i]
+		colIdentifier := table.displayName() + "." + col
+
+		matchList := findMatches(colIdentifier, values, false)
 
 		// only check name if no matches
 		if len(matchList) == 0 {
@@ -198,6 +242,161 @@ func checkTableData(table table, columnNames []string, columnValues [][]string) 
 	return tableMatchList
 }
 
+// TODO skip certain file types
+func findFiles(urlStr string) []string {
+	var files []string
+
+	if strings.HasPrefix(urlStr, "file://") {
+		root := urlStr[7:]
+		err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+			if err == nil {
+				files = append(files, path)
+			}
+			return nil
+		})
+
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		if strings.HasSuffix(urlStr, "/") {
+			u, err1 := url.Parse(urlStr)
+			if err1 != nil {
+				log.Fatal(err1)
+			}
+			bucket := u.Host
+			key := u.Path[1:]
+
+			sess := session.Must(session.NewSessionWithOptions(session.Options{
+				SharedConfigState: session.SharedConfigEnable,
+			}))
+
+			svc := s3.New(sess)
+
+			params := &s3.ListObjectsInput{
+				Bucket: aws.String(bucket),
+				Prefix: aws.String(key),
+			}
+
+			resp, _ := svc.ListObjects(params)
+			for _, key := range resp.Contents {
+				files = append(files, "s3://"+bucket+"/"+*key.Key)
+			}
+		} else {
+			files = append(files, urlStr)
+		}
+	}
+
+	return files
+}
+
+type ReadSeekCloser interface {
+	io.Reader
+	io.Seeker
+}
+
+// TODO read metadata for certain file types
+func readLines(filename string) []string {
+	values := []string{}
+
+	var file ReadSeekCloser
+
+	if strings.HasPrefix(filename, "s3://") {
+		sess := session.Must(session.NewSessionWithOptions(session.Options{
+			SharedConfigState: session.SharedConfigEnable,
+		}))
+
+		u, err1 := url.Parse(filename)
+		if err1 != nil {
+			log.Fatal(err1)
+		}
+		bucket := u.Host
+		key := u.Path
+
+		// TODO stream
+		svc := s3.New(sess)
+		resp, err := svc.GetObject(&s3.GetObjectInput{
+			Bucket: aws.String(bucket),
+			Key:    aws.String(key),
+		})
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		buff, err2 := ioutil.ReadAll(resp.Body)
+		if err2 != nil {
+			log.Fatal(err)
+		}
+
+		file = bytes.NewReader(buff)
+	} else {
+		f, err := os.Open(filename)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		defer f.Close()
+
+		file = f
+	}
+
+	// we only have to pass the file header = first 261 bytes
+	head := make([]byte, 261)
+	file.Read(head)
+	kind, err := filetype.Match(head)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// fmt.Println(kind.MIME.Value)
+
+	// rewind
+	file.Seek(0, 0)
+
+	if kind.MIME.Value == "application/zip" {
+		// TODO make zip work with S3
+		reader, err := zip.OpenReader(filename)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer reader.Close()
+
+		for _, file := range reader.File {
+			if file.FileInfo().IsDir() {
+				continue
+			}
+
+			fileReader, err := file.Open()
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer fileReader.Close()
+
+			scanner := bufio.NewScanner(fileReader)
+			for scanner.Scan() {
+				values = append(values, scanner.Text())
+			}
+		}
+
+	} else if kind.MIME.Value == "application/gzip" {
+		gz, err := gzip.NewReader(file)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		scanner := bufio.NewScanner(gz)
+		for scanner.Scan() {
+			values = append(values, scanner.Text())
+		}
+	} else {
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			values = append(values, scanner.Text())
+		}
+	}
+
+	return values
+}
+
 func pluralize(count int, singular string) string {
 	if count != 1 {
 		if strings.HasSuffix(singular, "ch") {
@@ -209,7 +408,7 @@ func pluralize(count int, singular string) string {
 	return fmt.Sprintf("%d %s", count, singular)
 }
 
-func printMatchList(matchList []ruleMatch, showData bool, showAll bool) {
+func printMatchList(matchList []ruleMatch, showData bool, showAll bool, rowStr string) {
 	// print matches for table
 	for _, match := range matchList {
 		if showAll || match.Confidence != "low" {
@@ -219,7 +418,7 @@ func printMatchList(matchList []ruleMatch, showData bool, showAll bool) {
 			if match.MatchType == "name" {
 				description = fmt.Sprintf("possible %s (name match)", match.DisplayName)
 			} else {
-				str := pluralize(count, "row")
+				str := pluralize(count, rowStr)
 				if match.Confidence == "low" {
 					str = str + ", low confidence"
 				}

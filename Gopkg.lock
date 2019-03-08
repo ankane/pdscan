@@ -2,6 +2,49 @@
 
 
 [[projects]]
+  digest = "1:2aad764a6819496a6bf2f21ebf0573d7ffba5ce027ae57f66e81afc5786b4a66"
+  name = "github.com/aws/aws-sdk-go"
+  packages = [
+    "aws",
+    "aws/awserr",
+    "aws/awsutil",
+    "aws/client",
+    "aws/client/metadata",
+    "aws/corehandlers",
+    "aws/credentials",
+    "aws/credentials/ec2rolecreds",
+    "aws/credentials/endpointcreds",
+    "aws/credentials/processcreds",
+    "aws/credentials/stscreds",
+    "aws/csm",
+    "aws/defaults",
+    "aws/ec2metadata",
+    "aws/endpoints",
+    "aws/request",
+    "aws/session",
+    "aws/signer/v4",
+    "internal/ini",
+    "internal/s3err",
+    "internal/sdkio",
+    "internal/sdkrand",
+    "internal/sdkuri",
+    "internal/shareddefaults",
+    "private/protocol",
+    "private/protocol/eventstream",
+    "private/protocol/eventstream/eventstreamapi",
+    "private/protocol/query",
+    "private/protocol/query/queryutil",
+    "private/protocol/rest",
+    "private/protocol/restxml",
+    "private/protocol/xml/xmlutil",
+    "service/s3",
+    "service/sts",
+  ]
+  pruneopts = "UT"
+  revision = "774132714af4336cfacbde2528d8702d0649f225"
+  version = "v1.17.13"
+
+[[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
@@ -26,12 +69,32 @@
   version = "v1.4.1"
 
 [[projects]]
+  digest = "1:4442692c7525ec403b23a5b3e169a089bb1e6ed3b69795be877d39578744bf7a"
+  name = "github.com/h2non/filetype"
+  packages = [
+    ".",
+    "matchers",
+    "matchers/isobmff",
+    "types",
+  ]
+  pruneopts = "UT"
+  revision = "2248f2e2f77cd8cf9694216e3f9589d71005de37"
+  version = "v1.0.8"
+
+[[projects]]
   digest = "1:870d441fe217b8e689d7949fef6e43efbc787e50f200cb1e70dbca9204a1d6be"
   name = "github.com/inconshreveable/mousetrap"
   packages = ["."]
   pruneopts = "UT"
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
   version = "v1.0"
+
+[[projects]]
+  digest = "1:bb81097a5b62634f3e9fec1014657855610c82d19b9a40c17612e32651e35dca"
+  name = "github.com/jmespath/go-jmespath"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c2b33e84"
 
 [[projects]]
   digest = "1:6c41d4f998a03b6604227ccad36edaed6126c397e5d78709ef4814a1145a6757"
@@ -139,8 +202,12 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/aws/aws-sdk-go/aws",
+    "github.com/aws/aws-sdk-go/aws/session",
+    "github.com/aws/aws-sdk-go/service/s3",
     "github.com/fatih/color",
     "github.com/go-sql-driver/mysql",
+    "github.com/h2non/filetype",
     "github.com/jmoiron/sqlx",
     "github.com/lib/pq",
     "github.com/mattn/go-sqlite3",
