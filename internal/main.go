@@ -45,8 +45,10 @@ func Main(urlStr string, showData bool, showAll bool, limit int) {
 					defer wg.Done()
 					columnNames, columnValues := adapter.FetchTableData(t, limit)
 					tableMatchList := checkTableData(t, columnNames, columnValues)
-					matchList = append(matchList, tableMatchList...)
 					printMatchList(tableMatchList, showData, showAll, "row")
+
+					// must do this safely
+					matchList = append(matchList, tableMatchList...)
 				}(t, limit)
 			}
 
