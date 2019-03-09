@@ -24,7 +24,12 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 
 			wg.Add(len(files))
 
+			// https://stackoverflow.com/a/25306241/1177228
+			guard := make(chan struct{}, 20)
+
 			for _, f := range files {
+				guard <- struct{}{}
+
 				go func(file string) {
 					defer wg.Done()
 
@@ -36,6 +41,8 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 					appendMutex.Lock()
 					matchList = append(matchList, fileMatchList...)
 					appendMutex.Unlock()
+
+					<-guard
 				}(f)
 			}
 		} else {
