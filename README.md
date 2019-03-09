@@ -124,7 +124,7 @@ Change sample size
 ./pdscan --sample-size 50000
 ```
 
-Increase parallelism
+Increase parallelism [master]
 
 ```sh
 ./pdscan --processes 4
