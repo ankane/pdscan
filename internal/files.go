@@ -90,6 +90,97 @@ func findFileMatches(filename string) ([][]string, int) {
 	return processFile(file, filename)
 }
 
+// TODO make zip work with S3
+func processZip(filename string) ([][]string, int) {
+	matchedValues := make([][]string, len(regexRules)+1)
+	count := 0
+
+	reader, err := zip.OpenReader(filename)
+	if err != nil {
+		abort(err)
+	}
+	defer reader.Close()
+
+	for _, file := range reader.File {
+		if file.FileInfo().IsDir() {
+			continue
+		}
+
+		fileReader, err := file.Open()
+		if err != nil {
+			abort(err)
+		}
+		defer fileReader.Close()
+
+		// TODO recursively process files
+		scanner := bufio.NewScanner(fileReader)
+		fileMatchedValues, fileCount := findScannerMatches(scanner)
+
+		// TODO capture specific file in archive
+		for i, _ := range matchedValues {
+			matchedValues[i] = append(matchedValues[i], fileMatchedValues[i]...)
+		}
+		count += fileCount
+	}
+
+	return matchedValues, count
+}
+
+func processPdf(file ReadSeekCloser) ([][]string, int) {
+	pdfReader, err := pdf.NewPdfReader(file)
+	if err != nil {
+		abort(err)
+	}
+
+	numPages, err := pdfReader.GetNumPages()
+	if err != nil {
+		abort(err)
+	}
+
+	content := ""
+
+	for i := 0; i < numPages; i++ {
+		pageNum := i + 1
+
+		page, err := pdfReader.GetPage(pageNum)
+		if err != nil {
+			abort(err)
+		}
+
+		contentStreams, err := page.GetContentStreams()
+		if err != nil {
+			abort(err)
+		}
+
+		// If the value is an array, the effect shall be as if all of the streams in the array were concatenated,
+		// in order, to form a single stream.
+		pageContentStr := ""
+		for _, cstream := range contentStreams {
+			pageContentStr += cstream
+		}
+
+		cstreamParser := pdfcontent.NewContentStreamParser(pageContentStr)
+		txt, err := cstreamParser.ExtractText()
+		if err != nil {
+			abort(err)
+		}
+		content += txt
+	}
+
+	scanner := bufio.NewScanner(strings.NewReader(content))
+	return findScannerMatches(scanner)
+}
+
+func processGzip(file ReadSeekCloser) ([][]string, int) {
+	gz, err := gzip.NewReader(file)
+	if err != nil {
+		abort(err)
+	}
+
+	scanner := bufio.NewScanner(gz)
+	return findScannerMatches(scanner)
+}
+
 func processFile(file ReadSeekCloser, filename string) ([][]string, int) {
 	// we only have to pass the file header = first 261 bytes
 	head := make([]byte, 261)
@@ -103,95 +194,18 @@ func processFile(file ReadSeekCloser, filename string) ([][]string, int) {
 	// rewind
 	file.Seek(0, 0)
 
-	matchedValues := make([][]string, len(regexRules)+1)
-	count := 0
-
 	// skip binary
 	// TODO better method of detection
 	if kind.MIME.Type == "video" || kind.MIME.Value == "application/x-bzip2" {
+		matchedValues := make([][]string, len(regexRules)+1)
+		count := 0
 		return matchedValues, count
 	} else if kind.MIME.Value == "application/pdf" {
-		pdfReader, err := pdf.NewPdfReader(file)
-		if err != nil {
-			abort(err)
-		}
-
-		numPages, err := pdfReader.GetNumPages()
-		if err != nil {
-			abort(err)
-		}
-
-		content := ""
-
-		for i := 0; i < numPages; i++ {
-			pageNum := i + 1
-
-			page, err := pdfReader.GetPage(pageNum)
-			if err != nil {
-				abort(err)
-			}
-
-			contentStreams, err := page.GetContentStreams()
-			if err != nil {
-				abort(err)
-			}
-
-			// If the value is an array, the effect shall be as if all of the streams in the array were concatenated,
-			// in order, to form a single stream.
-			pageContentStr := ""
-			for _, cstream := range contentStreams {
-				pageContentStr += cstream
-			}
-
-			cstreamParser := pdfcontent.NewContentStreamParser(pageContentStr)
-			txt, err := cstreamParser.ExtractText()
-			if err != nil {
-				abort(err)
-			}
-			content += txt
-		}
-
-		scanner := bufio.NewScanner(strings.NewReader(content))
-		return findScannerMatches(scanner)
+		return processPdf(file)
 	} else if kind.MIME.Value == "application/zip" {
-		// TODO make zip work with S3
-		reader, err := zip.OpenReader(filename)
-		if err != nil {
-			abort(err)
-		}
-		defer reader.Close()
-
-		for _, file := range reader.File {
-			if file.FileInfo().IsDir() {
-				continue
-			}
-
-			fileReader, err := file.Open()
-			if err != nil {
-				abort(err)
-			}
-			defer fileReader.Close()
-
-			// TODO recursively process files
-			scanner := bufio.NewScanner(fileReader)
-			fileMatchedValues, fileCount := findScannerMatches(scanner)
-
-			// TODO capture specific file in archive
-			for i, _ := range matchedValues {
-				matchedValues[i] = append(matchedValues[i], fileMatchedValues[i]...)
-			}
-			count += fileCount
-		}
-
-		return matchedValues, count
+		return processZip(filename)
 	} else if kind.MIME.Value == "application/gzip" {
-		gz, err := gzip.NewReader(file)
-		if err != nil {
-			abort(err)
-		}
-
-		scanner := bufio.NewScanner(gz)
-		return findScannerMatches(scanner)
+		return processGzip(file)
 	}
 
 	scanner := bufio.NewScanner(file)
