@@ -3,19 +3,13 @@ package internal
 import (
 	"archive/zip"
 	"bufio"
-	"bytes"
 	"compress/gzip"
 	"io"
-	"io/ioutil"
 	"log"
-	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/h2non/filetype"
 
 	pdfcontent "github.com/unidoc/unidoc/pdf/contentstream"
@@ -27,52 +21,30 @@ type ReadSeekCloser interface {
 	io.Seeker
 }
 
-// TODO skip certain file types
-func findFiles(urlStr string) []string {
+func findLocalFiles(urlStr string) []string {
 	var files []string
 
-	if strings.HasPrefix(urlStr, "file://") {
-		root := urlStr[7:]
-		err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-			if err == nil && !info.IsDir() {
-				files = append(files, path)
-			}
-			return nil
-		})
-
-		if err != nil {
-			log.Fatal(err)
+	root := urlStr[7:]
+	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if err == nil && !info.IsDir() {
+			files = append(files, path)
 		}
-	} else {
-		if strings.HasSuffix(urlStr, "/") {
-			u, err1 := url.Parse(urlStr)
-			if err1 != nil {
-				log.Fatal(err1)
-			}
-			bucket := u.Host
-			key := u.Path[1:]
+		return nil
+	})
 
-			sess := session.Must(session.NewSessionWithOptions(session.Options{
-				SharedConfigState: session.SharedConfigEnable,
-			}))
-
-			svc := s3.New(sess)
-
-			params := &s3.ListObjectsInput{
-				Bucket: aws.String(bucket),
-				Prefix: aws.String(key),
-			}
-
-			resp, _ := svc.ListObjects(params)
-			for _, key := range resp.Contents {
-				files = append(files, "s3://"+bucket+"/"+*key.Key)
-			}
-		} else {
-			files = append(files, urlStr)
-		}
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	return files
+}
+
+// TODO skip certain file types
+func findFiles(urlStr string) []string {
+	if strings.HasPrefix(urlStr, "file://") {
+		return findLocalFiles(urlStr)
+	}
+	return findS3Files(urlStr)
 }
 
 func findScannerMatches(scanner *bufio.Scanner) ([][]string, int) {
@@ -104,34 +76,7 @@ func findFileMatches(filename string) ([][]string, int) {
 	var file ReadSeekCloser
 
 	if strings.HasPrefix(filename, "s3://") {
-		sess := session.Must(session.NewSessionWithOptions(session.Options{
-			SharedConfigState: session.SharedConfigEnable,
-		}))
-
-		u, err1 := url.Parse(filename)
-		if err1 != nil {
-			log.Fatal(err1)
-		}
-		bucket := u.Host
-		key := u.Path
-
-		// TODO stream
-		// TODO get file type before full download
-		svc := s3.New(sess)
-		resp, err := svc.GetObject(&s3.GetObjectInput{
-			Bucket: aws.String(bucket),
-			Key:    aws.String(key),
-		})
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		buff, err2 := ioutil.ReadAll(resp.Body)
-		if err2 != nil {
-			log.Fatal(err)
-		}
-
-		file = bytes.NewReader(buff)
+		file = downloadS3File(filename)
 	} else {
 		f, err := os.Open(filename)
 		if err != nil {
