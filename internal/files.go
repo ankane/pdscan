@@ -10,9 +10,6 @@ import (
 	"strings"
 
 	"github.com/h2non/filetype"
-
-	pdfcontent "github.com/unidoc/unidoc/pdf/contentstream"
-	pdf "github.com/unidoc/unidoc/pdf/model"
 )
 
 type ReadSeekCloser interface {
@@ -126,50 +123,6 @@ func processZip(filename string) ([][]string, int) {
 	return matchedValues, count
 }
 
-func processPdf(file ReadSeekCloser) ([][]string, int) {
-	pdfReader, err := pdf.NewPdfReader(file)
-	if err != nil {
-		abort(err)
-	}
-
-	numPages, err := pdfReader.GetNumPages()
-	if err != nil {
-		abort(err)
-	}
-
-	content := ""
-
-	for i := 0; i < numPages; i++ {
-		pageNum := i + 1
-
-		page, err := pdfReader.GetPage(pageNum)
-		if err != nil {
-			abort(err)
-		}
-
-		contentStreams, err := page.GetContentStreams()
-		if err != nil {
-			abort(err)
-		}
-
-		// If the value is an array, the effect shall be as if all of the streams in the array were concatenated,
-		// in order, to form a single stream.
-		pageContentStr := ""
-		for _, cstream := range contentStreams {
-			pageContentStr += cstream
-		}
-
-		cstreamParser := pdfcontent.NewContentStreamParser(pageContentStr)
-		txt, err := cstreamParser.ExtractText()
-		if err != nil {
-			abort(err)
-		}
-		content += txt
-	}
-
-	return findScannerMatches(strings.NewReader(content))
-}
-
 func processGzip(file ReadSeekCloser) ([][]string, int) {
 	gz, err := gzip.NewReader(file)
 	if err != nil {
@@ -198,8 +151,8 @@ func processFile(file ReadSeekCloser, filename string) ([][]string, int) {
 		matchedValues := make([][]string, len(regexRules)+1)
 		count := 0
 		return matchedValues, count
-	} else if kind.MIME.Value == "application/pdf" {
-		return processPdf(file)
+	// } else if kind.MIME.Value == "application/pdf" {
+	// 	return processPdf(file)
 	} else if kind.MIME.Value == "application/zip" {
 		return processZip(filename)
 	} else if kind.MIME.Value == "application/gzip" {
