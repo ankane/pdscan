@@ -2,12 +2,19 @@ package internal
 
 import (
 	"fmt"
+	"runtime"
 	"strings"
 	"sync"
 )
 
-func Main(urlStr string, showData bool, showAll bool, limit int) {
+func Main(urlStr string, showData bool, showAll bool, limit int, processes int) {
+	runtime.GOMAXPROCS(processes)
+
 	matchList := []ruleMatch{}
+
+	var appendMutex sync.Mutex
+
+	var wg sync.WaitGroup
 
 	if strings.HasPrefix(urlStr, "file://") || strings.HasPrefix(urlStr, "s3://") {
 		files := findFiles(urlStr)
@@ -15,14 +22,23 @@ func Main(urlStr string, showData bool, showAll bool, limit int) {
 		if len(files) > 0 {
 			fmt.Println(fmt.Sprintf("Found %s to scan...\n", pluralize(len(files), "file")))
 
-			for _, file := range files {
-				// fmt.Println("Scanning " + file + "...\n")
-				// TODO use streaming instead
-				// TODO process in parallel
-				values := readLines(file)
-				matchedValues, count := findMatches(values)
-				matchList = checkMatches(file, matchedValues, count, true)
-				printMatchList(matchList, showData, showAll, "line")
+			wg.Add(len(files))
+
+			for _, f := range files {
+				go func(file string) {
+					defer wg.Done()
+
+					// fmt.Println("Scanning " + file + "...\n")
+					// TODO use streaming instead
+					values := readLines(file)
+					matchedValues, count := findMatches(values)
+					fileMatchList := checkMatches(file, matchedValues, count, true)
+					printMatchList(fileMatchList, showData, showAll, "line")
+
+					appendMutex.Lock()
+					matchList = append(matchList, fileMatchList...)
+					appendMutex.Unlock()
+				}(f)
 			}
 		} else {
 			fmt.Println("Found no files to scan")
@@ -37,11 +53,9 @@ func Main(urlStr string, showData bool, showAll bool, limit int) {
 		if len(tables) > 0 {
 			fmt.Println(fmt.Sprintf("Found %s to scan, sampling %d rows from each...\n", pluralize(len(tables), "table"), limit))
 
-			var wg sync.WaitGroup
 			wg.Add(len(tables))
 
 			var queryMutex sync.Mutex
-			var appendMutex sync.Mutex
 
 			for _, t := range tables {
 				go func(t table, limit int) {
@@ -59,13 +73,13 @@ func Main(urlStr string, showData bool, showAll bool, limit int) {
 					appendMutex.Unlock()
 				}(t, limit)
 			}
-
-			wg.Wait()
 		} else {
 			fmt.Println("Found no tables to scan")
 			return
 		}
 	}
+
+	wg.Wait()
 
 	if len(matchList) > 0 {
 		if showData {
