@@ -120,32 +120,32 @@ var urlPassword = regexp.MustCompile(`((\/\/|%2F%2F)\S+(:|%3A))\S+(@|%40)`)
 
 func findMatches(colIdentifier string, values []string, onlyValues bool) []ruleMatch {
 	// build matches
-	matchedDatas := make([][]string, len(regexRules)+1)
+	matchedValues := make([][]string, len(regexRules)+1)
 	nameIndex := len(regexRules)
 
 	for _, v := range values {
 		for i, rule := range regexRules {
 			if rule.Regex.MatchString(v) {
-				matchedDatas[i] = append(matchedDatas[i], v)
+				matchedValues[i] = append(matchedValues[i], v)
 			}
 		}
 
 		tokens := tokenizer.Split(strings.ToLower(v), -1)
 		if anyMatches(tokens) {
-			matchedDatas[nameIndex] = append(matchedDatas[nameIndex], v)
+			matchedValues[nameIndex] = append(matchedValues[nameIndex], v)
 		}
 	}
 
 	count := len(values)
 
-	return checkMatches(colIdentifier, matchedDatas, count, onlyValues)
+	return checkMatches(colIdentifier, matchedValues, count, onlyValues)
 }
 
-func checkMatches(colIdentifier string, matchedDatas [][]string, count int, onlyValues bool) []ruleMatch {
+func checkMatches(colIdentifier string, matchedValues [][]string, count int, onlyValues bool) []ruleMatch {
 	matchList := []ruleMatch{}
 
 	for i, rule := range regexRules {
-		matchedData := matchedDatas[i]
+		matchedData := matchedValues[i]
 
 		if rule.Name == "email" {
 			// filter out false positives with URL credentials
@@ -181,7 +181,7 @@ func checkMatches(colIdentifier string, matchedDatas [][]string, count int, only
 
 	// find names
 	nameIndex := len(regexRules)
-	matchedData := matchedDatas[nameIndex]
+	matchedData := matchedValues[nameIndex]
 
 	if len(matchedData) > 0 {
 		confidence := "low"
