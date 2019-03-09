@@ -53,7 +53,6 @@ func (a S3Adapter) FetchFiles() []string {
 	return files
 }
 
-
 func (a S3Adapter) FindFileMatches(filename string) ([][]string, int) {
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,

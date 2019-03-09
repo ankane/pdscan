@@ -103,8 +103,8 @@ func processFile(file ReadSeekCloser, filename string) ([][]string, int) {
 		matchedValues := make([][]string, len(regexRules)+1)
 		count := 0
 		return matchedValues, count
-	// } else if kind.MIME.Value == "application/pdf" {
-	// 	return processPdf(file)
+		// } else if kind.MIME.Value == "application/pdf" {
+		// 	return processPdf(file)
 	} else if kind.MIME.Value == "application/zip" {
 		return processZip(filename)
 	} else if kind.MIME.Value == "application/gzip" {
