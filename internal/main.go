@@ -2,10 +2,23 @@ package internal
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"runtime/pprof"
 	"strings"
 )
 
 func Main(urlStr string, showData bool, showAll bool, limit int) {
+  f, err := os.Create("cpu.prof")
+  if err != nil {
+      log.Fatal("could not create CPU profile: ", err)
+  }
+  defer f.Close()
+  if err := pprof.StartCPUProfile(f); err != nil {
+      log.Fatal("could not start CPU profile: ", err)
+  }
+  defer pprof.StopCPUProfile()
+
 	matchList := []ruleMatch{}
 
 	if strings.HasPrefix(urlStr, "file://") || strings.HasPrefix(urlStr, "s3://") {
