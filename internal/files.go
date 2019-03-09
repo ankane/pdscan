@@ -10,11 +10,6 @@ import (
 	"github.com/h2non/filetype"
 )
 
-type ReadSeekCloser interface {
-	io.Reader
-	io.Seeker
-}
-
 func findScannerMatches(reader io.Reader) ([][]string, int) {
 	matchedValues := make([][]string, len(regexRules)+1)
 	nameIndex := len(regexRules)
@@ -75,7 +70,7 @@ func processZip(filename string) ([][]string, int) {
 	return matchedValues, count
 }
 
-func processGzip(file ReadSeekCloser) ([][]string, int) {
+func processGzip(file io.Reader) ([][]string, int) {
 	gz, err := gzip.NewReader(file)
 	if err != nil {
 		abort(err)
@@ -84,18 +79,16 @@ func processGzip(file ReadSeekCloser) ([][]string, int) {
 	return findScannerMatches(gz)
 }
 
-func processFile(file ReadSeekCloser, filename string) ([][]string, int) {
+func processFile(file io.Reader, filename string) ([][]string, int) {
+	reader := bufio.NewReader(file)
+
 	// we only have to pass the file header = first 261 bytes
-	head := make([]byte, 261)
-	file.Read(head)
+	head, err := reader.Peek(261)
 	kind, err := filetype.Match(head)
 	if err != nil {
 		abort(err)
 	}
 	// fmt.Println(kind.MIME.Value)
-
-	// rewind
-	file.Seek(0, 0)
 
 	// skip binary
 	// TODO better method of detection
@@ -108,8 +101,8 @@ func processFile(file ReadSeekCloser, filename string) ([][]string, int) {
 	} else if kind.MIME.Value == "application/zip" {
 		return processZip(filename)
 	} else if kind.MIME.Value == "application/gzip" {
-		return processGzip(file)
+		return processGzip(reader)
 	}
 
-	return findScannerMatches(file)
+	return findScannerMatches(reader)
 }
