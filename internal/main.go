@@ -17,7 +17,15 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 	var wg sync.WaitGroup
 
 	if strings.HasPrefix(urlStr, "file://") || strings.HasPrefix(urlStr, "s3://") {
-		files := findFiles(urlStr)
+		var adapter FileAdapter
+		if strings.HasPrefix(urlStr, "file://") {
+			adapter = &LocalFileAdapter{}
+		} else {
+			adapter = &S3Adapter{}
+		}
+		adapter.Init(urlStr)
+
+		files := adapter.FetchFiles()
 
 		if len(files) > 0 {
 			fmt.Println(fmt.Sprintf("Found %s to scan...\n", pluralize(len(files), "file")))
@@ -34,7 +42,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 					defer wg.Done()
 
 					// fmt.Println("Scanning " + file + "...\n")
-					matchedValues, count := findFileMatches(file)
+					matchedValues, count := adapter.FindFileMatches(file)
 					fileMatchList := checkMatches(file, matchedValues, count, true)
 					printMatchList(fileMatchList, showData, showAll, "line")
 

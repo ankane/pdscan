@@ -5,8 +5,6 @@ import (
 	"bufio"
 	"compress/gzip"
 	"io"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/h2non/filetype"
@@ -15,32 +13,6 @@ import (
 type ReadSeekCloser interface {
 	io.Reader
 	io.Seeker
-}
-
-func findLocalFiles(urlStr string) []string {
-	var files []string
-
-	root := urlStr[7:]
-	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		if err == nil && !info.IsDir() {
-			files = append(files, path)
-		}
-		return nil
-	})
-
-	if err != nil {
-		abort(err)
-	}
-
-	return files
-}
-
-// TODO skip certain file types
-func findFiles(urlStr string) []string {
-	if strings.HasPrefix(urlStr, "file://") {
-		return findLocalFiles(urlStr)
-	}
-	return findS3Files(urlStr)
 }
 
 func findScannerMatches(reader io.Reader) ([][]string, int) {
@@ -66,26 +38,6 @@ func findScannerMatches(reader io.Reader) ([][]string, int) {
 	}
 
 	return matchedValues, count
-}
-
-// TODO read metadata for certain file types
-func findFileMatches(filename string) ([][]string, int) {
-	var file ReadSeekCloser
-
-	if strings.HasPrefix(filename, "s3://") {
-		file = downloadS3File(filename)
-	} else {
-		f, err := os.Open(filename)
-		if err != nil {
-			abort(err)
-		}
-
-		defer f.Close()
-
-		file = f
-	}
-
-	return processFile(file, filename)
 }
 
 // TODO make zip work with S3

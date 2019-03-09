@@ -11,7 +11,16 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-func findS3Files(urlStr string) []string {
+type S3Adapter struct {
+	url string
+}
+
+func (a *S3Adapter) Init(url string) {
+	a.url = url
+}
+
+func (a S3Adapter) FetchFiles() []string {
+	urlStr := a.url
 	var files []string
 
 	if strings.HasSuffix(urlStr, "/") {
@@ -44,7 +53,8 @@ func findS3Files(urlStr string) []string {
 	return files
 }
 
-func downloadS3File(filename string) ReadSeekCloser {
+
+func (a S3Adapter) FindFileMatches(filename string) ([][]string, int) {
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
 	}))
@@ -72,5 +82,5 @@ func downloadS3File(filename string) ReadSeekCloser {
 		abort(err)
 	}
 
-	return bytes.NewReader(buff)
+	return processFile(bytes.NewReader(buff), filename)
 }
