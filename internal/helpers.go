@@ -118,8 +118,7 @@ var tokenizer = regexp.MustCompile(`\W+`)
 var space = regexp.MustCompile(`\s+`)
 var urlPassword = regexp.MustCompile(`((\/\/|%2F%2F)\S+(:|%3A))\S+(@|%40)`)
 
-func findMatches(colIdentifier string, values []string, onlyValues bool) []ruleMatch {
-	// build matches
+func findMatches(values []string) ([][]string, int) {
 	matchedValues := make([][]string, len(regexRules)+1)
 	nameIndex := len(regexRules)
 
@@ -136,9 +135,7 @@ func findMatches(colIdentifier string, values []string, onlyValues bool) []ruleM
 		}
 	}
 
-	count := len(values)
-
-	return checkMatches(colIdentifier, matchedValues, count, onlyValues)
+	return matchedValues, len(values)
 }
 
 func checkMatches(colIdentifier string, matchedValues [][]string, count int, onlyValues bool) []ruleMatch {
@@ -216,7 +213,8 @@ func checkTableData(table table, columnNames []string, columnValues [][]string) 
 		values := columnValues[i]
 		colIdentifier := table.displayName() + "." + col
 
-		matchList := findMatches(colIdentifier, values, false)
+		matchedValues, count := findMatches(values)
+		matchList := checkMatches(colIdentifier, matchedValues, count, false)
 
 		// only check name if no matches
 		if len(matchList) == 0 {

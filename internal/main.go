@@ -19,7 +19,8 @@ func Main(urlStr string, showData bool, showAll bool, limit int) {
 				// TODO use streaming instead
 				// TODO process in parallel
 				values := readLines(file)
-				matchList = findMatches(file, values, true)
+				matchedValues, count := findMatches(values)
+				matchList = checkMatches(file, matchedValues, count, true)
 				printMatchList(matchList, showData, showAll, "line")
 			}
 		} else {
