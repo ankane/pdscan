@@ -46,11 +46,12 @@ func findFiles(urlStr string) []string {
 	return findS3Files(urlStr)
 }
 
-func findScannerMatches(scanner *bufio.Scanner) ([][]string, int) {
+func findScannerMatches(reader io.Reader) ([][]string, int) {
 	matchedValues := make([][]string, len(regexRules)+1)
 	nameIndex := len(regexRules)
 	count := 0
 
+	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		v := scanner.Text()
 		count += 1
@@ -113,8 +114,7 @@ func processZip(filename string) ([][]string, int) {
 		defer fileReader.Close()
 
 		// TODO recursively process files
-		scanner := bufio.NewScanner(fileReader)
-		fileMatchedValues, fileCount := findScannerMatches(scanner)
+		fileMatchedValues, fileCount := findScannerMatches(fileReader)
 
 		// TODO capture specific file in archive
 		for i, _ := range matchedValues {
@@ -167,8 +167,7 @@ func processPdf(file ReadSeekCloser) ([][]string, int) {
 		content += txt
 	}
 
-	scanner := bufio.NewScanner(strings.NewReader(content))
-	return findScannerMatches(scanner)
+	return findScannerMatches(strings.NewReader(content))
 }
 
 func processGzip(file ReadSeekCloser) ([][]string, int) {
@@ -177,8 +176,7 @@ func processGzip(file ReadSeekCloser) ([][]string, int) {
 		abort(err)
 	}
 
-	scanner := bufio.NewScanner(gz)
-	return findScannerMatches(scanner)
+	return findScannerMatches(gz)
 }
 
 func processFile(file ReadSeekCloser, filename string) ([][]string, int) {
@@ -208,6 +206,5 @@ func processFile(file ReadSeekCloser, filename string) ([][]string, int) {
 		return processGzip(file)
 	}
 
-	scanner := bufio.NewScanner(file)
-	return findScannerMatches(scanner)
+	return findScannerMatches(file)
 }
