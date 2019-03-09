@@ -124,6 +124,12 @@ Change sample size
 ./pdscan --sample-size 50000
 ```
 
+Increase parallelism
+
+```sh
+./pdscan --processes 4
+```
+
 ## Roadmap
 
 - Add more data stores (SQL Server, MongoDB, Elasticsearch, Memcached, Redis)
