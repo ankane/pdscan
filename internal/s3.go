@@ -50,9 +50,9 @@ func downloadS3File(filename string) ReadSeekCloser {
 		SharedConfigState: session.SharedConfigEnable,
 	}))
 
-	u, err1 := url.Parse(filename)
-	if err1 != nil {
-		log.Fatal(err1)
+	u, err := url.Parse(filename)
+	if err != nil {
+		log.Fatal(err)
 	}
 	bucket := u.Host
 	key := u.Path
@@ -68,8 +68,8 @@ func downloadS3File(filename string) ReadSeekCloser {
 		log.Fatal(err)
 	}
 
-	buff, err2 := ioutil.ReadAll(resp.Body)
-	if err2 != nil {
+	buff, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
 		log.Fatal(err)
 	}
 
