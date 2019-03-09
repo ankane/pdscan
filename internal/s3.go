@@ -15,9 +15,9 @@ func findS3Files(urlStr string) []string {
 	var files []string
 
 	if strings.HasSuffix(urlStr, "/") {
-		u, err1 := url.Parse(urlStr)
-		if err1 != nil {
-			abort(err1)
+		u, err := url.Parse(urlStr)
+		if err != nil {
+			abort(err)
 		}
 		bucket := u.Host
 		key := u.Path[1:]
