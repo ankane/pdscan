@@ -34,7 +34,7 @@ func findFiles(urlStr string) []string {
 	if strings.HasPrefix(urlStr, "file://") {
 		root := urlStr[7:]
 		err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-			if err == nil {
+			if err == nil && !info.IsDir() {
 				files = append(files, path)
 			}
 			return nil
@@ -143,6 +143,10 @@ func findFileMatches(filename string) ([][]string, int) {
 		file = f
 	}
 
+	return processFile(file, filename)
+}
+
+func processFile(file ReadSeekCloser, filename string) ([][]string, int) {
 	// we only have to pass the file header = first 261 bytes
 	head := make([]byte, 261)
 	file.Read(head)
