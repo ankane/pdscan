@@ -29,9 +29,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 					defer wg.Done()
 
 					// fmt.Println("Scanning " + file + "...\n")
-					// TODO use streaming instead
-					values := readLines(file)
-					matchedValues, count := findMatches(values)
+					matchedValues, count := findFileMatches(file)
 					fileMatchList := checkMatches(file, matchedValues, count, true)
 					printMatchList(fileMatchList, showData, showAll, "line")
 
