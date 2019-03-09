@@ -3,6 +3,7 @@ package internal
 import (
 	"fmt"
 	"strings"
+	"sync"
 )
 
 func Main(urlStr string, showData bool, showAll bool, limit int) {
@@ -36,12 +37,20 @@ func Main(urlStr string, showData bool, showAll bool, limit int) {
 		if len(tables) > 0 {
 			fmt.Println(fmt.Sprintf("Found %s to scan, sampling %d rows from each...\n", pluralize(len(tables), "table"), limit))
 
-			for _, table := range tables {
-				columnNames, columnValues := adapter.FetchTableData(table, limit)
-				tableMatchList := checkTableData(table, columnNames, columnValues)
-				matchList = append(matchList, tableMatchList...)
-				printMatchList(tableMatchList, showData, showAll, "row")
+			var wg sync.WaitGroup
+			wg.Add(len(tables))
+
+			for _, t := range tables {
+				go func(t table, limit int) {
+					defer wg.Done()
+					columnNames, columnValues := adapter.FetchTableData(t, limit)
+					tableMatchList := checkTableData(t, columnNames, columnValues)
+					matchList = append(matchList, tableMatchList...)
+					printMatchList(tableMatchList, showData, showAll, "row")
+				}(t, limit)
 			}
+
+			wg.Wait()
 		} else {
 			fmt.Println("Found no tables to scan")
 			return
