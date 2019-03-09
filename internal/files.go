@@ -152,16 +152,19 @@ func findFileMatches(filename string) ([][]string, int) {
 	// rewind
 	file.Seek(0, 0)
 
-	if kind.MIME.Value == "application/zip" {
+	matchedValues := make([][]string, len(regexRules)+1)
+	count := 0
+
+	if kind.MIME.Type == "video" || kind.MIME.Value == "application/x-bzip2" {
+		// skip binary
+		return matchedValues, count
+	} else if kind.MIME.Value == "application/zip" {
 		// TODO make zip work with S3
 		reader, err := zip.OpenReader(filename)
 		if err != nil {
 			log.Fatal(err)
 		}
 		defer reader.Close()
-
-		matchedValues := make([][]string, len(regexRules)+1)
-		count := 0
 
 		for _, file := range reader.File {
 			if file.FileInfo().IsDir() {
