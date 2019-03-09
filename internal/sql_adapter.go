@@ -2,7 +2,6 @@ package internal
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
@@ -19,7 +18,7 @@ type SqlAdapter struct {
 func (a *SqlAdapter) Init(url string) {
 	u, err := dburl.Parse(url)
 	if err != nil {
-		log.Fatal(err)
+		abort(err)
 	}
 
 	db, err := sqlx.Connect(u.Driver, u.DSN)
@@ -27,7 +26,7 @@ func (a *SqlAdapter) Init(url string) {
 		// TODO prompt for password if needed
 		// var input string
 		// fmt.Scanln(&input)
-		log.Fatal(err)
+		abort(err)
 	}
 	// defer db.Close()
 
@@ -50,7 +49,7 @@ func (a SqlAdapter) FetchTables() (tables []table) {
 
 	err := db.Select(&tables, query)
 	if err != nil {
-		log.Fatal(err)
+		abort(err)
 	}
 
 	return tables
@@ -83,13 +82,13 @@ func (a SqlAdapter) FetchTableData(table table, limit int) ([]string, [][]string
 	// run query on each table
 	rows, err := db.Query(sql)
 	if err != nil {
-		log.Fatal(err)
+		abort(err)
 	}
 
 	// read everything as string and discard empty strings
 	cols, err := rows.ColumnTypes()
 	if err != nil {
-		log.Fatal(err)
+		abort(err)
 	}
 
 	// map types
@@ -123,7 +122,7 @@ func (a SqlAdapter) FetchTableData(table table, limit int) ([]string, [][]string
 	for rows.Next() {
 		err = rows.Scan(dest...)
 		if err != nil {
-			log.Fatal(err)
+			abort(err)
 		}
 
 		for i, raw := range rawResult {
@@ -154,7 +153,7 @@ func tsmSystemRowsSupported(db *sqlx.DB) bool {
 	var count int
 	err := row.Scan(&count)
 	if err != nil {
-		log.Fatal(err)
+		abort(err)
 	}
 	return count > 0
 }

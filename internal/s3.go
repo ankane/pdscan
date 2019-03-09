@@ -3,7 +3,6 @@ package internal
 import (
 	"bytes"
 	"io/ioutil"
-	"log"
 	"net/url"
 	"strings"
 
@@ -18,7 +17,7 @@ func findS3Files(urlStr string) []string {
 	if strings.HasSuffix(urlStr, "/") {
 		u, err1 := url.Parse(urlStr)
 		if err1 != nil {
-			log.Fatal(err1)
+			abort(err1)
 		}
 		bucket := u.Host
 		key := u.Path[1:]
@@ -52,7 +51,7 @@ func downloadS3File(filename string) ReadSeekCloser {
 
 	u, err := url.Parse(filename)
 	if err != nil {
-		log.Fatal(err)
+		abort(err)
 	}
 	bucket := u.Host
 	key := u.Path
@@ -65,12 +64,12 @@ func downloadS3File(filename string) ReadSeekCloser {
 		Key:    aws.String(key),
 	})
 	if err != nil {
-		log.Fatal(err)
+		abort(err)
 	}
 
 	buff, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		abort(err)
 	}
 
 	return bytes.NewReader(buff)

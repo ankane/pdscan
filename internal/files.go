@@ -5,7 +5,6 @@ import (
 	"bufio"
 	"compress/gzip"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -33,7 +32,7 @@ func findLocalFiles(urlStr string) []string {
 	})
 
 	if err != nil {
-		log.Fatal(err)
+		abort(err)
 	}
 
 	return files
@@ -80,7 +79,7 @@ func findFileMatches(filename string) ([][]string, int) {
 	} else {
 		f, err := os.Open(filename)
 		if err != nil {
-			log.Fatal(err)
+			abort(err)
 		}
 
 		defer f.Close()
@@ -97,7 +96,7 @@ func processFile(file ReadSeekCloser, filename string) ([][]string, int) {
 	file.Read(head)
 	kind, err := filetype.Match(head)
 	if err != nil {
-		log.Fatal(err)
+		abort(err)
 	}
 	// fmt.Println(kind.MIME.Value)
 
@@ -114,12 +113,12 @@ func processFile(file ReadSeekCloser, filename string) ([][]string, int) {
 	} else if kind.MIME.Value == "application/pdf" {
 		pdfReader, err := pdf.NewPdfReader(file)
 		if err != nil {
-			log.Fatal(err)
+			abort(err)
 		}
 
 		numPages, err := pdfReader.GetNumPages()
 		if err != nil {
-			log.Fatal(err)
+			abort(err)
 		}
 
 		content := ""
@@ -129,12 +128,12 @@ func processFile(file ReadSeekCloser, filename string) ([][]string, int) {
 
 			page, err := pdfReader.GetPage(pageNum)
 			if err != nil {
-				log.Fatal(err)
+				abort(err)
 			}
 
 			contentStreams, err := page.GetContentStreams()
 			if err != nil {
-				log.Fatal(err)
+				abort(err)
 			}
 
 			// If the value is an array, the effect shall be as if all of the streams in the array were concatenated,
@@ -147,7 +146,7 @@ func processFile(file ReadSeekCloser, filename string) ([][]string, int) {
 			cstreamParser := pdfcontent.NewContentStreamParser(pageContentStr)
 			txt, err := cstreamParser.ExtractText()
 			if err != nil {
-				log.Fatal(err)
+				abort(err)
 			}
 			content += txt
 		}
@@ -158,7 +157,7 @@ func processFile(file ReadSeekCloser, filename string) ([][]string, int) {
 		// TODO make zip work with S3
 		reader, err := zip.OpenReader(filename)
 		if err != nil {
-			log.Fatal(err)
+			abort(err)
 		}
 		defer reader.Close()
 
@@ -169,7 +168,7 @@ func processFile(file ReadSeekCloser, filename string) ([][]string, int) {
 
 			fileReader, err := file.Open()
 			if err != nil {
-				log.Fatal(err)
+				abort(err)
 			}
 			defer fileReader.Close()
 
@@ -188,7 +187,7 @@ func processFile(file ReadSeekCloser, filename string) ([][]string, int) {
 	} else if kind.MIME.Value == "application/gzip" {
 		gz, err := gzip.NewReader(file)
 		if err != nil {
-			log.Fatal(err)
+			abort(err)
 		}
 
 		scanner := bufio.NewScanner(gz)
