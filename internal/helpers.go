@@ -19,9 +19,9 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/deckarep/golang-set"
 	"github.com/fatih/color"
 	"github.com/h2non/filetype"
-	"github.com/deckarep/golang-set"
 )
 
 type nameRule struct {
@@ -119,85 +119,90 @@ var space = regexp.MustCompile(`\s+`)
 var urlPassword = regexp.MustCompile(`((\/\/|%2F%2F)\S+(:|%3A))\S+(@|%40)`)
 
 func findMatches(colIdentifier string, values []string, onlyValues bool) []ruleMatch {
-	matchList := []ruleMatch{}
+	// build matches
+	matchedDatas := make([][]string, len(regexRules)+1)
+	nameIndex := len(regexRules)
 
-	count := len(values)
-
-	if count > 0 {
-		for _, rule := range regexRules {
-			matchedData := []string{}
-
-			for _, v := range values {
-				if rule.Regex.MatchString(v) {
-					matchedData = append(matchedData, v)
-				}
-			}
-
-			if rule.Name == "email" {
-				// filter out false positives with URL credentials
-				newMatchedData := matchedData
-				matchedData = []string{}
-				for _, v := range newMatchedData {
-					// replace urls and check for email match again
-					v2 := urlPassword.ReplaceAllString(v, "[FILTERED]")
-					if rule.Regex.MatchString(v2) {
-						matchedData = append(matchedData, v)
-					}
-				}
-			}
-
-			// TODO filter out masked IPs (end with .0)
-
-			if len(matchedData) > 0 {
-				confidence := "low"
-				if rule.Name == "email" || float64(len(matchedData))/float64(count) > 0.5 {
-					confidence = "high"
-				}
-
-				if onlyValues {
-					var matchedValues []string
-					for _, v := range matchedData {
-						v3 := rule.Regex.FindAllString(v, -1)
-						matchedValues = append(matchedValues, v3...)
-					}
-					matchedData = matchedValues
-				}
-
-				matchList = append(matchList, ruleMatch{RuleName: rule.Name, DisplayName: rule.DisplayName, Confidence: confidence, Identifier: colIdentifier, MatchedData: matchedData})
+	for _, v := range values {
+		for i, rule := range regexRules {
+			if rule.Regex.MatchString(v) {
+				matchedDatas[i] = append(matchedDatas[i], v)
 			}
 		}
 
-		// find names
-		matchedData := []string{}
+		tokens := tokenizer.Split(strings.ToLower(v), -1)
+		if anyMatches(tokens) {
+			matchedDatas[nameIndex] = append(matchedDatas[nameIndex], v)
+		}
+	}
 
-		for _, v := range values {
-			tokens := tokenizer.Split(strings.ToLower(v), -1)
-			if anyMatches(tokens) {
-				matchedData = append(matchedData, v)
+	count := len(values)
+
+	return checkMatches(colIdentifier, matchedDatas, count, onlyValues)
+}
+
+func checkMatches(colIdentifier string, matchedDatas [][]string, count int, onlyValues bool) []ruleMatch {
+	matchList := []ruleMatch{}
+
+	for i, rule := range regexRules {
+		matchedData := matchedDatas[i]
+
+		if rule.Name == "email" {
+			// filter out false positives with URL credentials
+			newMatchedData := matchedData
+			matchedData = []string{}
+			for _, v := range newMatchedData {
+				// replace urls and check for email match again
+				v2 := urlPassword.ReplaceAllString(v, "[FILTERED]")
+				if rule.Regex.MatchString(v2) {
+					matchedData = append(matchedData, v)
+				}
 			}
 		}
 
 		if len(matchedData) > 0 {
 			confidence := "low"
-			if float64(len(matchedData))/float64(count) > 0.1 && len(unique(matchedData)) >= 10 {
+			if rule.Name == "email" || float64(len(matchedData))/float64(count) > 0.5 {
 				confidence = "high"
 			}
 
 			if onlyValues {
 				var matchedValues []string
 				for _, v := range matchedData {
-					tokens := tokenizer.Split(strings.ToLower(v), -1)
-					for _, v2 := range tokens {
-						if lastNamesSet.Contains(v2) {
-							matchedValues = append(matchedValues, v2)
-						}
-					}
+					v3 := rule.Regex.FindAllString(v, -1)
+					matchedValues = append(matchedValues, v3...)
 				}
 				matchedData = matchedValues
 			}
 
-			matchList = append(matchList, ruleMatch{RuleName: "last_name", DisplayName: "last names", Confidence: confidence, Identifier: colIdentifier, MatchedData: matchedData})
+			matchList = append(matchList, ruleMatch{RuleName: rule.Name, DisplayName: rule.DisplayName, Confidence: confidence, Identifier: colIdentifier, MatchedData: matchedData})
 		}
+	}
+
+	// find names
+	nameIndex := len(regexRules)
+	matchedData := matchedDatas[nameIndex]
+
+	if len(matchedData) > 0 {
+		confidence := "low"
+		if float64(len(matchedData))/float64(count) > 0.1 && len(unique(matchedData)) >= 10 {
+			confidence = "high"
+		}
+
+		if onlyValues {
+			var matchedValues []string
+			for _, v := range matchedData {
+				tokens := tokenizer.Split(strings.ToLower(v), -1)
+				for _, v2 := range tokens {
+					if lastNamesSet.Contains(v2) {
+						matchedValues = append(matchedValues, v2)
+					}
+				}
+			}
+			matchedData = matchedValues
+		}
+
+		matchList = append(matchList, ruleMatch{RuleName: "last_name", DisplayName: "last names", Confidence: confidence, Identifier: colIdentifier, MatchedData: matchedData})
 	}
 
 	return matchList
