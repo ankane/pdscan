@@ -224,6 +224,7 @@ func findFileMatches(filename string) ([][]string, int) {
 			}
 			defer fileReader.Close()
 
+			// TODO recursively process files
 			scanner := bufio.NewScanner(fileReader)
 			fileMatchedValues, fileCount := findScannerMatches(scanner)
 
