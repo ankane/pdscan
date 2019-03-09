@@ -17,6 +17,9 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/h2non/filetype"
+
+	pdfcontent "github.com/unidoc/unidoc/pdf/contentstream"
+	pdf "github.com/unidoc/unidoc/pdf/model"
 )
 
 type ReadSeekCloser interface {
@@ -159,6 +162,49 @@ func findFileMatches(filename string) ([][]string, int) {
 	// TODO better method of detection
 	if kind.MIME.Type == "video" || kind.MIME.Value == "application/x-bzip2" {
 		return matchedValues, count
+	} else if kind.MIME.Value == "application/pdf" {
+		pdfReader, err := pdf.NewPdfReader(file)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		numPages, err := pdfReader.GetNumPages()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		content := ""
+
+		for i := 0; i < numPages; i++ {
+			pageNum := i + 1
+
+			page, err := pdfReader.GetPage(pageNum)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			contentStreams, err := page.GetContentStreams()
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			// If the value is an array, the effect shall be as if all of the streams in the array were concatenated,
+			// in order, to form a single stream.
+			pageContentStr := ""
+			for _, cstream := range contentStreams {
+				pageContentStr += cstream
+			}
+
+			cstreamParser := pdfcontent.NewContentStreamParser(pageContentStr)
+			txt, err := cstreamParser.ExtractText()
+			if err != nil {
+				log.Fatal(err)
+			}
+			content += txt
+		}
+
+		scanner := bufio.NewScanner(strings.NewReader(content))
+		return findScannerMatches(scanner)
 	} else if kind.MIME.Value == "application/zip" {
 		// TODO make zip work with S3
 		reader, err := zip.OpenReader(filename)

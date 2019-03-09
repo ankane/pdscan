@@ -183,12 +183,38 @@
   version = "v1.3.0"
 
 [[projects]]
+  digest = "1:3bb4cf94386aa7a0fa208fe89256080bbc71de4c34519ce39e404f6094c58f21"
+  name = "github.com/unidoc/unidoc"
+  packages = [
+    "common",
+    "common/license",
+    "pdf/contentstream",
+    "pdf/core",
+    "pdf/model",
+    "pdf/model/fonts",
+    "pdf/model/sampling",
+    "pdf/model/textencoding",
+    "pdf/ps",
+  ]
+  pruneopts = "UT"
+  revision = "2752beb6f0cdbae03254246e8f26f1e3455518c8"
+  version = "v2.2.0"
+
+[[projects]]
   branch = "master"
   digest = "1:cac263b8eb2e9ad2327b70e03be1de1227040bfb3be26b49c4b56cbed568afc7"
   name = "github.com/xo/dburl"
   packages = ["."]
   pruneopts = "UT"
   revision = "98997a05b24fc069c79fa13b05ccf376c22a326c"
+
+[[projects]]
+  branch = "master"
+  digest = "1:de6078be7bbedf02bf7235cda239bba1fdce01b5605ddeb3bb4ec39bed6f1859"
+  name = "golang.org/x/image"
+  packages = ["tiff/lzw"]
+  pruneopts = "UT"
+  revision = "0694c2d4d067f97ebef574d63a763ee8ab559da7"
 
 [[projects]]
   branch = "master"
@@ -222,6 +248,8 @@
     "github.com/mattn/go-sqlite3",
     "github.com/spf13/cobra",
     "github.com/stretchr/testify/assert",
+    "github.com/unidoc/unidoc/pdf/contentstream",
+    "github.com/unidoc/unidoc/pdf/model",
     "github.com/xo/dburl",
   ]
   solver-name = "gps-cdcl"
