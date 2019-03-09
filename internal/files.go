@@ -155,8 +155,9 @@ func findFileMatches(filename string) ([][]string, int) {
 	matchedValues := make([][]string, len(regexRules)+1)
 	count := 0
 
+	// skip binary
+	// TODO better method of detection
 	if kind.MIME.Type == "video" || kind.MIME.Value == "application/x-bzip2" {
-		// skip binary
 		return matchedValues, count
 	} else if kind.MIME.Value == "application/zip" {
 		// TODO make zip work with S3
