@@ -40,15 +40,23 @@ func Main(urlStr string, showData bool, showAll bool, limit int) {
 			var wg sync.WaitGroup
 			wg.Add(len(tables))
 
+			var queryMutex sync.Mutex
+			var appendMutex sync.Mutex
+
 			for _, t := range tables {
 				go func(t table, limit int) {
 					defer wg.Done()
+
+					queryMutex.Lock()
 					columnNames, columnValues := adapter.FetchTableData(t, limit)
+					queryMutex.Unlock()
+
 					tableMatchList := checkTableData(t, columnNames, columnValues)
 					printMatchList(tableMatchList, showData, showAll, "row")
 
-					// must do this safely
+					appendMutex.Lock()
 					matchList = append(matchList, tableMatchList...)
+					appendMutex.Unlock()
 				}(t, limit)
 			}
 
