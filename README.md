@@ -23,9 +23,9 @@ Uses data sampling and naming, and works with compressed files
 
 Download the latest version
 
-- [Mac](https://github.com/ankane/pdscan/releases/download/v0.1.0/pdscan_0.1.0_Darwin_x86_64.zip)
-- [Linux](https://github.com/ankane/pdscan/releases/download/v0.1.0/pdscan_0.1.0_Linux_x86_64.zip)
-- [Windows](https://github.com/ankane/pdscan/releases/download/v0.1.0/pdscan_0.1.0_Windows_x86_64.zip)
+- [Mac](https://github.com/ankane/pdscan/releases/download/v0.1.1/pdscan_0.1.1_Darwin_x86_64.zip)
+- [Linux](https://github.com/ankane/pdscan/releases/download/v0.1.1/pdscan_0.1.1_Linux_x86_64.zip)
+- [Windows](https://github.com/ankane/pdscan/releases/download/v0.1.1/pdscan_0.1.1_Windows_x86_64.zip)
 
 Unzip and follow the instructions for your data store
 
@@ -40,7 +40,7 @@ Data Stores
 
 ## Data Stores
 
-### Files [master]
+### Files
 
 ```sh
 ./pdscan file://path/to/file.txt
@@ -84,7 +84,7 @@ CREATE EXTENSION tsm_system_rows;
 ./pdscan sqlite:/path/to/dbname.sqlite3
 ```
 
-### S3 [master]
+### S3
 
 ```sh
 ./pdscan s3://bucket/path/to/file.txt
@@ -124,7 +124,7 @@ Change sample size
 ./pdscan --sample-size 50000
 ```
 
-Increase parallelism [master]
+Specify number of processes to use (defaults to 1)
 
 ```sh
 ./pdscan --processes 4

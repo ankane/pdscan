@@ -1,4 +1,4 @@
-# 0.1.1 [unreleased]
+# 0.1.1
 
 - Added support for files and S3
 - Added `--processes` option
