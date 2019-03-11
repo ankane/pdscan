@@ -37,19 +37,23 @@ func findScannerMatches(reader io.Reader) ([][]string, int) {
 	return matchedValues, count
 }
 
-// TODO make zip work with S3
-func processZip(file io.Reader) ([][]string, int) {
-	// TODO make more efficient
+// TODO make more efficient
+func zipReader(file io.Reader) (io.ReaderAt, int64) {
 	data, err := ioutil.ReadAll(file)
 	if err != nil {
 		abort(err)
 	}
 	bytesFile := bytes.NewReader(data)
 
+	return bytesFile, int64(bytesFile.Size())
+}
+
+func processZip(file io.Reader) ([][]string, int) {
 	matchedValues := make([][]string, len(regexRules)+1)
 	count := 0
 
-	reader, err := zip.NewReader(bytesFile, int64(bytesFile.Size()))
+	readerAt, size := zipReader(file)
+	reader, err := zip.NewReader(readerAt, size)
 	if err != nil {
 		abort(err)
 	}
