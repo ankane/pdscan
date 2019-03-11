@@ -40,5 +40,5 @@ func (a LocalFileAdapter) FindFileMatches(filename string) ([][]string, int) {
 	}
 	defer f.Close()
 
-	return processFile(f, filename)
+	return processFile(f)
 }

@@ -3,8 +3,10 @@ package internal
 import (
 	"archive/zip"
 	"bufio"
+	"bytes"
 	"compress/gzip"
 	"io"
+	"io/ioutil"
 	"strings"
 
 	"github.com/h2non/filetype"
@@ -36,15 +38,21 @@ func findScannerMatches(reader io.Reader) ([][]string, int) {
 }
 
 // TODO make zip work with S3
-func processZip(filename string) ([][]string, int) {
-	matchedValues := make([][]string, len(regexRules)+1)
-	count := 0
-
-	reader, err := zip.OpenReader(filename)
+func processZip(file io.Reader) ([][]string, int) {
+	// TODO make more efficient
+	data, err := ioutil.ReadAll(file)
 	if err != nil {
 		abort(err)
 	}
-	defer reader.Close()
+	bytesFile := bytes.NewReader(data)
+
+	matchedValues := make([][]string, len(regexRules)+1)
+	count := 0
+
+	reader, err := zip.NewReader(bytesFile, int64(bytesFile.Size()))
+	if err != nil {
+		abort(err)
+	}
 
 	for _, file := range reader.File {
 		if file.FileInfo().IsDir() {
@@ -57,8 +65,7 @@ func processZip(filename string) ([][]string, int) {
 		}
 		defer fileReader.Close()
 
-		// TODO recursively process files
-		fileMatchedValues, fileCount := findScannerMatches(fileReader)
+		fileMatchedValues, fileCount := processFile(fileReader)
 
 		// TODO capture specific file in archive
 		for i, _ := range matchedValues {
@@ -79,7 +86,7 @@ func processGzip(file io.Reader) ([][]string, int) {
 	return findScannerMatches(gz)
 }
 
-func processFile(file io.Reader, filename string) ([][]string, int) {
+func processFile(file io.Reader) ([][]string, int) {
 	reader := bufio.NewReader(file)
 
 	// we only have to pass the file header = first 261 bytes
@@ -99,7 +106,7 @@ func processFile(file io.Reader, filename string) ([][]string, int) {
 		// } else if kind.MIME.Value == "application/pdf" {
 		// 	return processPdf(file)
 	} else if kind.MIME.Value == "application/zip" {
-		return processZip(filename)
+		return processZip(reader)
 	} else if kind.MIME.Value == "application/gzip" {
 		return processGzip(reader)
 	}

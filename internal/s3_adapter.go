@@ -75,5 +75,5 @@ func (a S3Adapter) FindFileMatches(filename string) ([][]string, int) {
 		abort(err)
 	}
 
-	return processFile(bufio.NewReader(resp.Body), filename)
+	return processFile(bufio.NewReader(resp.Body))
 }
