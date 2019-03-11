@@ -1,8 +1,7 @@
 package internal
 
 import (
-	"bytes"
-	"io/ioutil"
+	"bufio"
 	"net/url"
 	"strings"
 
@@ -76,10 +75,5 @@ func (a S3Adapter) FindFileMatches(filename string) ([][]string, int) {
 		abort(err)
 	}
 
-	buff, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		abort(err)
-	}
-
-	return processFile(bytes.NewReader(buff), filename)
+	return processFile(bufio.NewReader(resp.Body), filename)
 }
