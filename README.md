@@ -21,15 +21,21 @@ Uses data sampling and naming, and works with compressed files
 
 ## Installation
 
-Download the latest version
+Download the latest version.
 
 - [Mac](https://github.com/ankane/pdscan/releases/download/v0.1.1/pdscan_0.1.1_Darwin_x86_64.zip)
 - [Linux](https://github.com/ankane/pdscan/releases/download/v0.1.1/pdscan_0.1.1_Linux_x86_64.zip)
 - [Windows](https://github.com/ankane/pdscan/releases/download/v0.1.1/pdscan_0.1.1_Windows_x86_64.zip)
 
-Unzip and follow the instructions for your data store
+Unzip and follow the instructions below for your data store.
 
-Data Stores
+On Mac, you can also use:
+
+```sh
+brew install ankane/brew/pdscan
+```
+
+## Data Stores
 
 - [Files](#files-master)
 - [MySQL & MariaDB](#mysql--mariadb)
@@ -38,18 +44,16 @@ Data Stores
 - [S3](#s3-master)
 - [Others](#others)
 
-## Data Stores
-
 ### Files
 
 ```sh
-./pdscan file://path/to/file.txt
+pdscan file://path/to/file.txt
 ```
 
 You can also specify a directory.
 
 ```sh
-./pdscan file://path/to/directory
+pdscan file://path/to/directory
 ```
 
 For absolute paths, use `file:///`.
@@ -57,13 +61,13 @@ For absolute paths, use `file:///`.
 ### MySQL & MariaDB
 
 ```sh
-./pdscan mysql://user:pass@host:3306/dbname
+pdscan mysql://user:pass@host:3306/dbname
 ```
 
 ### Postgres
 
 ```sh
-./pdscan postgres://user:pass@host:5432/dbname
+pdscan postgres://user:pass@host:5432/dbname
 ```
 
 If your connection doesn’t use SSL, append to the URI:
@@ -81,13 +85,13 @@ CREATE EXTENSION tsm_system_rows;
 ### SQLite
 
 ```sh
-./pdscan sqlite:/path/to/dbname.sqlite3
+pdscan sqlite:/path/to/dbname.sqlite3
 ```
 
 ### S3
 
 ```sh
-./pdscan s3://bucket/path/to/file.txt
+pdscan s3://bucket/path/to/file.txt
 ```
 
 > Requires `s3:GetObject` permission
@@ -95,7 +99,7 @@ CREATE EXTENSION tsm_system_rows;
 You can also specify a prefix by ending with a `/`.
 
 ```sh
-./pdscan s3://bucket/path/to/directory/
+pdscan s3://bucket/path/to/directory/
 ```
 
 > Requires `s3:ListBucket` and `s3:GetObject` permissions
@@ -109,25 +113,25 @@ Feel free to [submit a PR](https://github.com/ankane/pdscan/pulls)
 Show data found
 
 ```sh
-./pdscan --show-data
+pdscan --show-data
 ```
 
 Show low confidence matches
 
 ```sh
-./pdscan --show-all
+pdscan --show-all
 ```
 
 Change sample size
 
 ```sh
-./pdscan --sample-size 50000
+pdscan --sample-size 50000
 ```
 
 Specify number of processes to use (defaults to 1)
 
 ```sh
-./pdscan --processes 4
+pdscan --processes 4
 ```
 
 ## Roadmap
