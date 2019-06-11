@@ -153,7 +153,8 @@ func tsmSystemRowsSupported(db *sqlx.DB) bool {
 	var count int
 	err := row.Scan(&count)
 	if err != nil {
-		abort(err)
+		// redshift
+		return false
 	}
 	return count > 0
 }
