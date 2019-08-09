@@ -4,11 +4,9 @@ import (
 	"fmt"
 	"os"
 	"regexp"
-	"sort"
 	"strings"
 
-	"github.com/deckarep/golang-set"
-	"github.com/fatih/color"
+	mapset "github.com/deckarep/golang-set"
 )
 
 type nameRule struct {
@@ -245,45 +243,6 @@ func pluralize(count int, singular string) string {
 	return fmt.Sprintf("%d %s", count, singular)
 }
 
-func printMatchList(matchList []ruleMatch, showData bool, showAll bool, rowStr string) {
-	// print matches for table
-	for _, match := range matchList {
-		if showAll || match.Confidence != "low" {
-			var description string
-
-			count := len(match.MatchedData)
-			if match.MatchType == "name" {
-				description = fmt.Sprintf("possible %s (name match)", match.DisplayName)
-			} else {
-				str := pluralize(count, rowStr)
-				if match.Confidence == "low" {
-					str = str + ", low confidence"
-				}
-				description = fmt.Sprintf("found %s (%s)", match.DisplayName, str)
-			}
-
-			yellow := color.New(color.FgYellow).SprintFunc()
-			fmt.Printf("%s %s\n", yellow(match.Identifier+":"), description)
-
-			if showData {
-				v := unique(match.MatchedData)
-				if len(v) > 0 && showData {
-					if len(v) > 50 {
-						v = v[0:50]
-					}
-
-					for i, v2 := range v {
-						v[i] = space.ReplaceAllString(v2, " ")
-					}
-					sort.Strings(v)
-					fmt.Println("    " + strings.Join(v, ", "))
-				}
-				fmt.Println("")
-			}
-		}
-	}
-}
-
 func showLowConfidenceMatchHelp(matchList []ruleMatch) {
 	lowConfidenceMatches := []ruleMatch{}
 	for _, match := range matchList {
@@ -292,11 +251,11 @@ func showLowConfidenceMatchHelp(matchList []ruleMatch) {
 		}
 	}
 	if len(lowConfidenceMatches) > 0 {
-		fmt.Println("Also found " + pluralize(len(lowConfidenceMatches), "low confidence match") + ". Use --show-all to view them")
+		fmt.Fprintln(os.Stderr, "Also found "+pluralize(len(lowConfidenceMatches), "low confidence match")+". Use --show-all to view them")
 	}
 }
 
 func abort(err error) {
-	fmt.Println(err)
+	fmt.Fprintln(os.Stderr, err)
 	os.Exit(1)
 }

@@ -2,12 +2,14 @@ package internal
 
 import (
 	"fmt"
+	"log"
+	"os"
 	"runtime"
 	"strings"
 	"sync"
 )
 
-func Main(urlStr string, showData bool, showAll bool, limit int, processes int) {
+func Main(urlStr string, showData bool, showAll bool, limit int, processes int, formatter Formatter) {
 	runtime.GOMAXPROCS(processes)
 
 	matchList := []ruleMatch{}
@@ -28,7 +30,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 		files := adapter.FetchFiles()
 
 		if len(files) > 0 {
-			fmt.Println(fmt.Sprintf("Found %s to scan...\n", pluralize(len(files), "file")))
+			fmt.Fprintln(os.Stderr, fmt.Sprintf("Found %s to scan...\n", pluralize(len(files), "file")))
 
 			wg.Add(len(files))
 
@@ -44,7 +46,10 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 					// fmt.Println("Scanning " + file + "...\n")
 					matchedValues, count := adapter.FindFileMatches(file)
 					fileMatchList := checkMatches(file, matchedValues, count, true)
-					printMatchList(fileMatchList, showData, showAll, "line")
+					err := formatter.PrintMatches(os.Stdout, fileMatchList, showData, showAll, "line")
+					if err != nil {
+						log.Fatal(err)
+					}
 
 					appendMutex.Lock()
 					matchList = append(matchList, fileMatchList...)
@@ -54,7 +59,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 				}(f)
 			}
 		} else {
-			fmt.Println("Found no files to scan")
+			fmt.Fprintln(os.Stderr, "Found no files to scan")
 			return
 		}
 	} else {
@@ -64,7 +69,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 		tables := adapter.FetchTables()
 
 		if len(tables) > 0 {
-			fmt.Println(fmt.Sprintf("Found %s to scan, sampling %d rows from each...\n", pluralize(len(tables), "table"), limit))
+			fmt.Fprintln(os.Stderr, fmt.Sprintf("Found %s to scan, sampling %d rows from each...\n", pluralize(len(tables), "table"), limit))
 
 			wg.Add(len(tables))
 
@@ -79,7 +84,10 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 					queryMutex.Unlock()
 
 					tableMatchList := checkTableData(t, columnNames, columnValues)
-					printMatchList(tableMatchList, showData, showAll, "row")
+					err := formatter.PrintMatches(os.Stdout, tableMatchList, showData, showAll, "row")
+					if err != nil {
+						log.Fatal(err)
+					}
 
 					appendMutex.Lock()
 					matchList = append(matchList, tableMatchList...)
@@ -87,7 +95,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 				}(t, limit)
 			}
 		} else {
-			fmt.Println("Found no tables to scan")
+			fmt.Fprintln(os.Stderr, "Found no tables to scan")
 			return
 		}
 	}
@@ -96,15 +104,15 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 
 	if len(matchList) > 0 {
 		if showData {
-			fmt.Println("Showing 50 unique values from each")
+			fmt.Fprintln(os.Stderr, "Showing 50 unique values from each")
 		} else {
-			fmt.Println("\nUse --show-data to view data")
+			fmt.Fprintln(os.Stderr, "\nUse --show-data to view data")
 		}
 
 		if !showAll {
 			showLowConfidenceMatchHelp(matchList)
 		}
 	} else {
-		fmt.Println("No sensitive data found")
+		fmt.Fprintln(os.Stderr, "No sensitive data found")
 	}
 }

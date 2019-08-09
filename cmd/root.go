@@ -38,11 +38,21 @@ var rootCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
+		format, err := cmd.Flags().GetString("format")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		formatter, found := internal.Formatters[format]
+		if !found {
+			log.Fatalf("formatter %q is not supported", format)
+		}
+
 		if len(args) == 0 {
 			cmd.Help()
 			os.Exit(1)
 		} else {
-			internal.Main(args[0], showData, showAll, limit, processes)
+			internal.Main(args[0], showData, showAll, limit, processes, formatter)
 		}
 	},
 }
@@ -54,9 +64,10 @@ func Execute() {
 	rootCmd.PersistentFlags().Bool("show-all", false, "Show all matches")
 	rootCmd.PersistentFlags().Int("sample-size", 10000, "Sample size")
 	rootCmd.PersistentFlags().Int("processes", 1, "Processes")
+	rootCmd.PersistentFlags().String("format", "text", "Export format")
 
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
