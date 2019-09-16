@@ -43,7 +43,7 @@ var rootCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		formatter, found := internal.Formatters[format]
+		newFormatter, found := internal.Formatters[format]
 		if !found {
 			log.Fatalf("formatter %q is not supported", format)
 		}
@@ -52,7 +52,7 @@ var rootCmd = &cobra.Command{
 			cmd.Help()
 			os.Exit(1)
 		} else {
-			internal.Main(args[0], showData, showAll, limit, processes, formatter)
+			internal.Main(args[0], showData, showAll, limit, processes, newFormatter(os.Stdout))
 		}
 	},
 }

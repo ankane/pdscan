@@ -6,31 +6,47 @@ import (
 	"io"
 	"sort"
 	"strings"
+	"sync"
 
 	"github.com/fatih/color"
 )
 
 // Format defines the interface used to deliver results to the end user.
 type Formatter interface {
-	// PrintMatches formats and prints the matches to `writer`.
-	PrintMatches(
-		writer io.Writer, matches []ruleMatch,
-		showData bool, showAll bool, rowKind string,
+	// AddMatches is called when a formatter should handle new matches.
+	//
+	// This function should be safe for concurent use.
+	AddMatches(
+		matches []ruleMatch, showData bool, showAll bool, rowKind string,
 	) error
+
+	// Flush is called when the formatter should finish outputing any data it
+	// may have buffered.
+	Flush() error
 }
 
+// FormatterFactory
+type FormatterFactory func(io.Writer) Formatter
+
 // Formatters holds available formatters
-var Formatters = map[string]Formatter{
-	"text": TextFormatter{},
-	"json": JSONFormatter{},
+var Formatters = map[string]FormatterFactory{
+	"text": NewTextFormatter,
+	"json": NewJSONFormatter,
 }
 
 // TextFormatter prints the result as human readable text.
-type TextFormatter struct{}
+type TextFormatter struct {
+	io.Writer
+}
 
-func (f TextFormatter) PrintMatches(
-	writer io.Writer, matchList []ruleMatch,
-	showData bool, showAll bool, rowStr string,
+func NewTextFormatter(out io.Writer) Formatter {
+	return TextFormatter{
+		Writer: out,
+	}
+}
+
+func (f TextFormatter) AddMatches(
+	matchList []ruleMatch, showData bool, showAll bool, rowStr string,
 ) error {
 	// print matches for table
 	for _, match := range matchList {
@@ -49,7 +65,7 @@ func (f TextFormatter) PrintMatches(
 			}
 
 			yellow := color.New(color.FgYellow).SprintFunc()
-			fmt.Fprintf(writer, "%s %s\n", yellow(match.Identifier+":"), description)
+			fmt.Fprintf(f.Writer, "%s %s\n", yellow(match.Identifier+":"), description)
 
 			if showData {
 				v := unique(match.MatchedData)
@@ -61,10 +77,11 @@ func (f TextFormatter) PrintMatches(
 					for i, v2 := range v {
 						v[i] = space.ReplaceAllString(v2, " ")
 					}
+
 					sort.Strings(v)
-					fmt.Fprintln(writer, "    "+strings.Join(v, ", "))
+					fmt.Fprintln(f.Writer, "    "+strings.Join(v, ", "))
 				}
-				fmt.Fprintln(writer, "")
+				fmt.Fprintln(f.Writer, "")
 			}
 		}
 	}
@@ -72,10 +89,24 @@ func (f TextFormatter) PrintMatches(
 	return nil
 }
 
-// JSONFormatter prints the result as a JSON object.
-type JSONFormatter struct{}
+func (f TextFormatter) Flush() error { return nil }
 
-type jsonEntry struct {
+// JSONFormatter prints the result as a JSON object.
+type JSONFormatter struct {
+	sync.Mutex
+
+	entries []interface{}
+	encoder *json.Encoder
+}
+
+func NewJSONFormatter(out io.Writer) Formatter {
+	return &JSONFormatter{
+		entries: make([]interface{}, 0),
+		encoder: json.NewEncoder(out),
+	}
+}
+
+type JSONEntry struct {
 	Name        string `json:"name"`
 	Confidence  string `json:"confidence"`
 	Identifier  string `json:"identifier"`
@@ -83,17 +114,17 @@ type jsonEntry struct {
 }
 
 type jsonEntryWithMatches struct {
-	jsonEntry
+	JSONEntry
 
 	Matches      []string `json:"matches"`
 	MatchesCount int      `json:"matches_count"`
 }
 
-func (f JSONFormatter) PrintMatches(
-	writer io.Writer, matchList []ruleMatch,
-	showData bool, showAll bool, rowStr string,
+func (f *JSONFormatter) AddMatches(
+	matchList []ruleMatch, showData bool, showAll bool, rowStr string,
 ) error {
-	encoder := json.NewEncoder(writer)
+	f.Lock()
+	defer f.Unlock()
 
 	for _, match := range matchList {
 		if showAll || match.Confidence != "low" {
@@ -110,7 +141,7 @@ func (f JSONFormatter) PrintMatches(
 				description = fmt.Sprintf("found %s (%s)", match.DisplayName, str)
 			}
 
-			entry := jsonEntry{
+			entry := JSONEntry{
 				Name:        match.DisplayName,
 				Confidence:  match.Confidence,
 				Identifier:  match.Identifier,
@@ -129,23 +160,22 @@ func (f JSONFormatter) PrintMatches(
 					}
 					sort.Strings(v)
 
-					err := encoder.Encode(jsonEntryWithMatches{
-						jsonEntry:    entry,
+					f.entries = append(f.entries, jsonEntryWithMatches{
+						JSONEntry:    entry,
 						Matches:      v,
 						MatchesCount: len(v),
 					})
-					if err != nil {
-						return err
-					}
+
 				}
 			} else {
-				err := encoder.Encode(entry)
-				if err != nil {
-					return err
-				}
+				f.entries = append(f.entries, entry)
 			}
 		}
 	}
 
 	return nil
+}
+
+func (f *JSONFormatter) Flush() error {
+	return f.encoder.Encode(&f.entries)
 }

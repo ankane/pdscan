@@ -46,7 +46,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int, 
 					// fmt.Println("Scanning " + file + "...\n")
 					matchedValues, count := adapter.FindFileMatches(file)
 					fileMatchList := checkMatches(file, matchedValues, count, true)
-					err := formatter.PrintMatches(os.Stdout, fileMatchList, showData, showAll, "line")
+					err := formatter.AddMatches(fileMatchList, showData, showAll, "line")
 					if err != nil {
 						log.Fatal(err)
 					}
@@ -84,7 +84,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int, 
 					queryMutex.Unlock()
 
 					tableMatchList := checkTableData(t, columnNames, columnValues)
-					err := formatter.PrintMatches(os.Stdout, tableMatchList, showData, showAll, "row")
+					err := formatter.AddMatches(tableMatchList, showData, showAll, "row")
 					if err != nil {
 						log.Fatal(err)
 					}
@@ -101,6 +101,11 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int, 
 	}
 
 	wg.Wait()
+
+	err := formatter.Flush()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "formatting data failed: ", err)
+	}
 
 	if len(matchList) > 0 {
 		if showData {
