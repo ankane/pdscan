@@ -95,6 +95,13 @@ func processFile(file io.Reader) ([][]string, int) {
 
 	// we only have to pass the file header = first 261 bytes
 	head, err := reader.Peek(261)
+    if err != nil {
+        if err.Error() == "EOF" {
+            return [][]string{}, 0
+        }
+        abort(err)
+    }
+
 	kind, err := filetype.Match(head)
 	if err != nil {
 		abort(err)
@@ -114,6 +121,5 @@ func processFile(file io.Reader) ([][]string, int) {
 	} else if kind.MIME.Value == "application/gzip" {
 		return processGzip(reader)
 	}
-
 	return findScannerMatches(reader)
 }
