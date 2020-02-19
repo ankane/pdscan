@@ -94,6 +94,8 @@ func processFile(file io.Reader) ([][]string, int) {
 	reader := bufio.NewReader(file)
 
 	// we only have to pass the file header = first 261 bytes
+    // TODO: Does this mean any file under 261 bytes? 
+    // because those should still be processed imo
 	head, err := reader.Peek(261)
     if err != nil {
         if err.Error() == "EOF" {
