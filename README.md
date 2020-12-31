@@ -17,7 +17,7 @@ Uses data sampling and naming, and works with compressed files
 
 :boom: Zero runtime dependencies and minimal database load
 
-[![Build Status](https://travis-ci.org/ankane/pdscan.svg?branch=master)](https://travis-ci.org/ankane/pdscan)
+[![Build Status](https://github.com/ankane/pdscan/workflows/build/badge.svg?branch=master)](https://github.com/ankane/pdscan/actions)
 
 ## Installation
 
