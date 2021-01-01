@@ -43,12 +43,14 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 
 					// fmt.Println("Scanning " + file + "...\n")
 					matchedValues, count := adapter.FindFileMatches(file)
-					fileMatchList := checkMatches(file, matchedValues, count, true)
-					printMatchList(fileMatchList, showData, showAll, "line")
+                    if count > 0 {
+                        fileMatchList := checkMatches(file, matchedValues, count, true)
+                        printMatchList(fileMatchList, showData, showAll, "line")
 
-					appendMutex.Lock()
-					matchList = append(matchList, fileMatchList...)
-					appendMutex.Unlock()
+                        appendMutex.Lock()
+                        matchList = append(matchList, fileMatchList...)
+                        appendMutex.Unlock()
+                    }
 
 					<-guard
 				}(f)

@@ -94,7 +94,16 @@ func processFile(file io.Reader) ([][]string, int) {
 	reader := bufio.NewReader(file)
 
 	// we only have to pass the file header = first 261 bytes
+    // TODO: Does this mean any file under 261 bytes? 
+    // because those should still be processed imo
 	head, err := reader.Peek(261)
+    if err != nil {
+        if err.Error() == "EOF" {
+            return [][]string{}, 0
+        }
+        abort(err)
+    }
+
 	kind, err := filetype.Match(head)
 	if err != nil {
 		abort(err)
@@ -114,6 +123,5 @@ func processFile(file io.Reader) ([][]string, int) {
 	} else if kind.MIME.Value == "application/gzip" {
 		return processGzip(reader)
 	}
-
 	return findScannerMatches(reader)
 }

@@ -1,2 +1,4 @@
 /vendor/
 /dist/
+*.swp
+pdscan
