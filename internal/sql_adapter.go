@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
@@ -13,12 +14,19 @@ import (
 
 type SqlAdapter struct {
 	DB *sqlx.DB
+	Database string
 }
 
 func (a *SqlAdapter) Init(url string) {
 	u, err := dburl.Parse(url)
 	if err != nil {
 		abort(err)
+	}
+
+	r, _ := regexp.Compile("/([^/]*)$")
+	match := r.FindStringSubmatch(u.DSN)
+	if(len(match) > 0) {
+		a.Database = match[1]
 	}
 
 	db, err := sqlx.Connect(u.Driver, u.DSN)
@@ -35,6 +43,7 @@ func (a *SqlAdapter) Init(url string) {
 
 func (a SqlAdapter) FetchTables() (tables []table) {
 	db := a.DB
+	Database := a.Database
 
 	var query string
 
@@ -42,7 +51,12 @@ func (a SqlAdapter) FetchTables() (tables []table) {
 	case "sqlite3":
 		query = `SELECT '' AS table_schema, name AS table_name FROM sqlite_master WHERE type = 'table' AND name != 'sqlite_sequence' ORDER BY name`
 	case "mysql":
-		query = `SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema', 'mysql', 'performance_schema') ORDER BY table_schema, table_name`
+		if (Database == "") {
+			query = `SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema', 'mysql', 'performance_schema') ORDER BY table_schema, table_name`
+		} else {
+			query = fmt.Sprintf("SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema = '%s' ORDER BY table_schema, table_name", Database)
+		}
+		
 	default:
 		query = `SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema', 'pg_catalog') ORDER BY table_schema, table_name`
 	}
