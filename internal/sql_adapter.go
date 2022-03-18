@@ -74,9 +74,7 @@ func (a SqlAdapter) FetchTableData(table table, limit int) ([]string, [][]string
 		// https://stackoverflow.com/questions/1253561/sqlite-order-by-rand
 		sql = fmt.Sprintf("SELECT * FROM %s ORDER BY RANDOM() LIMIT %d", table.Name, limit)
 	} else {
-		// TODO quote table name
-		// mysql
-		sql = fmt.Sprintf("SELECT * FROM %s LIMIT %d", table.Schema+"."+table.Name, limit)
+		sql = fmt.Sprintf("SELECT * FROM `%s`.`%s` ORDER BY RAND() LIMIT %d", table.Schema, table.Name, limit)
 	}
 
 	// run query on each table
