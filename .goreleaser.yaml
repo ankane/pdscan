@@ -3,6 +3,7 @@
 before:
   hooks:
     - go mod tidy
+    - go-licenses save . --save_path=licenses --force
 builds:
   - env:
       - CGO_ENABLED=0
