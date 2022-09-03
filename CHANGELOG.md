@@ -1,6 +1,7 @@
 ## 0.1.2 (unreleased)
 
 - Fixed error with empty files
+- Fixed issue with scanning extra databases with MySQL
 
 ## 0.1.1 (2019-03-11)
 
