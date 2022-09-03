@@ -13,4 +13,7 @@ format:
 	cd internal && go fmt
 
 release:
-	goreleaser --rm-dist
+	goreleaser --rm-dist --skip-publish
+
+snapshot:
+	goreleaser --rm-dist --snapshot
