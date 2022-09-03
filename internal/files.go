@@ -95,8 +95,16 @@ func processFile(file io.Reader) ([][]string, int) {
 
 	// we only have to pass the file header = first 261 bytes
 	head, err := reader.Peek(261)
+	if err != nil && err != io.EOF {
+		abort(err)
+	}
+
 	kind, err := filetype.Match(head)
-	if err != nil {
+	if err == filetype.ErrEmptyBuffer {
+		matchedValues := make([][]string, len(regexRules)+1)
+		count := 0
+		return matchedValues, count
+	} else if err != nil {
 		abort(err)
 	}
 	// fmt.Println(kind.MIME.Value)
