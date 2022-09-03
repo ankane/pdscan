@@ -1,3 +1,7 @@
+## 0.1.3 (unreleased)
+
+- Fixed error with SQLite
+
 ## 0.1.2 (2022-09-03)
 
 - Fixed error with empty files

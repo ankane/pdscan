@@ -6,7 +6,8 @@ before:
     - go-licenses save . --save_path=licenses --force
 builds:
   - env:
-      - CGO_ENABLED=0
+      # for go-sqlite3
+      - CGO_ENABLED=1
     goos:
       - linux
       - windows
