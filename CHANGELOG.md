@@ -1,4 +1,4 @@
-## 0.1.2 (unreleased)
+## 0.1.2 (2022-09-03)
 
 - Fixed error with empty files
 - Fixed issue with scanning extra databases with MySQL
