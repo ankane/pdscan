@@ -4,7 +4,7 @@ Scan your data stores for unencrypted personal data (PII)
 
 - Last names
 - Email addresses
-- IP addresses
+- IP addresses (IPv4)
 - Street addresses (US)
 - Phone numbers (US)
 - Credit card numbers
