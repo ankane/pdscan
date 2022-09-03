@@ -29,7 +29,7 @@ Download the latest version.
 
 Unzip and follow the instructions below for your data store.
 
-On Mac, you can also use:
+With Homebrew, you can also use:
 
 ```sh
 brew install ankane/brew/pdscan
