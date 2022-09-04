@@ -99,13 +99,19 @@ func TestFileZip(t *testing.T) {
 
 func TestMysql(t *testing.T) {
 	currentUser, _ := user.Current()
-	setupDb("mysql", fmt.Sprintf("%s@/pdscan_test", currentUser.Username))
+	db := setupDb("mysql", fmt.Sprintf("%s@/pdscan_test", currentUser.Username))
+	db.MustExec("CREATE TABLE users (email text, email2 varchar(255), email3 char(255))")
+	db.MustExec("INSERT INTO users (email, email2, email3) VALUES ('test@example.org', 'test@example.org', 'test@example.org')")
+
 	urlStr := fmt.Sprintf("mysql://%s@localhost/pdscan_test", currentUser.Username)
 	Main(urlStr, false, false, 10000, 1)
 }
 
 func TestPostgres(t *testing.T) {
-	setupDb("postgres", "dbname=pdscan_test sslmode=disable")
+	db := setupDb("postgres", "dbname=pdscan_test sslmode=disable")
+	db.MustExec("CREATE TABLE users (id serial, email text, email2 varchar(255), email3 char(255), ip inet)")
+	db.MustExec("INSERT INTO users (email, email2, email3, ip) VALUES ('test@example.org', 'test@example.org', 'test@example.org', '127.0.0.1')")
+
 	Main("postgres://localhost/pdscan_test?sslmode=disable", false, false, 10000, 1)
 }
 
@@ -142,12 +148,11 @@ func assertMatch(t *testing.T, ruleName string, columnNames []string, columnValu
 	assert.Equal(t, ruleName, matches[0].RuleName)
 }
 
-func setupDb(driver string, dsn string) {
+func setupDb(driver string, dsn string) *sqlx.DB {
 	db, err := sqlx.Connect(driver, dsn)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	db.MustExec("DROP TABLE IF EXISTS users")
-	db.MustExec("CREATE TABLE users (email text, email2 varchar(255), email3 char(255))")
-	db.MustExec("INSERT INTO users (email, email2, email3) VALUES ('test@example.org', 'test@example.org', 'test@example.org')")
+	return db
 }

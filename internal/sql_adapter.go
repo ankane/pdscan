@@ -120,14 +120,12 @@ func (a SqlAdapter) FetchTableData(table table, limit int) ([]string, [][]string
 		}
 
 		for i, raw := range rawResult {
-			if columnTypes[i] == "CHAR" || columnTypes[i] == "BPCHAR" || columnTypes[i] == "VARCHAR" || columnTypes[i] == "TEXT" {
-				if raw == nil {
-					// ignore
-				} else {
-					str := string(raw)
-					if str != "" {
-						columnValues[i] = append(columnValues[i], str)
-					}
+			if raw == nil {
+				// ignore
+			} else {
+				str := string(raw)
+				if str != "" {
+					columnValues[i] = append(columnValues[i], str)
 				}
 			}
 		}
