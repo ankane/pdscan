@@ -83,7 +83,13 @@ func TestOAuthToken(t *testing.T) {
 	assertMatchValues(t, "oauth_token", []string{"ya29.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"})
 }
 
-func TestFile(t *testing.T) {
+func TestFileCsv(t *testing.T) {
+	output := captureOutput(func() { Main("file://../testdata/email.csv", false, false, 10000, 1) })
+	assert.Contains(t, output, "Found 1 file to scan...")
+	assert.Contains(t, output, "email.csv:")
+}
+
+func TestFileTxt(t *testing.T) {
 	output := captureOutput(func() { Main("file://../testdata/email.txt", false, false, 10000, 1) })
 	assert.Contains(t, output, "Found 1 file to scan...")
 	assert.Contains(t, output, "email.txt:")
