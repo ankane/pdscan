@@ -73,6 +73,22 @@ func TestOAuthToken(t *testing.T) {
 	assertMatchValues(t, "oauth_token", []string{"ya29.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"})
 }
 
+func TestFile(t *testing.T) {
+	Main("file://../testdata/email.txt", false, false, 10000, 1)
+}
+
+func TestFileEmpty(t *testing.T) {
+	Main("file://../testdata/empty.txt", false, false, 10000, 1)
+}
+
+func TestFileTarGz(t *testing.T) {
+	Main("file://../testdata/email.tar.gz", false, false, 10000, 1)
+}
+
+func TestFileZip(t *testing.T) {
+	Main("file://../testdata/email.zip", false, false, 10000, 1)
+}
+
 // helpers
 
 func assertMatchName(t *testing.T, ruleName string, columnName string) {
