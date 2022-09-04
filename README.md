@@ -23,9 +23,9 @@ Uses data sampling and naming, and works with compressed files
 
 Download the latest version.
 
-- Mac - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.2/pdscan_0.1.2_Darwin_x86_64.zip) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.1.2/pdscan_0.1.2_Darwin_arm64.zip)
-- Linux - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.2/pdscan_0.1.2_Linux_x86_64.zip) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.1.2/pdscan_0.1.2_Linux_arm64.zip)
-- Windows - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.2/pdscan_0.1.2_Windows_x86_64.zip)
+- Mac - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.3/pdscan_0.1.3_Darwin_x86_64.zip) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.1.3/pdscan_0.1.3_Darwin_arm64.zip)
+- Linux - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.3/pdscan_0.1.3_Linux_x86_64.zip) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.1.3/pdscan_0.1.3_Linux_arm64.zip)
+- Windows - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.3/pdscan_0.1.3_Windows_x86_64.zip)
 
 Unzip and follow the instructions below for your data store.
 
