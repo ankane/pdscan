@@ -126,7 +126,7 @@ func (a SqlAdapter) FetchTableData(table table, limit int) ([]string, [][]string
 		}
 
 		for i, raw := range rawResult {
-			if columnTypes[i] == "string" {
+			if columnTypes[i] == "string" || columnTypes[i] == "sql.NullString" {
 				if raw == nil {
 					// ignore
 				} else {

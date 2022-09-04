@@ -89,6 +89,10 @@ func TestFileZip(t *testing.T) {
 	Main("file://../testdata/email.zip", false, false, 10000, 1)
 }
 
+func TestSqlite(t *testing.T) {
+	Main("sqlite:../testdata/test.sqlite3", false, false, 10000, 1)
+}
+
 // helpers
 
 func assertMatchName(t *testing.T, ruleName string, columnName string) {
