@@ -148,6 +148,6 @@ func setupDb(driver string, dsn string) {
 		log.Fatalln(err)
 	}
 	db.MustExec("DROP TABLE IF EXISTS users")
-	db.MustExec("CREATE TABLE users (email varchar(255))")
-	db.MustExec("INSERT INTO users (email) VALUES ('test@example.org')")
+	db.MustExec("CREATE TABLE users (email text, email2 varchar(255), email3 char(255))")
+	db.MustExec("INSERT INTO users (email, email2, email3) VALUES ('test@example.org', 'test@example.org', 'test@example.org')")
 }
