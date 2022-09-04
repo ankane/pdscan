@@ -89,6 +89,13 @@ func TestFileCsv(t *testing.T) {
 	assert.Contains(t, output, "email.csv:")
 }
 
+func TestFileCsvLocation(t *testing.T) {
+	output := captureOutput(func() { Main("file://../testdata/location.csv", false, false, 10000, 1) })
+	assert.Contains(t, output, "Found 1 file to scan...")
+	// TODO check column names
+	assert.Contains(t, output, "No sensitive data found")
+}
+
 func TestFileTxt(t *testing.T) {
 	output := captureOutput(func() { Main("file://../testdata/email.txt", false, false, 10000, 1) })
 	assert.Contains(t, output, "Found 1 file to scan...")
