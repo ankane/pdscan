@@ -109,8 +109,8 @@ func TestMysql(t *testing.T) {
 
 func TestPostgres(t *testing.T) {
 	db := setupDb("postgres", "dbname=pdscan_test sslmode=disable")
-	db.MustExec("CREATE TABLE users (id serial, email text, email2 varchar(255), email3 char(255), ip inet)")
-	db.MustExec("INSERT INTO users (email, email2, email3, ip) VALUES ('test@example.org', 'test@example.org', 'test@example.org', '127.0.0.1')")
+	db.MustExec("CREATE TABLE users (id serial, email text, email2 varchar(255), email3 char(255), ip inet, ip2 cidr)")
+	db.MustExec("INSERT INTO users (email, email2, email3, ip, ip2) VALUES ('test@example.org', 'test@example.org', 'test@example.org', '127.0.0.1', '127.0.0.1')")
 
 	Main("postgres://localhost/pdscan_test?sslmode=disable", false, false, 10000, 1)
 }
