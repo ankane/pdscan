@@ -2,7 +2,9 @@ package internal
 
 import (
 	"fmt"
+	"io"
 	"log"
+	"os"
 	"os/user"
 	"testing"
 
@@ -82,19 +84,27 @@ func TestOAuthToken(t *testing.T) {
 }
 
 func TestFile(t *testing.T) {
-	Main("file://../testdata/email.txt", false, false, 10000, 1)
+	output := captureOutput(func() { Main("file://../testdata/email.txt", false, false, 10000, 1) })
+	assert.Contains(t, output, "Found 1 file to scan...")
+	assert.Contains(t, output, "email.txt:")
 }
 
 func TestFileEmpty(t *testing.T) {
-	Main("file://../testdata/empty.txt", false, false, 10000, 1)
+	output := captureOutput(func() { Main("file://../testdata/empty.txt", false, false, 10000, 1) })
+	assert.Contains(t, output, "Found 1 file to scan...")
+	assert.Contains(t, output, "No sensitive data found")
 }
 
 func TestFileTarGz(t *testing.T) {
-	Main("file://../testdata/email.tar.gz", false, false, 10000, 1)
+	output := captureOutput(func() { Main("file://../testdata/email.tar.gz", false, false, 10000, 1) })
+	assert.Contains(t, output, "Found 1 file to scan...")
+	assert.Contains(t, output, "email.tar.gz:")
 }
 
 func TestFileZip(t *testing.T) {
-	Main("file://../testdata/email.zip", false, false, 10000, 1)
+	output := captureOutput(func() { Main("file://../testdata/email.zip", false, false, 10000, 1) })
+	assert.Contains(t, output, "Found 1 file to scan...")
+	assert.Contains(t, output, "email.zip:")
 }
 
 func TestMysql(t *testing.T) {
@@ -104,7 +114,11 @@ func TestMysql(t *testing.T) {
 	db.MustExec("INSERT INTO users (email, email2, email3) VALUES ('test@example.org', 'test@example.org', 'test@example.org')")
 
 	urlStr := fmt.Sprintf("mysql://%s@localhost/pdscan_test", currentUser.Username)
-	Main(urlStr, false, false, 10000, 1)
+	output := captureOutput(func() { Main(urlStr, false, false, 10000, 1) })
+	assert.Contains(t, output, "Found 1 table to scan, sampling 10000 rows from each...")
+	assert.Contains(t, output, "pdscan_test.users.email:")
+	assert.Contains(t, output, "pdscan_test.users.email2:")
+	assert.Contains(t, output, "pdscan_test.users.email3:")
 }
 
 func TestPostgres(t *testing.T) {
@@ -112,11 +126,19 @@ func TestPostgres(t *testing.T) {
 	db.MustExec("CREATE TABLE users (id serial, email text, email2 varchar(255), email3 char(255), ip inet, ip2 cidr)")
 	db.MustExec("INSERT INTO users (email, email2, email3, ip, ip2) VALUES ('test@example.org', 'test@example.org', 'test@example.org', '127.0.0.1', '127.0.0.1')")
 
-	Main("postgres://localhost/pdscan_test?sslmode=disable", false, false, 10000, 1)
+	output := captureOutput(func() { Main("postgres://localhost/pdscan_test?sslmode=disable", false, false, 10000, 1) })
+	assert.Contains(t, output, "Found 1 table to scan, sampling 10000 rows from each...")
+	assert.Contains(t, output, "public.users.email:")
+	assert.Contains(t, output, "public.users.email2:")
+	assert.Contains(t, output, "public.users.email3:")
+	assert.Contains(t, output, "public.users.ip:")
+	assert.Contains(t, output, "public.users.ip2:")
 }
 
 func TestSqlite(t *testing.T) {
-	Main("sqlite:../testdata/test.sqlite3", false, false, 10000, 1)
+	output := captureOutput(func() { Main("sqlite:../testdata/test.sqlite3", false, false, 10000, 1) })
+	assert.Contains(t, output, "Found 1 table to scan, sampling 10000 rows from each...")
+	assert.Contains(t, output, "users.email:")
 }
 
 // helpers
@@ -146,6 +168,17 @@ func assertMatch(t *testing.T, ruleName string, columnNames []string, columnValu
 	matches := checkTableData(table{Name: "users"}, columnNames, columnValues)
 	assert.Equal(t, 1, len(matches))
 	assert.Equal(t, ruleName, matches[0].RuleName)
+}
+
+func captureOutput(f func()) string {
+	stdout := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w
+	f()
+	w.Close()
+	out, _ := io.ReadAll(r)
+	os.Stdout = stdout
+	return string(out)
 }
 
 func setupDb(driver string, dsn string) *sqlx.DB {
