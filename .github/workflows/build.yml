@@ -8,4 +8,10 @@ jobs:
       with:
         go-version: 1.19
     - uses: actions/checkout@v3
+    - uses: ankane/setup-mysql@v1
+      with:
+        database: pdscan_test
+    - uses: ankane/setup-postgres@v1
+      with:
+        database: pdscan_test
     - run: make test

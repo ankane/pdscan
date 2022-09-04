@@ -1,7 +1,9 @@
 package internal
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
+	"os/user"
 	"testing"
 )
 
@@ -87,6 +89,16 @@ func TestFileTarGz(t *testing.T) {
 
 func TestFileZip(t *testing.T) {
 	Main("file://../testdata/email.zip", false, false, 10000, 1)
+}
+
+func TestMysql(t *testing.T) {
+	currentUser, _ := user.Current()
+	urlStr := fmt.Sprintf("mysql://%s@localhost/pdscan_test", currentUser.Username)
+	Main(urlStr, false, false, 10000, 1)
+}
+
+func TestPostgres(t *testing.T) {
+	Main("postgres://localhost/pdscan_test?sslmode=disable", false, false, 10000, 1)
 }
 
 func TestSqlite(t *testing.T) {
