@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"compress/gzip"
 	"io"
-	"io/ioutil"
 	"strings"
 
 	"github.com/h2non/filetype"
@@ -39,7 +38,7 @@ func findScannerMatches(reader io.Reader) ([][]string, int) {
 
 // TODO make more efficient
 func zipReader(file io.Reader) (io.ReaderAt, int64) {
-	data, err := ioutil.ReadAll(file)
+	data, err := io.ReadAll(file)
 	if err != nil {
 		abort(err)
 	}
