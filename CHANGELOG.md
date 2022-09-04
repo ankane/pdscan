@@ -1,6 +1,6 @@
 ## 0.1.3 (unreleased)
 
-- Fixed not scanning columns with SQLite
+- Fixed not scanning columns with MySQL and SQLite
 
 ## 0.1.2 (2022-09-03)
 

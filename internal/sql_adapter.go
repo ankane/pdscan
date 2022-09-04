@@ -97,13 +97,7 @@ func (a SqlAdapter) FetchTableData(table table, limit int) ([]string, [][]string
 
 	for i, col := range cols {
 		columnNames[i] = col.Name()
-
-		scanType := col.ScanType()
-		if scanType == nil {
-			columnTypes[i] = "string"
-		} else {
-			columnTypes[i] = scanType.String()
-		}
+		columnTypes[i] = col.DatabaseTypeName()
 	}
 
 	// check values
@@ -126,7 +120,7 @@ func (a SqlAdapter) FetchTableData(table table, limit int) ([]string, [][]string
 		}
 
 		for i, raw := range rawResult {
-			if columnTypes[i] == "string" || columnTypes[i] == "sql.NullString" {
+			if columnTypes[i] == "VARCHAR" || columnTypes[i] == "TEXT" {
 				if raw == nil {
 					// ignore
 				} else {

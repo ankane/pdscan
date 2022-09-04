@@ -2,9 +2,15 @@ package internal
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
+	"log"
 	"os/user"
 	"testing"
+
+	"github.com/jmoiron/sqlx"
+	"github.com/stretchr/testify/assert"
+
+	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/lib/pq"
 )
 
 func TestLastName(t *testing.T) {
@@ -93,11 +99,13 @@ func TestFileZip(t *testing.T) {
 
 func TestMysql(t *testing.T) {
 	currentUser, _ := user.Current()
+	setupDb("mysql", fmt.Sprintf("%s@/pdscan_test", currentUser.Username))
 	urlStr := fmt.Sprintf("mysql://%s@localhost/pdscan_test", currentUser.Username)
 	Main(urlStr, false, false, 10000, 1)
 }
 
 func TestPostgres(t *testing.T) {
+	setupDb("postgres", "dbname=pdscan_test sslmode=disable")
 	Main("postgres://localhost/pdscan_test?sslmode=disable", false, false, 10000, 1)
 }
 
@@ -132,4 +140,14 @@ func assertMatch(t *testing.T, ruleName string, columnNames []string, columnValu
 	matches := checkTableData(table{Name: "users"}, columnNames, columnValues)
 	assert.Equal(t, 1, len(matches))
 	assert.Equal(t, ruleName, matches[0].RuleName)
+}
+
+func setupDb(driver string, dsn string) {
+	db, err := sqlx.Connect(driver, dsn)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	db.MustExec("DROP TABLE IF EXISTS users")
+	db.MustExec("CREATE TABLE users (email varchar(255))")
+	db.MustExec("INSERT INTO users (email) VALUES ('test@example.org')")
 }
