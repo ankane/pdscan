@@ -167,6 +167,11 @@ func TestShowData(t *testing.T) {
 	assert.Contains(t, output, "test@example.org")
 }
 
+func TestSampleSize(t *testing.T) {
+	output := captureOutput(func() { Main("sqlite:../testdata/test.sqlite3", false, false, 250, 1) })
+	assert.Contains(t, output, "sampling 250 rows from each")
+}
+
 // helpers
 
 func assertMatchName(t *testing.T, ruleName string, columnName string) {
