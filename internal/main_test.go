@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/user"
+	"path/filepath"
 	"testing"
 
 	"github.com/jmoiron/sqlx"
@@ -195,9 +196,43 @@ func TestPostgres(t *testing.T) {
 }
 
 func TestSqlite(t *testing.T) {
-	output := captureOutput(func() { Main("sqlite:../testdata/test.sqlite3", false, false, 10000, 1) })
+	dir, err := os.MkdirTemp("", "pdscan")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer os.RemoveAll(dir)
+
+	path := filepath.Join(dir, "test.sqlite3")
+	db := setupDb("sqlite3", path)
+	db.MustExec(`
+		CREATE TABLE users (
+			id serial PRIMARY KEY,
+			email varchar(255),
+			phone char(20),
+			street text,
+			zip_code text,
+			birthday date,
+			ip text,
+			ip2 text,
+			latitude float,
+			longitude float,
+			access_token text
+		)
+	`)
+	db.MustExec("INSERT INTO users (email, phone, street, ip, ip2) VALUES ('test@example.org', '555-555-5555', '123 Main St', '127.0.0.1', '127.0.0.1')")
+
+	output := captureOutput(func() { Main(fmt.Sprintf("sqlite:%s", path), false, false, 10000, 1) })
 	assert.Contains(t, output, "Found 1 table to scan, sampling 10000 rows from each...")
+	assert.NotContains(t, output, "users.id:")
 	assert.Contains(t, output, "users.email:")
+	assert.Contains(t, output, "users.phone:")
+	assert.Contains(t, output, "users.street:")
+	assert.Contains(t, output, "users.zip_code:")
+	assert.Contains(t, output, "users.birthday:")
+	assert.Contains(t, output, "users.ip:")
+	assert.Contains(t, output, "users.ip2:")
+	assert.Contains(t, output, "users.latitude+longitude:")
+	assert.Contains(t, output, "users.access_token:")
 }
 
 func TestShowData(t *testing.T) {
