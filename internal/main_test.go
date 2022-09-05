@@ -162,6 +162,11 @@ func TestSqlite(t *testing.T) {
 	assert.Contains(t, output, "users.email:")
 }
 
+func TestShowData(t *testing.T) {
+	output := captureOutput(func() { Main("file://../testdata/email.txt", true, false, 10000, 1) })
+	assert.Contains(t, output, "test@example.org")
+}
+
 // helpers
 
 func assertMatchName(t *testing.T, ruleName string, columnName string) {
