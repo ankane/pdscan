@@ -5,7 +5,7 @@ test:
 	cd internal && go test -v
 
 lint:
-	golint . cmd internal
+	staticcheck ./...
 
 format:
 	go fmt

@@ -71,7 +71,7 @@ func processZip(file io.Reader) ([][]string, int) {
 		fileMatchedValues, fileCount := processFile(fileReader)
 
 		// TODO capture specific file in archive
-		for i, _ := range matchedValues {
+		for i := range matchedValues {
 			matchedValues[i] = append(matchedValues[i], fileMatchedValues[i]...)
 		}
 		count += fileCount

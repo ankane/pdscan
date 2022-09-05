@@ -28,7 +28,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 		files := adapter.FetchFiles()
 
 		if len(files) > 0 {
-			fmt.Println(fmt.Sprintf("Found %s to scan...\n", pluralize(len(files), "file")))
+			fmt.Printf("Found %s to scan...\n\n", pluralize(len(files), "file"))
 
 			wg.Add(len(files))
 
@@ -64,7 +64,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 		tables := adapter.FetchTables()
 
 		if len(tables) > 0 {
-			fmt.Println(fmt.Sprintf("Found %s to scan, sampling %d rows from each...\n", pluralize(len(tables), "table"), limit))
+			fmt.Printf("Found %s to scan, sampling %d rows from each...\n\n", pluralize(len(tables), "table"), limit)
 
 			wg.Add(len(tables))
 
