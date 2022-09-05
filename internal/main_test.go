@@ -92,6 +92,10 @@ func TestFileCsvLocation(t *testing.T) {
 	checkFile(t, "location.csv", false)
 }
 
+func TestFileNoExt(t *testing.T) {
+	checkFile(t, "email", true)
+}
+
 func TestFileTxt(t *testing.T) {
 	checkFile(t, "email.txt", true)
 }
