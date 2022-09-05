@@ -92,6 +92,11 @@ func TestFileCsvLocation(t *testing.T) {
 	checkFile(t, "location.csv", false)
 }
 
+func TestFileGit(t *testing.T) {
+	output := fileOutput("../.git")
+	assert.Contains(t, output, ".git/logs/HEAD:")
+}
+
 func TestFileNoExt(t *testing.T) {
 	checkFile(t, "email", true)
 }
@@ -192,9 +197,13 @@ func captureOutput(f func()) string {
 	return string(out)
 }
 
-func checkFile(t *testing.T, filename string, found bool) {
+func fileOutput(filename string) string {
 	urlStr := fmt.Sprintf("file://../testdata/%s", filename)
-	output := captureOutput(func() { Main(urlStr, false, false, 10000, 1) })
+	return captureOutput(func() { Main(urlStr, false, false, 10000, 1) })
+}
+
+func checkFile(t *testing.T, filename string, found bool) {
+	output := fileOutput(filename)
 	assert.Contains(t, output, "Found 1 file to scan...")
 	if found {
 		assert.Contains(t, output, fmt.Sprintf("%s:", filename))
