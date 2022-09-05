@@ -84,46 +84,32 @@ func TestOAuthToken(t *testing.T) {
 }
 
 func TestFileCsv(t *testing.T) {
-	output := checkFile("email.csv")
-	assert.Contains(t, output, "Found 1 file to scan...")
-	assert.Contains(t, output, "email.csv:")
+	checkFile(t, "email.csv", true)
 }
 
 func TestFileCsvLocation(t *testing.T) {
-	output := checkFile("location.csv")
-	assert.Contains(t, output, "Found 1 file to scan...")
 	// TODO check column names
-	assert.Contains(t, output, "No sensitive data found")
+	checkFile(t, "location.csv", false)
 }
 
 func TestFileTxt(t *testing.T) {
-	output := checkFile("email.txt")
-	assert.Contains(t, output, "Found 1 file to scan...")
-	assert.Contains(t, output, "email.txt:")
+	checkFile(t, "email.txt", true)
 }
 
 func TestFileEmpty(t *testing.T) {
-	output := checkFile("empty.txt")
-	assert.Contains(t, output, "Found 1 file to scan...")
-	assert.Contains(t, output, "No sensitive data found")
+	checkFile(t, "empty.txt", false)
 }
 
 func TestFileTarGz(t *testing.T) {
-	output := checkFile("email.tar.gz")
-	assert.Contains(t, output, "Found 1 file to scan...")
-	assert.Contains(t, output, "email.tar.gz:")
+	checkFile(t, "email.tar.gz", true)
 }
 
 func TestFileXlsx(t *testing.T) {
-	output := checkFile("email.xlsx")
-	assert.Contains(t, output, "Found 1 file to scan...")
-	assert.Contains(t, output, "email.xlsx:")
+	checkFile(t, "email.xlsx", true)
 }
 
 func TestFileZip(t *testing.T) {
-	output := checkFile("email.zip")
-	assert.Contains(t, output, "Found 1 file to scan...")
-	assert.Contains(t, output, "email.zip:")
+	checkFile(t, "email.zip", true)
 }
 
 func TestMysql(t *testing.T) {
@@ -202,9 +188,15 @@ func captureOutput(f func()) string {
 	return string(out)
 }
 
-func checkFile(filename string) string {
+func checkFile(t *testing.T, filename string, found bool) {
 	urlStr := fmt.Sprintf("file://../testdata/%s", filename)
-	return captureOutput(func() { Main(urlStr, false, false, 10000, 1) })
+	output := captureOutput(func() { Main(urlStr, false, false, 10000, 1) })
+	assert.Contains(t, output, "Found 1 file to scan...")
+	if found {
+		assert.Contains(t, output, fmt.Sprintf("%s:", filename))
+	} else {
+		assert.Contains(t, output, "No sensitive data found")
+	}
 }
 
 func setupDb(driver string, dsn string) *sqlx.DB {
