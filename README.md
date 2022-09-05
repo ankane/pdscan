@@ -37,11 +37,11 @@ brew install ankane/brew/pdscan
 
 ## Data Stores
 
-- [Files](#files-master)
+- [Files](#files)
 - [MySQL & MariaDB](#mysql--mariadb)
 - [Postgres](#postgres)
 - [SQLite](#sqlite)
-- [S3](#s3-master)
+- [S3](#s3)
 - [Others](#others)
 
 ### Files
