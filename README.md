@@ -143,7 +143,7 @@ pdscan --processes 4
 
 ## Roadmap
 
-- Add more data stores (SQL Server, MongoDB, Elasticsearch, Memcached, Redis)
+- Add more data stores (MongoDB, Elasticsearch, Memcached, Redis)
 - Improve rules
 - Highlight matches
 - Add more output formats, like JSON and CSV
