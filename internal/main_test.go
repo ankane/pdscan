@@ -213,6 +213,37 @@ func TestSqlite(t *testing.T) {
 	checkSql(t, fmt.Sprintf("sqlite:%s", path))
 }
 
+func TestSqlserver(t *testing.T) {
+	url := os.Getenv("SQLSERVER_URL")
+	if url == "" {
+		t.Skip("Requires SQLSERVER_URL")
+	}
+
+	db := setupDb("sqlserver", url)
+	db.MustExec(`
+		CREATE TABLE users (
+			id int IDENTITY(1,1) PRIMARY KEY,
+			email varchar(255),
+			phone char(20),
+			street text,
+			zip_code text,
+			birthday date,
+			ip text,
+			ip2 text,
+			latitude float,
+			longitude float,
+			access_token text
+		)
+	`)
+	db.MustExec("INSERT INTO users (email, phone, street, ip, ip2) VALUES ('test@example.org', '555-555-5555', '123 Main St', '127.0.0.1', '127.0.0.1')")
+
+	db.MustExec(`DROP TABLE IF EXISTS "ITEMS"`)
+	db.MustExec(`CREATE TABLE "ITEMS" ("EMAIL" text, "ZipCode" text)`)
+	db.MustExec(`INSERT INTO "ITEMS" ("EMAIL") VALUES ('test@example.org')`)
+
+	checkSql(t, url)
+}
+
 func TestShowData(t *testing.T) {
 	output := captureOutput(func() { Main("file://../testdata/email.txt", true, false, 10000, 1) })
 	assert.Contains(t, output, "test@example.org")

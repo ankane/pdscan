@@ -41,6 +41,7 @@ brew install ankane/brew/pdscan
 - [MySQL & MariaDB](#mysql--mariadb)
 - [Postgres](#postgres)
 - [SQLite](#sqlite)
+- [SQL Server](#sql-server) [unreleased]
 - [S3](#s3)
 - [Others](#others)
 
@@ -86,6 +87,12 @@ CREATE EXTENSION tsm_system_rows;
 
 ```sh
 pdscan sqlite:/path/to/dbname.sqlite3
+```
+
+### SQL Server
+
+```sh
+pdscan sqlserver://user:pass@host:1433?database=dbname
 ```
 
 ### S3

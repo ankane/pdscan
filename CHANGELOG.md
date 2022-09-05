@@ -1,3 +1,7 @@
+## 0.1.4 (unreleased)
+
+- Added support for SQL Server
+
 ## 0.1.3 (2022-09-04)
 
 - Fixed not scanning columns with MySQL and SQLite

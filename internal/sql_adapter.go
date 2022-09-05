@@ -7,6 +7,7 @@ import (
 	"github.com/lib/pq"
 	"github.com/xo/dburl"
 
+	_ "github.com/denisenkom/go-mssqldb"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -73,6 +74,9 @@ func (a SqlAdapter) FetchTableData(table table, limit int) ([]string, [][]string
 		// TODO make more efficient if primary key exists
 		// https://stackoverflow.com/questions/1253561/sqlite-order-by-rand
 		sql = fmt.Sprintf("SELECT * FROM %s ORDER BY RANDOM() LIMIT %d", table.Name, limit)
+	} else if db.DriverName() == "sqlserver" {
+		// TODO quote table name
+		sql = fmt.Sprintf("SELECT * FROM %s TABLESAMPLE (%d rows)", table.Name, limit)
 	} else {
 		// TODO quote table name
 		// mysql

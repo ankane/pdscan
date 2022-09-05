@@ -15,4 +15,10 @@ jobs:
     - uses: ankane/setup-postgres@v1
       with:
         database: pdscan_test
+    - uses: ankane/setup-sqlserver@v1
+      with:
+        accept-eula: true
+    - run: sqlcmd -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE pdscan_test'
     - run: make test
+      env:
+        SQLSERVER_URL: sqlserver://SA:YourStrong!Passw0rd@localhost:1433?database=pdscan_test
