@@ -143,14 +143,17 @@ func TestMysql(t *testing.T) {
 
 func TestPostgres(t *testing.T) {
 	db := setupDb("postgres", "dbname=pdscan_test sslmode=disable")
-	db.MustExec("CREATE TABLE users (id serial, email text, email2 varchar(255), email3 char(255), ip inet, ip2 cidr, latitude float, longitude float)")
-	db.MustExec("INSERT INTO users (email, email2, email3, ip, ip2) VALUES ('test@example.org', 'test@example.org', 'test@example.org', '127.0.0.1', '127.0.0.1')")
+	db.MustExec("CREATE TABLE users (id serial, email text, email2 varchar(255), email3 char(255), phone text, birthday date, ip inet, ip2 cidr, latitude float, longitude float)")
+	db.MustExec("INSERT INTO users (email, email2, email3, phone, ip, ip2) VALUES ('test@example.org', 'test@example.org', 'test@example.org', '555-555-5555', '127.0.0.1', '127.0.0.1')")
 
 	output := captureOutput(func() { Main("postgres://localhost/pdscan_test?sslmode=disable", false, false, 10000, 1) })
 	assert.Contains(t, output, "Found 1 table to scan, sampling 10000 rows from each...")
+	assert.NotContains(t, output, "public.users.id:")
 	assert.Contains(t, output, "public.users.email:")
 	assert.Contains(t, output, "public.users.email2:")
 	assert.Contains(t, output, "public.users.email3:")
+	assert.Contains(t, output, "public.users.phone:")
+	assert.Contains(t, output, "public.users.birthday:")
 	assert.Contains(t, output, "public.users.ip:")
 	assert.Contains(t, output, "public.users.ip2:")
 	assert.Contains(t, output, "public.users.latitude+longitude:")
