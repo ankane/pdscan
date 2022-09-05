@@ -84,44 +84,44 @@ func TestOAuthToken(t *testing.T) {
 }
 
 func TestFileCsv(t *testing.T) {
-	output := captureOutput(func() { Main("file://../testdata/email.csv", false, false, 10000, 1) })
+	output := checkFile("email.csv")
 	assert.Contains(t, output, "Found 1 file to scan...")
 	assert.Contains(t, output, "email.csv:")
 }
 
 func TestFileCsvLocation(t *testing.T) {
-	output := captureOutput(func() { Main("file://../testdata/location.csv", false, false, 10000, 1) })
+	output := checkFile("location.csv")
 	assert.Contains(t, output, "Found 1 file to scan...")
 	// TODO check column names
 	assert.Contains(t, output, "No sensitive data found")
 }
 
 func TestFileTxt(t *testing.T) {
-	output := captureOutput(func() { Main("file://../testdata/email.txt", false, false, 10000, 1) })
+	output := checkFile("email.txt")
 	assert.Contains(t, output, "Found 1 file to scan...")
 	assert.Contains(t, output, "email.txt:")
 }
 
 func TestFileEmpty(t *testing.T) {
-	output := captureOutput(func() { Main("file://../testdata/empty.txt", false, false, 10000, 1) })
+	output := checkFile("empty.txt")
 	assert.Contains(t, output, "Found 1 file to scan...")
 	assert.Contains(t, output, "No sensitive data found")
 }
 
 func TestFileTarGz(t *testing.T) {
-	output := captureOutput(func() { Main("file://../testdata/email.tar.gz", false, false, 10000, 1) })
+	output := checkFile("email.tar.gz")
 	assert.Contains(t, output, "Found 1 file to scan...")
 	assert.Contains(t, output, "email.tar.gz:")
 }
 
 func TestFileXlsx(t *testing.T) {
-	output := captureOutput(func() { Main("file://../testdata/email.xlsx", false, false, 10000, 1) })
+	output := checkFile("email.xlsx")
 	assert.Contains(t, output, "Found 1 file to scan...")
 	assert.Contains(t, output, "email.xlsx:")
 }
 
 func TestFileZip(t *testing.T) {
-	output := captureOutput(func() { Main("file://../testdata/email.zip", false, false, 10000, 1) })
+	output := checkFile("email.zip")
 	assert.Contains(t, output, "Found 1 file to scan...")
 	assert.Contains(t, output, "email.zip:")
 }
@@ -200,6 +200,11 @@ func captureOutput(f func()) string {
 	out, _ := io.ReadAll(r)
 	os.Stdout = stdout
 	return string(out)
+}
+
+func checkFile(filename string) string {
+	urlStr := fmt.Sprintf("file://../testdata/%s", filename)
+	return captureOutput(func() { Main(urlStr, false, false, 10000, 1) })
 }
 
 func setupDb(driver string, dsn string) *sqlx.DB {
