@@ -114,6 +114,12 @@ func TestFileTarGz(t *testing.T) {
 	assert.Contains(t, output, "email.tar.gz:")
 }
 
+func TestFileXlsx(t *testing.T) {
+	output := captureOutput(func() { Main("file://../testdata/email.xlsx", false, false, 10000, 1) })
+	assert.Contains(t, output, "Found 1 file to scan...")
+	assert.Contains(t, output, "email.xlsx:")
+}
+
 func TestFileZip(t *testing.T) {
 	output := captureOutput(func() { Main("file://../testdata/email.zip", false, false, 10000, 1) })
 	assert.Contains(t, output, "Found 1 file to scan...")
