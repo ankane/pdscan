@@ -148,7 +148,7 @@ func TestMysql(t *testing.T) {
 	db.MustExec("INSERT INTO users (email, phone, street, ip, ip2) VALUES ('test@example.org', '555-555-5555', '123 Main St', '127.0.0.1', '127.0.0.1')")
 
 	db.MustExec("DROP TABLE IF EXISTS `ITEMS`")
-	db.MustExec("CREATE TABLE `ITEMS` (`EMAIL` text)")
+	db.MustExec("CREATE TABLE `ITEMS` (`EMAIL` text, `ZipCode` text)")
 	db.MustExec("INSERT INTO `ITEMS` (`EMAIL`) VALUES ('test@example.org')")
 
 	checkSql(t, fmt.Sprintf("mysql://%s@localhost/pdscan_test", currentUser.Username))
@@ -174,7 +174,7 @@ func TestPostgres(t *testing.T) {
 	db.MustExec("INSERT INTO users (email, phone, street, ip, ip2) VALUES ('test@example.org', '555-555-5555', '123 Main St', '127.0.0.1', '127.0.0.1')")
 
 	db.MustExec("DROP TABLE IF EXISTS \"ITEMS\"")
-	db.MustExec("CREATE TABLE \"ITEMS\" (\"EMAIL\" text)")
+	db.MustExec("CREATE TABLE \"ITEMS\" (\"EMAIL\" text, \"ZipCode\" text)")
 	db.MustExec("INSERT INTO \"ITEMS\" (\"EMAIL\") VALUES ('test@example.org')")
 
 	checkSql(t, "postgres://localhost/pdscan_test?sslmode=disable")
@@ -207,7 +207,7 @@ func TestSqlite(t *testing.T) {
 	db.MustExec("INSERT INTO users (email, phone, street, ip, ip2) VALUES ('test@example.org', '555-555-5555', '123 Main St', '127.0.0.1', '127.0.0.1')")
 
 	db.MustExec("DROP TABLE IF EXISTS \"ITEMS\"")
-	db.MustExec("CREATE TABLE \"ITEMS\" (\"EMAIL\" text)")
+	db.MustExec("CREATE TABLE \"ITEMS\" (\"EMAIL\" text, \"ZipCode\" text)")
 	db.MustExec("INSERT INTO \"ITEMS\" (\"EMAIL\") VALUES ('test@example.org')")
 
 	checkSql(t, fmt.Sprintf("sqlite:%s", path))
@@ -302,4 +302,5 @@ func checkSql(t *testing.T, urlStr string) {
 	assert.Contains(t, output, "users.latitude+longitude:")
 	assert.Contains(t, output, "users.access_token:")
 	assert.Contains(t, output, "ITEMS.EMAIL:")
+	assert.Contains(t, output, "ITEMS.ZipCode:")
 }
