@@ -92,7 +92,7 @@ pdscan sqlite:/path/to/dbname.sqlite3
 ### SQL Server
 
 ```sh
-pdscan sqlserver://user:pass@host:1433?database=dbname
+pdscan "sqlserver://user:pass@host:1433?database=dbname"
 ```
 
 ### S3
