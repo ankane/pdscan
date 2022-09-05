@@ -109,6 +109,11 @@ func TestFileEmpty(t *testing.T) {
 	checkFile(t, "empty.txt", false)
 }
 
+func TestFileMissing(t *testing.T) {
+	output := fileOutput("missing.txt")
+	assert.Contains(t, output, "Found no files to scan")
+}
+
 func TestFileTarGz(t *testing.T) {
 	checkFile(t, "email.tar.gz", true)
 }

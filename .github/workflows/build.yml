@@ -7,7 +7,6 @@ jobs:
     - uses: actions/setup-go@v3
       with:
         go-version: 1.19
-        cache: true
     - uses: actions/checkout@v3
     - uses: ankane/setup-mysql@v1
       with:
