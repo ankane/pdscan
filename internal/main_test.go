@@ -129,16 +129,35 @@ func TestFileZip(t *testing.T) {
 func TestMysql(t *testing.T) {
 	currentUser, _ := user.Current()
 	db := setupDb("mysql", fmt.Sprintf("%s@/pdscan_test", currentUser.Username))
-	db.MustExec("CREATE TABLE users (email text, email2 varchar(255), email3 char(255), latitude float, longitude float)")
-	db.MustExec("INSERT INTO users (email, email2, email3) VALUES ('test@example.org', 'test@example.org', 'test@example.org')")
+	db.MustExec(`
+		CREATE TABLE users (
+			id serial PRIMARY KEY,
+			email varchar(255),
+			phone char(20),
+			street text,
+			zip_code text,
+			birthday date,
+			ip varchar(15),
+			ip2 varchar(15),
+			latitude float,
+			longitude float,
+			access_token text
+		)
+	`)
+	db.MustExec("INSERT INTO users (email, phone, street, ip, ip2) VALUES ('test@example.org', '555-555-5555', '123 Main St', '127.0.0.1', '127.0.0.1')")
 
-	urlStr := fmt.Sprintf("mysql://%s@localhost/pdscan_test", currentUser.Username)
-	output := captureOutput(func() { Main(urlStr, false, false, 10000, 1) })
+	output := captureOutput(func() { Main("postgres://localhost/pdscan_test?sslmode=disable", false, false, 10000, 1) })
 	assert.Contains(t, output, "Found 1 table to scan, sampling 10000 rows from each...")
-	assert.Contains(t, output, "pdscan_test.users.email:")
-	assert.Contains(t, output, "pdscan_test.users.email2:")
-	assert.Contains(t, output, "pdscan_test.users.email3:")
-	assert.Contains(t, output, "pdscan_test.users.latitude+longitude:")
+	assert.NotContains(t, output, "public.users.id:")
+	assert.Contains(t, output, "public.users.email:")
+	assert.Contains(t, output, "public.users.phone:")
+	assert.Contains(t, output, "public.users.street:")
+	assert.Contains(t, output, "public.users.zip_code:")
+	assert.Contains(t, output, "public.users.birthday:")
+	assert.Contains(t, output, "public.users.ip:")
+	assert.Contains(t, output, "public.users.ip2:")
+	assert.Contains(t, output, "public.users.latitude+longitude:")
+	assert.Contains(t, output, "public.users.access_token:")
 }
 
 func TestPostgres(t *testing.T) {
