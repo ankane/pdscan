@@ -44,6 +44,8 @@ func (a SqlAdapter) FetchTables() (tables []table) {
 		query = `SELECT '' AS table_schema, name AS table_name FROM sqlite_master WHERE type = 'table' AND name != 'sqlite_sequence' ORDER BY name`
 	case "mysql":
 		query = `SELECT table_schema AS table_schema, table_name AS table_name FROM information_schema.tables WHERE table_schema = DATABASE() OR (DATABASE() IS NULL AND table_schema NOT IN ('information_schema', 'mysql', 'performance_schema', 'sys')) ORDER BY table_schema, table_name`
+	case "sqlserver":
+		query = `SELECT table_schema, table_name FROM information_schema.tables WHERE table_type = 'BASE TABLE' ORDER BY table_schema, table_name`
 	default:
 		query = `SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema', 'pg_catalog') ORDER BY table_schema, table_name`
 	}
