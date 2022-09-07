@@ -6,7 +6,6 @@ require (
 	github.com/aws/aws-sdk-go v1.44.91
 	github.com/deckarep/golang-set v1.8.0
 	github.com/denisenkom/go-mssqldb v0.12.2
-	github.com/elastic/go-elasticsearch/v7 v7.17.1
 	github.com/fatih/color v1.13.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/go-sql-driver/mysql v1.6.0
@@ -14,6 +13,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/lib/pq v1.10.6
 	github.com/mattn/go-sqlite3 v1.14.15
+	github.com/opensearch-project/opensearch-go v1.1.0
 	github.com/spf13/cobra v1.5.0
 	github.com/stretchr/testify v1.7.0
 	github.com/xo/dburl v0.12.0

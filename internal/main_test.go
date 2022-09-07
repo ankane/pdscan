@@ -12,7 +12,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/go-redis/redis/v8"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
@@ -20,6 +19,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
+	elasticsearch "github.com/opensearch-project/opensearch-go"
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"

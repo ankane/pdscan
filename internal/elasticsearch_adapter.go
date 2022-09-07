@@ -8,8 +8,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/elastic/go-elasticsearch/v7"
-	"github.com/elastic/go-elasticsearch/v7/esapi"
+	elasticsearch "github.com/opensearch-project/opensearch-go"
+	esapi "github.com/opensearch-project/opensearch-go/opensearchapi"
 )
 
 type ElasticsearchAdapter struct {

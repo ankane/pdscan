@@ -37,7 +37,7 @@ brew install ankane/brew/pdscan
 
 ## Data Stores
 
-- [Elasticsearch](#elasticsearch) [unreleased]
+- [Elasticsearch & OpenSearch](#elasticsearch--opensearch) [unreleased]
 - [Files](#files)
 - [MongoDB](#mongodb) [unreleased]
 - [MySQL & MariaDB](#mysql--mariadb)
@@ -47,7 +47,7 @@ brew install ankane/brew/pdscan
 - [SQL Server](#sql-server) [unreleased]
 - [S3](#s3)
 
-### Elasticsearch
+### Elasticsearch & OpenSearch
 
 ```sh
 pdscan elasticsearch+http://user:pass@host:9200
