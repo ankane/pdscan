@@ -55,6 +55,8 @@ brew install ankane/brew/pdscan
 pdscan elasticsearch+http://user:pass@host:9200
 ```
 
+> Requires Elasticsearch 7 at the moment
+
 For HTTPS, use `elasticsearch+https://`.
 
 You can also specify indices.
