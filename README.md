@@ -61,7 +61,7 @@ You can also specify indices.
 pdscan elasticsearch+http://user:pass@host:9200/index1,index2
 ```
 
-Wilcards are also supported.
+Wildcards are also supported.
 
 ```sh
 pdscan "elasticsearch+http://user:pass@host:9200/index*"
