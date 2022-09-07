@@ -46,7 +46,6 @@ brew install ankane/brew/pdscan
 - [SQLite](#sqlite)
 - [SQL Server](#sql-server) [unreleased]
 - [S3](#s3)
-- [Others](#others)
 
 ### Elasticsearch
 
@@ -148,10 +147,6 @@ pdscan s3://bucket/path/to/directory/
 
 > Requires `s3:ListBucket` and `s3:GetObject` permissions
 
-### Others
-
-Feel free to [submit a PR](https://github.com/ankane/pdscan/pulls)
-
 ## Options
 
 Show data found
@@ -177,13 +172,6 @@ Specify number of processes to use (defaults to 1)
 ```sh
 pdscan --processes 4
 ```
-
-## Roadmap
-
-- Add more data stores (OpenSearch, Memcached)
-- Improve rules
-- Highlight matches
-- Add more output formats, like JSON and CSV
 
 ## History
 
