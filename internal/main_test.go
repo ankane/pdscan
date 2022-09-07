@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 
@@ -219,6 +220,27 @@ func TestPostgres(t *testing.T) {
 	db.MustExec(`INSERT INTO "ITEMS" ("EMAIL") VALUES ('test@example.org')`)
 
 	checkSql(t, "postgres://localhost/pdscan_test?sslmode=disable")
+}
+
+func TestRedis(t *testing.T) {
+	var ctx = context.Background()
+
+	urlStr := "redis://localhost:6379/1"
+	opt, err := redis.ParseURL(urlStr)
+	if err != nil {
+		panic(err)
+	}
+
+	rdb := redis.NewClient(opt)
+
+	err = rdb.Set(ctx, "pdscan_test:email", "test@example.org", 0).Err()
+	if err != nil {
+		panic(err)
+	}
+
+	output := captureOutput(func() { Main(urlStr, false, false, 10000, 1) })
+	assert.Contains(t, output, "sampling 10000 keys")
+	assert.Contains(t, output, "pdscan_test:email:")
 }
 
 func TestSqlite(t *testing.T) {

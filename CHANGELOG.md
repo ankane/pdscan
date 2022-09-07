@@ -2,6 +2,7 @@
 
 - Added support for SQL Server
 - Added support for MongoDB
+- Added support for Redis
 
 ## 0.1.3 (2022-09-04)
 

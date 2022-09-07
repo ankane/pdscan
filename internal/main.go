@@ -61,6 +61,8 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 		var adapter Adapter
 		if strings.HasPrefix(urlStr, "mongodb://") {
 			adapter = &MongodbAdapter{}
+		} else if strings.HasPrefix(urlStr, "redis://") {
+			adapter = &RedisAdapter{}
 		} else {
 			adapter = &SqlAdapter{}
 		}
@@ -92,7 +94,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 				}(t, limit)
 			}
 		} else {
-			fmt.Println("Found no tables to scan")
+			fmt.Printf("Found no %ss to scan\n", adapter.TableName())
 			return
 		}
 	}

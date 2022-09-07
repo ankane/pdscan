@@ -41,6 +41,7 @@ brew install ankane/brew/pdscan
 - [MongoDB](#mongodb) [unreleased]
 - [MySQL & MariaDB](#mysql--mariadb)
 - [Postgres](#postgres)
+- [Redis](#redis) [unreleased]
 - [SQLite](#sqlite)
 - [SQL Server](#sql-server) [unreleased]
 - [S3](#s3)
@@ -89,6 +90,14 @@ For best sampling, enable the [tsm_system_rows](https://www.postgresql.org/docs/
 ```sql
 CREATE EXTENSION tsm_system_rows;
 ```
+
+### Redis
+
+```sh
+pdscan redis://user:pass@host:6379/db
+```
+
+Only scans string keys at the moment
 
 ### SQLite
 
@@ -150,7 +159,7 @@ pdscan --processes 4
 
 ## Roadmap
 
-- Add more data stores (Elasticsearch, OpenSearch, Memcached, Redis)
+- Add more data stores (Elasticsearch, OpenSearch, Memcached)
 - Improve rules
 - Highlight matches
 - Add more output formats, like JSON and CSV

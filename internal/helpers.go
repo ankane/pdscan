@@ -198,7 +198,13 @@ func checkTableData(table table, columnNames []string, columnValues [][]string) 
 	for i, col := range columnNames {
 		// check values
 		values := columnValues[i]
-		colIdentifier := table.displayName() + "." + col
+
+		var colIdentifier string
+		if table.displayName() == "" {
+			colIdentifier = col
+		} else {
+			colIdentifier = table.displayName() + "." + col
+		}
 
 		matchedValues, count := findMatches(values)
 		matchList := checkMatches(colIdentifier, matchedValues, count, false)
