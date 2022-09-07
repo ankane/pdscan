@@ -59,6 +59,14 @@ func TestPhone(t *testing.T) {
 	assertMatchName(t, "phone", "phone")
 	assertMatchName(t, "phone", "phoneNumber")
 	refuteMatchValues(t, []string{"5555555555"})
+
+	// use 7 digit min
+	// https://stackoverflow.com/questions/14894899/what-is-the-minimum-length-of-a-valid-international-phone-number
+	refuteMatchValues(t, []string{"+123456"})
+	assertMatchValues(t, "phone", []string{"+1234567"})
+	assertMatchValues(t, "phone", []string{"+15555555555"})
+	assertMatchValues(t, "phone", []string{"+123456789012345"})
+	refuteMatchValues(t, []string{"+1234567890123456"})
 }
 
 func TestCreditCard(t *testing.T) {

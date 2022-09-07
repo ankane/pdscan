@@ -4,6 +4,7 @@
 - Added support for MongoDB
 - Added support for Redis
 - Added support for Elasticsearch
+- Added support for international phone numbers
 
 ## 0.1.3 (2022-09-04)
 
