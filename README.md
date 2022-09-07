@@ -37,17 +37,19 @@ brew install ankane/brew/pdscan
 
 ## Data Stores
 
-- [Elasticsearch & OpenSearch](#elasticsearch--opensearch) [unreleased]
+- [Elasticsearch](#elasticsearch) [unreleased]
 - [Files](#files)
+- [MariaDB](#mariadb)
 - [MongoDB](#mongodb) [unreleased]
-- [MySQL & MariaDB](#mysql--mariadb)
+- [MySQL](#mysql)
+- [OpenSearch](#opensearch) [unreleased]
 - [Postgres](#postgres)
 - [Redis](#redis) [unreleased]
 - [SQLite](#sqlite)
 - [SQL Server](#sql-server) [unreleased]
 - [S3](#s3)
 
-### Elasticsearch & OpenSearch
+### Elasticsearch
 
 ```sh
 pdscan elasticsearch+http://user:pass@host:9200
@@ -81,16 +83,42 @@ pdscan file://path/to/directory
 
 For absolute paths, use `file:///`.
 
+### MariaDB
+
+```sh
+pdscan mariadb://user:pass@host:3306/dbname
+```
+
 ### MongoDB
 
 ```sh
 pdscan mongodb://user:pass@host:27017/dbname
 ```
 
-### MySQL & MariaDB
+### MySQL
 
 ```sh
 pdscan mysql://user:pass@host:3306/dbname
+```
+
+### OpenSearch
+
+```sh
+pdscan opensearch+http://user:pass@host:9200
+```
+
+For HTTPS, use `opensearch+https://`.
+
+You can also specify indices.
+
+```sh
+pdscan opensearch+http://user:pass@host:9200/index1,index2
+```
+
+Wildcards are also supported.
+
+```sh
+pdscan "opensearch+http://user:pass@host:9200/index*"
 ```
 
 ### Postgres

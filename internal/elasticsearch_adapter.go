@@ -26,7 +26,11 @@ func (a *ElasticsearchAdapter) RowName() string {
 }
 
 func (a *ElasticsearchAdapter) Init(urlStr string) {
-	urlStr = strings.TrimPrefix(urlStr, "elasticsearch+")
+	if strings.HasPrefix(urlStr, "elasticsearch+") {
+		urlStr = strings.TrimPrefix(urlStr, "elasticsearch+")
+	} else {
+		urlStr = strings.TrimPrefix(urlStr, "opensearch+")
+	}
 
 	u, err := url.Parse(urlStr)
 	if err != nil {

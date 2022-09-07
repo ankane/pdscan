@@ -63,7 +63,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 			adapter = &MongodbAdapter{}
 		} else if strings.HasPrefix(urlStr, "redis://") {
 			adapter = &RedisAdapter{}
-		} else if strings.HasPrefix(urlStr, "elasticsearch+http://") || strings.HasPrefix(urlStr, "elasticsearch+https://") {
+		} else if strings.HasPrefix(urlStr, "elasticsearch+http://") || strings.HasPrefix(urlStr, "elasticsearch+https://") || strings.HasPrefix(urlStr, "opensearch+http://") || strings.HasPrefix(urlStr, "opensearch+https://") {
 			adapter = &ElasticsearchAdapter{}
 		} else {
 			adapter = &SqlAdapter{}
