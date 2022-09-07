@@ -151,8 +151,12 @@ func TestMongodb(t *testing.T) {
 
 	docs := []interface{}{
 		bson.D{{"email", "test@example.org"}},
-		bson.D{{"phone", "555-555-5555"}, {"street", "123 Main St"}},
+		bson.D{{"phone", "555-555-5555"}},
+		bson.D{{"street", "123 Main St"}, {"zip_code", "12345"}},
 		bson.D{{"ip", "127.0.0.1"}, {"ip2", "127.0.0.1"}},
+		bson.D{{"birthday", "1970-01-01"}},
+		bson.D{{"latitude", 1.2}, {"longitude", 3.4}},
+		bson.D{{"access_token", "secret"}},
 	}
 	_, err = collection.InsertMany(ctx, docs)
 	if err != nil {
@@ -378,6 +382,10 @@ func checkDocument(t *testing.T, urlStr string) {
 	assert.Contains(t, output, "users.email:")
 	assert.Contains(t, output, "users.phone:")
 	assert.Contains(t, output, "users.street:")
+	assert.Contains(t, output, "users.zip_code:")
+	assert.Contains(t, output, "users.birthday:")
 	assert.Contains(t, output, "users.ip:")
 	assert.Contains(t, output, "users.ip2:")
+	assert.Contains(t, output, "users.latitude+longitude:")
+	assert.Contains(t, output, "users.access_token:")
 }
