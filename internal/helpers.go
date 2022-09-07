@@ -207,6 +207,10 @@ func checkTableData(table table, columnNames []string, columnValues [][]string) 
 		if len(matchList) == 0 {
 			name := strings.Replace(strings.ToLower(col), "_", "", -1)
 
+			// check last part for nested data
+			parts := strings.Split(name, ".")
+			name = parts[len(parts)-1]
+
 			rule := matchNameRule(name, nameRules)
 			if rule.Name != "" {
 				matchList = append(matchList, ruleMatch{RuleName: rule.Name, DisplayName: rule.DisplayName, Confidence: "medium", Identifier: colIdentifier, MatchedData: values, MatchType: "name"})
