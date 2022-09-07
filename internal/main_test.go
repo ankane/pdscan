@@ -157,6 +157,7 @@ func TestMongodb(t *testing.T) {
 		bson.D{{"birthday", "1970-01-01"}},
 		bson.D{{"latitude", 1.2}, {"longitude", 3.4}},
 		bson.D{{"access_token", "secret"}},
+		bson.D{{"emails", bson.A{"first@example.org", "second@example.org"}}},
 		bson.D{{"nested", bson.D{{"email", "test@example.org"}, {"zip_code", "12345"}}}},
 	}
 	_, err = collection.InsertMany(ctx, docs)
@@ -377,7 +378,7 @@ func checkSql(t *testing.T, urlStr string) {
 }
 
 func checkDocument(t *testing.T, urlStr string) {
-	output := captureOutput(func() { Main(urlStr, false, false, 10000, 1) })
+	output := captureOutput(func() { Main(urlStr, true, false, 10000, 1) })
 	assert.Contains(t, output, "sampling 10000 documents")
 	assert.NotContains(t, output, "users._id:")
 	assert.Contains(t, output, "users.email:")
@@ -389,6 +390,13 @@ func checkDocument(t *testing.T, urlStr string) {
 	assert.Contains(t, output, "users.ip2:")
 	assert.Contains(t, output, "users.latitude+longitude:")
 	assert.Contains(t, output, "users.access_token:")
+
+	// arrays
+	assert.Contains(t, output, "users.emails:")
+	assert.Contains(t, output, "first@example.org")
+	assert.Contains(t, output, "second@example.org")
+
+	// nested
 	assert.Contains(t, output, "users.nested.email:")
 	assert.Contains(t, output, "users.nested.zip_code:")
 }

@@ -118,6 +118,7 @@ func scanObject(object bson.D, prefix string, keyMap map[string]int, columnValue
 			columnValues = append(columnValues, []string{})
 		}
 
+		// TODO improve code
 		str, ok := elem.Value.(string)
 		if ok {
 			columnValues[i] = append(columnValues[i], str)
@@ -125,6 +126,16 @@ func scanObject(object bson.D, prefix string, keyMap map[string]int, columnValue
 			value, ok := elem.Value.(bson.D)
 			if ok {
 				keyMap, columnValues = scanObject(value, fmt.Sprintf("%s.", key), keyMap, columnValues)
+			} else {
+				arr, ok := elem.Value.(bson.A)
+				if ok {
+					for _, av := range arr {
+						str, ok := av.(string)
+						if ok {
+							columnValues[i] = append(columnValues[i], str)
+						}
+					}
+				}
 			}
 		}
 	}
