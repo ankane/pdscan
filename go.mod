@@ -6,7 +6,9 @@ require (
 	github.com/aws/aws-sdk-go v1.44.91
 	github.com/deckarep/golang-set v1.8.0
 	github.com/denisenkom/go-mssqldb v0.12.2
+	github.com/elastic/go-elasticsearch/v7 v7.17.1
 	github.com/fatih/color v1.13.0
+	github.com/go-redis/redis/v8 v8.11.5
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/h2non/filetype v1.1.3
 	github.com/jmoiron/sqlx v1.3.5
@@ -22,7 +24,6 @@ require (
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
-	github.com/go-redis/redis/v8 v8.11.5 // indirect
 	github.com/golang-sql/civil v0.0.0-20190719163853-cb61b32ac6fe // indirect
 	github.com/golang-sql/sqlexp v0.1.0 // indirect
 	github.com/golang/snappy v0.0.1 // indirect

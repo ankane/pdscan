@@ -37,6 +37,7 @@ brew install ankane/brew/pdscan
 
 ## Data Stores
 
+- [Elasticsearch](#elasticsearch) [unreleased]
 - [Files](#files)
 - [MongoDB](#mongodb) [unreleased]
 - [MySQL & MariaDB](#mysql--mariadb)
@@ -46,6 +47,26 @@ brew install ankane/brew/pdscan
 - [SQL Server](#sql-server) [unreleased]
 - [S3](#s3)
 - [Others](#others)
+
+### Elasticsearch
+
+```sh
+pdscan elasticsearch+http://user:pass@host:9200
+```
+
+For HTTPS, use `elasticsearch+https://`.
+
+You can also specify indices.
+
+```sh
+pdscan elasticsearch+http://user:pass@host:9200/index1,index2
+```
+
+Wilcards are also supported.
+
+```sh
+pdscan "elasticsearch+http://user:pass@host:9200/index*"
+```
 
 ### Files
 
@@ -159,7 +180,7 @@ pdscan --processes 4
 
 ## Roadmap
 
-- Add more data stores (Elasticsearch, OpenSearch, Memcached)
+- Add more data stores (OpenSearch, Memcached)
 - Improve rules
 - Highlight matches
 - Add more output formats, like JSON and CSV

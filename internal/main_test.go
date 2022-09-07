@@ -8,9 +8,11 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/go-redis/redis/v8"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
@@ -132,6 +134,47 @@ func TestFileXlsx(t *testing.T) {
 
 func TestFileZip(t *testing.T) {
 	checkFile(t, "email.zip", true)
+}
+
+func TestElasticsearch(t *testing.T) {
+	es, _ := elasticsearch.NewDefaultClient()
+
+	str := `
+		{
+			"email": "test@example.org",
+			"phone": "555-555-5555",
+			"street": "123 Main St",
+			"zip_code": "12345",
+			"ip": "127.0.0.1",
+			"ip2": "127.0.0.1",
+			"birthday": "1970-01-01",
+			"latitude": 1.2,
+			"longitude": 3.4,
+			"access_token": "secret",
+			"emails": ["first@example.org", "second@example.org"],
+			"nested": {
+				"email": "test@example.org",
+				"zip_code": "12345"
+			}
+
+		}
+	`
+
+	// TODO drop index first
+	// TODO create separate documents like MongoDB
+	// TODO test/support nested type
+	res, err := es.Index(
+		"pdscan_test_users",
+		strings.NewReader(str),
+		es.Index.WithDocumentID("1"),
+		es.Index.WithRefresh("true"),
+	)
+	if err != nil {
+		panic(err)
+	}
+	defer res.Body.Close()
+
+	checkDocument(t, "elasticsearch+http://localhost:9200/pdscan_test_*")
 }
 
 func TestMongodb(t *testing.T) {

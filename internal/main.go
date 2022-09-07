@@ -63,6 +63,8 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 			adapter = &MongodbAdapter{}
 		} else if strings.HasPrefix(urlStr, "redis://") {
 			adapter = &RedisAdapter{}
+		} else if strings.HasPrefix(urlStr, "elasticsearch+http://") || strings.HasPrefix(urlStr, "elasticsearch+https://") {
+			adapter = &ElasticsearchAdapter{}
 		} else {
 			adapter = &SqlAdapter{}
 		}
@@ -94,7 +96,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 				}(t, limit)
 			}
 		} else {
-			fmt.Printf("Found no %ss to scan\n", adapter.TableName())
+			fmt.Printf("Found no %s to scan\n", pluralize(0, adapter.TableName())[2:])
 			return
 		}
 	}

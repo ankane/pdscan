@@ -246,7 +246,9 @@ func checkTableData(table table, columnNames []string, columnValues [][]string) 
 
 func pluralize(count int, singular string) string {
 	if count != 1 {
-		if strings.HasSuffix(singular, "ch") {
+		if singular == "index" {
+			singular = "indices"
+		} else if strings.HasSuffix(singular, "ch") {
 			singular = singular + "es"
 		} else {
 			singular = singular + "s"
