@@ -3,6 +3,7 @@ package internal
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/url"
 	"time"
 
@@ -93,20 +94,7 @@ func (a MongodbAdapter) FetchTableData(table table, limit int) ([]string, [][]st
 			abort(err)
 		}
 
-		for _, elem := range result {
-			i, ok := keyMap[elem.Key]
-			if !ok {
-				i = len(keyMap)
-				keyMap[elem.Key] = i
-				columnValues = append(columnValues, []string{})
-			}
-
-			// TODO scan nested values
-			str, ok := elem.Value.(string)
-			if ok {
-				columnValues[i] = append(columnValues[i], str)
-			}
-		}
+		keyMap, columnValues = scanObject(result, "", keyMap, columnValues)
 	}
 	if err := cur.Err(); err != nil {
 		abort(err)
@@ -118,4 +106,27 @@ func (a MongodbAdapter) FetchTableData(table table, limit int) ([]string, [][]st
 	}
 
 	return columnNames, columnValues
+}
+
+func scanObject(object bson.D, prefix string, keyMap map[string]int, columnValues [][]string) (map[string]int, [][]string) {
+	for _, elem := range object {
+		key := fmt.Sprintf("%s%s", prefix, elem.Key)
+		i, ok := keyMap[key]
+		if !ok {
+			i = len(keyMap)
+			keyMap[key] = i
+			columnValues = append(columnValues, []string{})
+		}
+
+		str, ok := elem.Value.(string)
+		if ok {
+			columnValues[i] = append(columnValues[i], str)
+		} else {
+			value, ok := elem.Value.(bson.D)
+			if ok {
+				keyMap, columnValues = scanObject(value, fmt.Sprintf("%s.", key), keyMap, columnValues)
+			}
+		}
+	}
+	return keyMap, columnValues
 }
