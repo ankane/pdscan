@@ -20,6 +20,10 @@ jobs:
         accept-eula: true
     - run: sqlcmd -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE pdscan_test'
     - uses: ankane/setup-mongodb@v1
+    - run: |
+        sudo apt-get update
+        sudo apt-get install redis-server
+        sudo systemctl start redis-server
     - run: make test
       env:
         SQLSERVER_URL: sqlserver://SA:YourStrong!Passw0rd@localhost:1433?database=pdscan_test
