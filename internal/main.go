@@ -58,13 +58,18 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 			return
 		}
 	} else {
-		var adapter Adapter = &SqlAdapter{}
+		var adapter Adapter
+		if strings.HasPrefix(urlStr, "mongodb://") {
+			adapter = &MongodbAdapter{}
+		} else {
+			adapter = &SqlAdapter{}
+		}
 		adapter.Init(urlStr)
 
 		tables := adapter.FetchTables()
 
 		if len(tables) > 0 {
-			fmt.Printf("Found %s to scan, sampling %d rows from each...\n\n", pluralize(len(tables), "table"), limit)
+			fmt.Printf("Found %s to scan, sampling %s from each...\n\n", pluralize(len(tables), adapter.TableName()), pluralize(limit, adapter.RowName()))
 
 			wg.Add(len(tables))
 

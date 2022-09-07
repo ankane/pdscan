@@ -16,6 +16,14 @@ type SqlAdapter struct {
 	DB *sqlx.DB
 }
 
+func (a *SqlAdapter) TableName() string {
+	return "table"
+}
+
+func (a *SqlAdapter) RowName() string {
+	return "row"
+}
+
 func (a *SqlAdapter) Init(url string) {
 	u, err := dburl.Parse(url)
 	if err != nil {

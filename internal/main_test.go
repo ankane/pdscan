@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"log"
@@ -8,9 +9,14 @@ import (
 	"os/user"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
@@ -125,6 +131,35 @@ func TestFileXlsx(t *testing.T) {
 
 func TestFileZip(t *testing.T) {
 	checkFile(t, "email.zip", true)
+}
+
+func TestMongodb(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
+	defer func() {
+		if err = client.Disconnect(ctx); err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	collection := client.Database("pdscan_test").Collection("users")
+	if err = collection.Drop(ctx); err != nil {
+		log.Fatal(err)
+	}
+
+	docs := []interface{}{
+		bson.D{{"email", "test@example.org"}},
+		bson.D{{"phone", "555-555-5555"}, {"street", "123 Main St"}},
+		bson.D{{"ip", "127.0.0.1"}, {"ip2", "127.0.0.1"}},
+	}
+	_, err = collection.InsertMany(ctx, docs)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	checkDocument(t, "mongodb://localhost:27017/pdscan_test")
 }
 
 func TestMysql(t *testing.T) {
@@ -334,4 +369,15 @@ func checkSql(t *testing.T, urlStr string) {
 	assert.Contains(t, output, "users.access_token:")
 	assert.Contains(t, output, "ITEMS.EMAIL:")
 	assert.Contains(t, output, "ITEMS.ZipCode:")
+}
+
+func checkDocument(t *testing.T, urlStr string) {
+	output := captureOutput(func() { Main(urlStr, false, false, 10000, 1) })
+	assert.Contains(t, output, "sampling 10000 documents")
+	assert.NotContains(t, output, "users._id:")
+	assert.Contains(t, output, "users.email:")
+	assert.Contains(t, output, "users.phone:")
+	assert.Contains(t, output, "users.street:")
+	assert.Contains(t, output, "users.ip:")
+	assert.Contains(t, output, "users.ip2:")
 }

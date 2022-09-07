@@ -38,6 +38,7 @@ brew install ankane/brew/pdscan
 ## Data Stores
 
 - [Files](#files)
+- [MongoDB](#mongodb) [unreleased]
 - [MySQL & MariaDB](#mysql--mariadb)
 - [Postgres](#postgres)
 - [SQLite](#sqlite)
@@ -58,6 +59,12 @@ pdscan file://path/to/directory
 ```
 
 For absolute paths, use `file:///`.
+
+### MongoDB
+
+```sh
+pdscan mongodb://user:pass@host:27017/dbname
+```
 
 ### MySQL & MariaDB
 

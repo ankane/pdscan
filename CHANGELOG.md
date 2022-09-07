@@ -1,6 +1,7 @@
 ## 0.1.4 (unreleased)
 
 - Added support for SQL Server
+- Added support for MongoDB
 
 ## 0.1.3 (2022-09-04)
 

@@ -19,6 +19,7 @@ jobs:
       with:
         accept-eula: true
     - run: sqlcmd -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE pdscan_test'
+    - uses: ankane/setup-mongodb@v1
     - run: make test
       env:
         SQLSERVER_URL: sqlserver://SA:YourStrong!Passw0rd@localhost:1433?database=pdscan_test
