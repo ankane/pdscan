@@ -81,7 +81,11 @@ func (a ElasticsearchAdapter) FetchTables() (tables []table) {
 
 	for _, index := range r {
 		indexName := index.(map[string]interface{})["index"].(string)
-		tables = append(tables, table{Schema: "", Name: indexName})
+
+		// skip system indices
+		if indexName[0] != '.' {
+			tables = append(tables, table{Schema: "", Name: indexName})
+		}
 	}
 
 	return tables
