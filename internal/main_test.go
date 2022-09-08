@@ -329,6 +329,11 @@ func TestRedis(t *testing.T) {
 		panic(err)
 	}
 
+	err = rdb.HSet(ctx, "pdscan_test:hash", "email", "hash@example.org").Err()
+	if err != nil {
+		panic(err)
+	}
+
 	err = rdb.ZAdd(ctx, "pdscan_test:zset", &redis.Z{Member: "zset1@example.org", Score: 1}).Err()
 	if err != nil {
 		panic(err)
@@ -352,6 +357,10 @@ func TestRedis(t *testing.T) {
 	assert.Contains(t, output, "pdscan_test:set:")
 	assert.Contains(t, output, "set1@example.org")
 	assert.Contains(t, output, "set2@example.org")
+
+	// hashes
+	assert.Contains(t, output, "pdscan_test:hash:")
+	assert.Contains(t, output, "hash@example.org")
 
 	// sorted sets
 	assert.Contains(t, output, "pdscan_test:zset:")

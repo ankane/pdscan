@@ -83,6 +83,14 @@ func (a RedisAdapter) FetchTableData(table table, limit int) ([]string, [][]stri
 				for _, v := range val {
 					columnValues[i] = append(columnValues[i], v)
 				}
+			} else if ty == "hash" {
+				val, err := rdb.HGetAll(ctx, key).Result()
+				if err != nil {
+					panic(err)
+				}
+				for _, v := range val {
+					columnValues[i] = append(columnValues[i], v)
+				}
 			} else if ty == "zset" {
 				// TODO fetch in batches
 				val, err := rdb.ZRange(ctx, key, 0, -1).Result()
