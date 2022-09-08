@@ -23,7 +23,7 @@ func (a LocalFileAdapter) FetchFiles() ([]string, error) {
 		if err == nil && !info.IsDir() {
 			files = append(files, path)
 		}
-		return err
+		return nil
 	})
 
 	if err != nil {
