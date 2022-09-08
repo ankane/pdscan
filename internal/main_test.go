@@ -175,13 +175,21 @@ func TestElasticsearch(t *testing.T) {
 			"nested": {
 				"email": "test@example.org",
 				"zip_code": "12345"
-			}
-
+			},
+			"nested_type": [
+				{
+					"id": 1,
+					"email": "nested1@example.org"
+				},
+				{
+					"id": 2,
+					"email": "nested2@example.org"
+				}
+			]
 		}
 	`
 
 	// TODO create separate documents like MongoDB
-	// TODO test/support nested type
 	res, err = es.Index(
 		"pdscan_test_users",
 		strings.NewReader(str),
@@ -193,7 +201,8 @@ func TestElasticsearch(t *testing.T) {
 	}
 	defer res.Body.Close()
 
-	checkDocument(t, "elasticsearch+http://localhost:9200/pdscan_test_*")
+	output := checkDocument(t, "elasticsearch+http://localhost:9200/pdscan_test_*")
+	assert.Contains(t, output, "users.nested_type.email:")
 }
 
 func TestMongodb(t *testing.T) {
@@ -507,7 +516,7 @@ func checkSql(t *testing.T, urlStr string) string {
 	return output
 }
 
-func checkDocument(t *testing.T, urlStr string) {
+func checkDocument(t *testing.T, urlStr string) string {
 	output := captureOutput(func() { Main(urlStr, true, false, 10000, 1) })
 	assert.Contains(t, output, "sampling 10000 documents")
 	assert.NotContains(t, output, "users._id:")
@@ -529,4 +538,5 @@ func checkDocument(t *testing.T, urlStr string) {
 	// nested
 	assert.Contains(t, output, "users.nested.email:")
 	assert.Contains(t, output, "users.nested.zip_code:")
+	return output
 }

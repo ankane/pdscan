@@ -141,7 +141,6 @@ func (a ElasticsearchAdapter) FetchTableData(table table, limit int) ([]string, 
 	return columnNames, columnValues
 }
 
-// TODO support nested type
 func scanSource(object map[string]interface{}, prefix string, keyMap map[string]int, columnValues [][]string) (map[string]int, [][]string) {
 	for key, val := range object {
 		key = prefix + key
@@ -158,6 +157,8 @@ func scanSource(object map[string]interface{}, prefix string, keyMap map[string]
 		case []interface{}:
 			for _, av := range typedVal {
 				switch av2 := av.(type) {
+				case map[string]interface{}:
+					keyMap, columnValues = scanSource(av2, key+".", keyMap, columnValues)
 				case string:
 					columnValues[i] = append(columnValues[i], av2)
 				}

@@ -1,5 +1,6 @@
 ## 0.1.5 (unreleased)
 
+- Added scanning for nested objects with Elasticsearch and OpenSearch
 - Added scanning for lists, sets, and sorted sets with Redis
 
 ## 0.1.4 (2022-09-07)
