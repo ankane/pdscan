@@ -68,7 +68,10 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 		} else {
 			adapter = &SqlAdapter{}
 		}
-		adapter.Init(urlStr)
+		err := adapter.Init(urlStr)
+		if err != nil {
+			abort(err)
+		}
 
 		tables := adapter.FetchTables()
 

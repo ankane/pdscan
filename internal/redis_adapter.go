@@ -19,13 +19,15 @@ func (a *RedisAdapter) RowName() string {
 	return "key"
 }
 
-func (a *RedisAdapter) Init(urlStr string) {
+func (a *RedisAdapter) Init(urlStr string) error {
 	opt, err := redis.ParseURL(urlStr)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	a.DB = redis.NewClient(opt)
+
+	return nil
 }
 
 func (a RedisAdapter) FetchTables() []table {

@@ -24,10 +24,10 @@ func (a *SqlAdapter) RowName() string {
 	return "row"
 }
 
-func (a *SqlAdapter) Init(url string) {
+func (a *SqlAdapter) Init(url string) error {
 	u, err := dburl.Parse(url)
 	if err != nil {
-		abort(err)
+		return err
 	}
 
 	db, err := sqlx.Connect(u.Driver, u.DSN)
@@ -35,11 +35,13 @@ func (a *SqlAdapter) Init(url string) {
 		// TODO prompt for password if needed
 		// var input string
 		// fmt.Scanln(&input)
-		abort(err)
+		return err
 	}
 	// defer db.Close()
 
 	a.DB = db
+
+	return nil
 }
 
 func (a SqlAdapter) FetchTables() (tables []table) {

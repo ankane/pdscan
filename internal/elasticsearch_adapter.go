@@ -25,7 +25,7 @@ func (a *ElasticsearchAdapter) RowName() string {
 	return "document"
 }
 
-func (a *ElasticsearchAdapter) Init(urlStr string) {
+func (a *ElasticsearchAdapter) Init(urlStr string) error {
 	if strings.HasPrefix(urlStr, "elasticsearch+") {
 		urlStr = strings.TrimPrefix(urlStr, "elasticsearch+")
 	} else {
@@ -34,7 +34,7 @@ func (a *ElasticsearchAdapter) Init(urlStr string) {
 
 	u, err := url.Parse(urlStr)
 	if err != nil {
-		abort(err)
+		return err
 	}
 
 	// TODO keep path before last slash
@@ -52,10 +52,12 @@ func (a *ElasticsearchAdapter) Init(urlStr string) {
 	}
 	es, err := elasticsearch.NewClient(cfg)
 	if err != nil {
-		abort(err)
+		return err
 	}
 
 	a.DB = es
+
+	return nil
 }
 
 func (a ElasticsearchAdapter) FetchTables() (tables []table) {

@@ -24,25 +24,27 @@ func (a *MongodbAdapter) RowName() string {
 	return "document"
 }
 
-func (a *MongodbAdapter) Init(urlStr string) {
+func (a *MongodbAdapter) Init(urlStr string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(urlStr))
 	if err != nil {
-		abort(err)
+		return err
 	}
 
 	u, err := url.Parse(urlStr)
 	if err != nil {
-		abort(err)
+		return err
 	}
 
 	if len(u.Path) < 2 {
-		abort(errors.New("No database specified"))
+		return errors.New("No database specified")
 	}
 
 	a.DB = client.Database(u.Path[1:])
+
+	return nil
 }
 
 func (a MongodbAdapter) FetchTables() (tables []table) {
