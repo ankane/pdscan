@@ -305,7 +305,13 @@ func TestRedis(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	err = rdb.SAdd(ctx, "pdscan_test:emails", []string{"first@example.org", "second@example.org"}).Err()
+
+	err = rdb.LPush(ctx, "pdscan_test:list", []string{"list1@example.org", "list2@example.org"}).Err()
+	if err != nil {
+		panic(err)
+	}
+
+	err = rdb.SAdd(ctx, "pdscan_test:set", []string{"set1@example.org", "set2@example.org"}).Err()
 	if err != nil {
 		panic(err)
 	}
@@ -314,10 +320,15 @@ func TestRedis(t *testing.T) {
 	assert.Contains(t, output, "sampling 10000 keys")
 	assert.Contains(t, output, "pdscan_test:email:")
 
+	// lists
+	assert.Contains(t, output, "pdscan_test:list:")
+	assert.Contains(t, output, "list1@example.org")
+	assert.Contains(t, output, "list2@example.org")
+
 	// sets
-	assert.Contains(t, output, "pdscan_test:emails:")
-	assert.Contains(t, output, "first@example.org")
-	assert.Contains(t, output, "second@example.org")
+	assert.Contains(t, output, "pdscan_test:set:")
+	assert.Contains(t, output, "set1@example.org")
+	assert.Contains(t, output, "set2@example.org")
 }
 
 func TestSqlite(t *testing.T) {
