@@ -98,7 +98,7 @@ func (a ElasticsearchAdapter) FetchTables() ([]table, error) {
 	return tables, nil
 }
 
-func (a ElasticsearchAdapter) FetchTableData(table table, limit int) ([]string, [][]string) {
+func (a ElasticsearchAdapter) FetchTableData(table table, limit int) ([]string, [][]string, error) {
 	es := a.DB
 
 	var r map[string]interface{}
@@ -112,7 +112,7 @@ func (a ElasticsearchAdapter) FetchTableData(table table, limit int) ([]string, 
 		"size": limit,
 	}
 	if err := json.NewEncoder(&buf).Encode(query); err != nil {
-		abort(err)
+		return nil, nil, err
 	}
 
 	res, err := es.Search(
@@ -120,17 +120,17 @@ func (a ElasticsearchAdapter) FetchTableData(table table, limit int) ([]string, 
 		es.Search.WithBody(&buf),
 	)
 	if err != nil {
-		abort(err)
+		return nil, nil, err
 	}
 	defer res.Body.Close()
 
 	err = checkResult(res)
 	if err != nil {
-		abort(err)
+		return nil, nil, err
 	}
 
 	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		abort(errors.New(fmt.Sprintf("Error parsing the response body: %s", err)))
+		return nil, nil, errors.New(fmt.Sprintf("Error parsing the response body: %s", err))
 	}
 
 	keyMap := make(map[string]int)
@@ -148,7 +148,7 @@ func (a ElasticsearchAdapter) FetchTableData(table table, limit int) ([]string, 
 		columnNames[i] = key
 	}
 
-	return columnNames, columnValues
+	return columnNames, columnValues, nil
 }
 
 func scanSource(object map[string]interface{}, prefix string, keyMap map[string]int, columnValues [][]string) (map[string]int, [][]string) {

@@ -99,8 +99,11 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 					defer wg.Done()
 
 					queryMutex.Lock()
-					columnNames, columnValues := adapter.FetchTableData(t, limit)
+					columnNames, columnValues, err := adapter.FetchTableData(t, limit)
 					queryMutex.Unlock()
+					if err != nil {
+						abort(err)
+					}
 
 					tableMatchList := checkTableData(t, columnNames, columnValues)
 					printMatchList(tableMatchList, showData, showAll, "row")

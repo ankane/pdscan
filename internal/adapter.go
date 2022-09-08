@@ -5,5 +5,5 @@ type Adapter interface {
 	RowName() string
 	Init(url string) error
 	FetchTables() ([]table, error)
-	FetchTableData(table table, limit int) ([]string, [][]string)
+	FetchTableData(table table, limit int) ([]string, [][]string, error)
 }

@@ -34,7 +34,7 @@ func (a RedisAdapter) FetchTables() ([]table, error) {
 	return []table{{Schema: "", Name: ""}}, nil
 }
 
-func (a RedisAdapter) FetchTableData(table table, limit int) ([]string, [][]string) {
+func (a RedisAdapter) FetchTableData(table table, limit int) ([]string, [][]string, error) {
 	rdb := a.DB
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -47,7 +47,7 @@ func (a RedisAdapter) FetchTableData(table table, limit int) ([]string, [][]stri
 	for i := 0; i < limit; i++ {
 		key, err := rdb.RandomKey(ctx).Result()
 		if err != nil {
-			panic(err)
+			return nil, nil, err
 		}
 
 		i, ok := keyMap[key]
@@ -58,20 +58,20 @@ func (a RedisAdapter) FetchTableData(table table, limit int) ([]string, [][]stri
 
 			ty, err := rdb.Type(ctx, key).Result()
 			if err != nil {
-				panic(err)
+				return nil, nil, err
 			}
 
 			if ty == "string" {
 				val, err := rdb.Get(ctx, key).Result()
 				if err != nil {
-					panic(err)
+					return nil, nil, err
 				}
 				columnValues[i] = append(columnValues[i], val)
 			} else if ty == "list" {
 				// TODO fetch in batches
 				val, err := rdb.LRange(ctx, key, 0, -1).Result()
 				if err != nil {
-					panic(err)
+					return nil, nil, err
 				}
 				for _, v := range val {
 					columnValues[i] = append(columnValues[i], v)
@@ -79,7 +79,7 @@ func (a RedisAdapter) FetchTableData(table table, limit int) ([]string, [][]stri
 			} else if ty == "set" {
 				val, err := rdb.SMembers(ctx, key).Result()
 				if err != nil {
-					panic(err)
+					return nil, nil, err
 				}
 				for _, v := range val {
 					columnValues[i] = append(columnValues[i], v)
@@ -87,7 +87,7 @@ func (a RedisAdapter) FetchTableData(table table, limit int) ([]string, [][]stri
 			} else if ty == "hash" {
 				val, err := rdb.HGetAll(ctx, key).Result()
 				if err != nil {
-					panic(err)
+					return nil, nil, err
 				}
 				for _, v := range val {
 					columnValues[i] = append(columnValues[i], v)
@@ -96,7 +96,7 @@ func (a RedisAdapter) FetchTableData(table table, limit int) ([]string, [][]stri
 				// TODO fetch in batches
 				val, err := rdb.ZRange(ctx, key, 0, -1).Result()
 				if err != nil {
-					panic(err)
+					return nil, nil, err
 				}
 				for _, v := range val {
 					columnValues[i] = append(columnValues[i], v)
@@ -110,5 +110,5 @@ func (a RedisAdapter) FetchTableData(table table, limit int) ([]string, [][]stri
 		columnNames[i] = key
 	}
 
-	return columnNames, columnValues
+	return columnNames, columnValues, nil
 }

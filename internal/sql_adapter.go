@@ -70,7 +70,7 @@ func (a SqlAdapter) FetchTables() ([]table, error) {
 	return tables, nil
 }
 
-func (a SqlAdapter) FetchTableData(table table, limit int) ([]string, [][]string) {
+func (a SqlAdapter) FetchTableData(table table, limit int) ([]string, [][]string, error) {
 	db := a.DB
 
 	var sql string
@@ -100,13 +100,13 @@ func (a SqlAdapter) FetchTableData(table table, limit int) ([]string, [][]string
 	// run query on each table
 	rows, err := db.Query(sql)
 	if err != nil {
-		abort(err)
+		return nil, nil, err
 	}
 
 	// read everything as string and discard empty strings
 	cols, err := rows.ColumnTypes()
 	if err != nil {
-		abort(err)
+		return nil, nil, err
 	}
 
 	// map types
@@ -134,7 +134,7 @@ func (a SqlAdapter) FetchTableData(table table, limit int) ([]string, [][]string
 	for rows.Next() {
 		err = rows.Scan(dest...)
 		if err != nil {
-			abort(err)
+			return nil, nil, err
 		}
 
 		for i, raw := range rawResult {
@@ -149,7 +149,7 @@ func (a SqlAdapter) FetchTableData(table table, limit int) ([]string, [][]string
 		}
 	}
 
-	return columnNames, columnValues
+	return columnNames, columnValues, nil
 }
 
 // helpers
