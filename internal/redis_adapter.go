@@ -59,7 +59,6 @@ func (a RedisAdapter) FetchTableData(table table, limit int) ([]string, [][]stri
 				panic(err)
 			}
 
-			// TODO support more types
 			if ty == "string" {
 				val, err := rdb.Get(ctx, key).Result()
 				if err != nil {
