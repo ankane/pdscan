@@ -48,7 +48,10 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 					defer wg.Done()
 
 					// fmt.Println("Scanning " + file + "...\n")
-					matchedValues, count := adapter.FindFileMatches(file)
+					matchedValues, count, err := adapter.FindFileMatches(file)
+					if err != nil {
+						abort(err)
+					}
 					fileMatchList := checkMatches(file, matchedValues, count, true)
 					printMatchList(fileMatchList, showData, showAll, "line")
 
