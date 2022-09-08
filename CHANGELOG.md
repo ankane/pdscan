@@ -1,3 +1,7 @@
+## 0.1.5 (unreleased)
+
+- Added scanning for sets with Redis
+
 ## 0.1.4 (2022-09-07)
 
 - Added support for SQL Server

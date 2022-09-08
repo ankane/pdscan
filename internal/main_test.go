@@ -293,14 +293,31 @@ func TestRedis(t *testing.T) {
 
 	rdb := redis.NewClient(opt)
 
+	iter := rdb.Scan(ctx, 0, "pdscan_test:*", 0).Iterator()
+	for iter.Next(ctx) {
+		rdb.Del(ctx, iter.Val())
+	}
+	if err := iter.Err(); err != nil {
+		panic(err)
+	}
+
 	err = rdb.Set(ctx, "pdscan_test:email", "test@example.org", 0).Err()
 	if err != nil {
 		panic(err)
 	}
+	err = rdb.SAdd(ctx, "pdscan_test:emails", []string{"first@example.org", "second@example.org"}).Err()
+	if err != nil {
+		panic(err)
+	}
 
-	output := captureOutput(func() { Main(urlStr, false, false, 10000, 1) })
+	output := captureOutput(func() { Main(urlStr, true, false, 10000, 1) })
 	assert.Contains(t, output, "sampling 10000 keys")
 	assert.Contains(t, output, "pdscan_test:email:")
+
+	// sets
+	assert.Contains(t, output, "pdscan_test:emails:")
+	assert.Contains(t, output, "first@example.org")
+	assert.Contains(t, output, "second@example.org")
 }
 
 func TestSqlite(t *testing.T) {

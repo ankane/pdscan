@@ -66,6 +66,14 @@ func (a RedisAdapter) FetchTableData(table table, limit int) ([]string, [][]stri
 					panic(err)
 				}
 				columnValues[i] = append(columnValues[i], val)
+			} else if ty == "set" {
+				val, err := rdb.SMembers(ctx, key).Result()
+				if err != nil {
+					panic(err)
+				}
+				for _, v := range val {
+					columnValues[i] = append(columnValues[i], v)
+				}
 			}
 		}
 	}
