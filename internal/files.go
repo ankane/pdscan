@@ -37,21 +37,25 @@ func findScannerMatches(reader io.Reader) ([][]string, int, error) {
 }
 
 // TODO make more efficient
-func zipReader(file io.Reader) (io.ReaderAt, int64) {
+func zipReader(file io.Reader) (io.ReaderAt, int64, error) {
 	data, err := io.ReadAll(file)
 	if err != nil {
-		abort(err)
+		return nil, 0, err
 	}
 	bytesFile := bytes.NewReader(data)
 
-	return bytesFile, int64(bytesFile.Size())
+	return bytesFile, int64(bytesFile.Size()), nil
 }
 
 func processZip(file io.Reader) ([][]string, int, error) {
 	matchedValues := make([][]string, len(regexRules)+1)
 	count := 0
 
-	readerAt, size := zipReader(file)
+	readerAt, size, err := zipReader(file)
+	if err != nil {
+		return nil, 0, err
+	}
+
 	reader, err := zip.NewReader(readerAt, size)
 	if err != nil {
 		return nil, 0, err
