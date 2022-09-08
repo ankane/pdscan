@@ -21,9 +21,6 @@ jobs:
     - run: sqlcmd -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE pdscan_test'
     - uses: ankane/setup-mongodb@v1
     - uses: ankane/setup-elasticsearch@v1
-      with:
-        # TODO support 8
-        elasticsearch-version: 7
     - run: |
         sudo apt-get update
         sudo apt-get install redis-server

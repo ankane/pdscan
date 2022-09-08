@@ -46,3 +46,5 @@ require (
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/opensearch-project/opensearch-go v1.1.0 => github.com/ankane/opensearch-go v1.1.1-0.20220908011004-41d2f0a2143f
