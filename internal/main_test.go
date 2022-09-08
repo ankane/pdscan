@@ -316,6 +316,16 @@ func TestRedis(t *testing.T) {
 		panic(err)
 	}
 
+	err = rdb.ZAdd(ctx, "pdscan_test:zset", &redis.Z{Member: "zset1@example.org", Score: 1}).Err()
+	if err != nil {
+		panic(err)
+	}
+
+	err = rdb.ZAdd(ctx, "pdscan_test:zset", &redis.Z{Member: "zset2@example.org", Score: 2}).Err()
+	if err != nil {
+		panic(err)
+	}
+
 	output := captureOutput(func() { Main(urlStr, true, false, 10000, 1) })
 	assert.Contains(t, output, "sampling 10000 keys")
 	assert.Contains(t, output, "pdscan_test:email:")
@@ -329,6 +339,11 @@ func TestRedis(t *testing.T) {
 	assert.Contains(t, output, "pdscan_test:set:")
 	assert.Contains(t, output, "set1@example.org")
 	assert.Contains(t, output, "set2@example.org")
+
+	// sorted sets
+	assert.Contains(t, output, "pdscan_test:zset:")
+	assert.Contains(t, output, "zset1@example.org")
+	assert.Contains(t, output, "zset2@example.org")
 }
 
 func TestSqlite(t *testing.T) {
