@@ -77,7 +77,10 @@ func (a ElasticsearchAdapter) FetchTables() ([]table, error) {
 	}
 	defer res.Body.Close()
 
-	checkResult(res)
+	err = checkResult(res)
+	if err != nil {
+		return tables, err
+	}
 
 	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
 		return tables, errors.New(fmt.Sprintf("Error parsing the response body: %s", err))
@@ -121,7 +124,10 @@ func (a ElasticsearchAdapter) FetchTableData(table table, limit int) ([]string, 
 	}
 	defer res.Body.Close()
 
-	checkResult(res)
+	err = checkResult(res)
+	if err != nil {
+		abort(err)
+	}
 
 	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
 		abort(errors.New(fmt.Sprintf("Error parsing the response body: %s", err)))
@@ -174,17 +180,18 @@ func scanSource(object map[string]interface{}, prefix string, keyMap map[string]
 	return keyMap, columnValues
 }
 
-func checkResult(res *esapi.Response) {
+func checkResult(res *esapi.Response) error {
 	if res.IsError() {
 		var e map[string]interface{}
 		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
-			abort(err)
+			return err
 		} else {
-			abort(errors.New(fmt.Sprintf("[%s] %s: %s",
+			return errors.New(fmt.Sprintf("[%s] %s: %s",
 				res.Status(),
 				e["error"].(map[string]interface{})["type"],
 				e["error"].(map[string]interface{})["reason"],
-			)))
+			))
 		}
 	}
+	return nil
 }
