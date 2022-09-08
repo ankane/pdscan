@@ -102,6 +102,12 @@ func TestOAuthToken(t *testing.T) {
 	assertMatchValues(t, "oauth_token", []string{"ya29.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"})
 }
 
+func TestMac(t *testing.T) {
+	assertMatchValues(t, "mac", []string{"ff:ff:ff:ff:ff:ff"})
+	assertMatchValues(t, "mac", []string{"a1:b2:c3:d4:e5:f6"})
+	assertMatchValues(t, "mac", []string{"A1:B2:C3:D4:E5:F6"})
+}
+
 func TestFileCsv(t *testing.T) {
 	checkFile(t, "email.csv", true)
 }
@@ -262,16 +268,18 @@ func TestPostgres(t *testing.T) {
 			ip2 cidr,
 			latitude float,
 			longitude float,
-			access_token text
+			access_token text,
+			mac macaddr
 		)
 	`)
-	db.MustExec("INSERT INTO users (email, phone, street, ip, ip2) VALUES ('test@example.org', '555-555-5555', '123 Main St', '127.0.0.1', '127.0.0.1')")
+	db.MustExec("INSERT INTO users (email, phone, street, ip, ip2, mac) VALUES ('test@example.org', '555-555-5555', '123 Main St', '127.0.0.1', '127.0.0.1', 'a1:b2:c3:d4:e5:f6')")
 
 	db.MustExec(`DROP TABLE IF EXISTS "ITEMS"`)
 	db.MustExec(`CREATE TABLE "ITEMS" ("EMAIL" text, "ZipCode" text)`)
 	db.MustExec(`INSERT INTO "ITEMS" ("EMAIL") VALUES ('test@example.org')`)
 
-	checkSql(t, "postgres://localhost/pdscan_test?sslmode=disable")
+	output := checkSql(t, "postgres://localhost/pdscan_test?sslmode=disable")
+	assert.Contains(t, output, "users.mac:")
 }
 
 func TestRedis(t *testing.T) {
@@ -434,8 +442,8 @@ func setupDb(driver string, dsn string) *sqlx.DB {
 	return db
 }
 
-func checkSql(t *testing.T, urlStr string) {
-	output := captureOutput(func() { Main(urlStr, false, false, 10000, 1) })
+func checkSql(t *testing.T, urlStr string) string {
+	output := captureOutput(func() { Main(urlStr, true, false, 10000, 1) })
 	assert.Contains(t, output, "sampling 10000 rows")
 	assert.NotContains(t, output, "users.id:")
 	assert.Contains(t, output, "users.email:")
@@ -449,6 +457,7 @@ func checkSql(t *testing.T, urlStr string) {
 	assert.Contains(t, output, "users.access_token:")
 	assert.Contains(t, output, "ITEMS.EMAIL:")
 	assert.Contains(t, output, "ITEMS.ZipCode:")
+	return output
 }
 
 func checkDocument(t *testing.T, urlStr string) {

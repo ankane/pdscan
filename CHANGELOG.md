@@ -5,6 +5,7 @@
 - Added support for Redis
 - Added support for Elasticsearch and OpenSearch
 - Added support for international phone numbers
+- Added support for MAC addresses
 
 ## 0.1.3 (2022-09-04)
 

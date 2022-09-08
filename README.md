@@ -12,6 +12,7 @@ Scan your data stores for unencrypted personal data (PII)
 - Dates of birth
 - Location data
 - OAuth tokens
+- MAC addresses [unreleased]
 
 Uses data sampling and naming, and works with compressed files
 

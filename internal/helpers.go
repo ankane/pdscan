@@ -95,6 +95,7 @@ var regexRules = []regexRule{
 	regexRule{Name: "ssn", DisplayName: "SSNs", Regex: regexp.MustCompile(`\b\d{3}[\s+-]\d{2}[\s+-]\d{4}\b`)},
 	regexRule{Name: "street", DisplayName: "street addresses", Regex: regexp.MustCompile(`(?i)\b\d+\b.{4,60}\b(st|street|ave|avenue|road|rd|drive|dr)\b`)},
 	regexRule{Name: "oauth_token", DisplayName: "OAuth tokens", Regex: regexp.MustCompile(`ya29\..{60,200}`)}, // google
+	regexRule{Name: "mac", DisplayName: "MAC addresses", Regex: regexp.MustCompile(`\b[0-9a-fA-F]{2}(?:(?::|%3A)[0-9a-fA-F]{2}){5}\b`)},
 }
 
 // first 300 from 2010 US Census https://www.census.gov/topics/population/genealogy/data/2010_surnames.html
