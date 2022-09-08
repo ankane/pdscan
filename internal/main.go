@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-func Main(urlStr string, showData bool, showAll bool, limit int, processes int) {
+func Main(urlStr string, showData bool, showAll bool, limit int, processes int) error {
 	runtime.GOMAXPROCS(processes)
 
 	matchList := []ruleMatch{}
@@ -55,7 +55,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 			}
 		} else {
 			fmt.Println("Found no files to scan")
-			return
+			return nil
 		}
 	} else {
 		var adapter Adapter
@@ -70,7 +70,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 		}
 		err := adapter.Init(urlStr)
 		if err != nil {
-			abort(err)
+			return err
 		}
 
 		tables := adapter.FetchTables()
@@ -100,7 +100,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 			}
 		} else {
 			fmt.Printf("Found no %s to scan\n", pluralize(0, adapter.TableName())[2:])
-			return
+			return nil
 		}
 	}
 
@@ -119,4 +119,6 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 	} else {
 		fmt.Println("No sensitive data found")
 	}
+
+	return nil
 }

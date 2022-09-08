@@ -42,7 +42,11 @@ var rootCmd = &cobra.Command{
 			cmd.Help()
 			os.Exit(1)
 		} else {
-			internal.Main(args[0], showData, showAll, limit, processes)
+			err = internal.Main(args[0], showData, showAll, limit, processes)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
 		}
 	},
 }
