@@ -73,7 +73,10 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 			return err
 		}
 
-		tables := adapter.FetchTables()
+		tables, err := adapter.FetchTables()
+		if err != nil {
+			return err
+		}
 
 		if len(tables) > 0 {
 			fmt.Printf("Found %s to scan, sampling %s from each...\n\n", pluralize(len(tables), adapter.TableName()), pluralize(limit, adapter.RowName()))

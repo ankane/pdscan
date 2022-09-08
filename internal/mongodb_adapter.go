@@ -47,7 +47,9 @@ func (a *MongodbAdapter) Init(urlStr string) error {
 	return nil
 }
 
-func (a MongodbAdapter) FetchTables() (tables []table) {
+func (a MongodbAdapter) FetchTables() ([]table, error) {
+	tables := []table{}
+
 	db := a.DB
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -55,14 +57,14 @@ func (a MongodbAdapter) FetchTables() (tables []table) {
 
 	result, err := db.ListCollectionNames(ctx, bson.D{{}})
 	if err != nil {
-		abort(err)
+		return tables, err
 	}
 
 	for _, name := range result {
 		tables = append(tables, table{Schema: "", Name: name})
 	}
 
-	return tables
+	return tables, nil
 }
 
 func (a MongodbAdapter) FetchTableData(table table, limit int) ([]string, [][]string) {

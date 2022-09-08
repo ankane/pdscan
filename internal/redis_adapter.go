@@ -30,8 +30,8 @@ func (a *RedisAdapter) Init(urlStr string) error {
 	return nil
 }
 
-func (a RedisAdapter) FetchTables() []table {
-	return []table{{Schema: "", Name: ""}}
+func (a RedisAdapter) FetchTables() ([]table, error) {
+	return []table{{Schema: "", Name: ""}}, nil
 }
 
 func (a RedisAdapter) FetchTableData(table table, limit int) ([]string, [][]string) {

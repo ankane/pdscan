@@ -60,7 +60,9 @@ func (a *ElasticsearchAdapter) Init(urlStr string) error {
 	return nil
 }
 
-func (a ElasticsearchAdapter) FetchTables() (tables []table) {
+func (a ElasticsearchAdapter) FetchTables() ([]table, error) {
+	tables := []table{}
+
 	es := a.DB
 
 	var r []interface{}
@@ -71,14 +73,14 @@ func (a ElasticsearchAdapter) FetchTables() (tables []table) {
 		es.Cat.Indices.WithFormat("json"),
 	)
 	if err != nil {
-		abort(err)
+		return tables, err
 	}
 	defer res.Body.Close()
 
 	checkResult(res)
 
 	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		abort(errors.New(fmt.Sprintf("Error parsing the response body: %s", err)))
+		return tables, errors.New(fmt.Sprintf("Error parsing the response body: %s", err))
 	}
 
 	for _, index := range r {
@@ -90,7 +92,7 @@ func (a ElasticsearchAdapter) FetchTables() (tables []table) {
 		}
 	}
 
-	return tables
+	return tables, nil
 }
 
 func (a ElasticsearchAdapter) FetchTableData(table table, limit int) ([]string, [][]string) {

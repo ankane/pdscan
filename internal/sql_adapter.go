@@ -44,7 +44,9 @@ func (a *SqlAdapter) Init(url string) error {
 	return nil
 }
 
-func (a SqlAdapter) FetchTables() (tables []table) {
+func (a SqlAdapter) FetchTables() ([]table, error) {
+	tables := []table{}
+
 	db := a.DB
 
 	var query string
@@ -62,10 +64,10 @@ func (a SqlAdapter) FetchTables() (tables []table) {
 
 	err := db.Select(&tables, query)
 	if err != nil {
-		abort(err)
+		return tables, err
 	}
 
-	return tables
+	return tables, nil
 }
 
 func (a SqlAdapter) FetchTableData(table table, limit int) ([]string, [][]string) {
