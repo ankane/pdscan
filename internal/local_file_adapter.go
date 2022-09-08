@@ -9,11 +9,12 @@ type LocalFileAdapter struct {
 	url string
 }
 
-func (a *LocalFileAdapter) Init(url string) {
+func (a *LocalFileAdapter) Init(url string) error {
 	a.url = url
+	return nil
 }
 
-func (a LocalFileAdapter) FetchFiles() []string {
+func (a LocalFileAdapter) FetchFiles() ([]string, error) {
 	urlStr := a.url
 	var files []string
 
@@ -22,14 +23,14 @@ func (a LocalFileAdapter) FetchFiles() []string {
 		if err == nil && !info.IsDir() {
 			files = append(files, path)
 		}
-		return nil
+		return err
 	})
 
 	if err != nil {
-		abort(err)
+		return files, err
 	}
 
-	return files
+	return files, nil
 }
 
 // TODO read metadata for certain file types

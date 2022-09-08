@@ -14,18 +14,19 @@ type S3Adapter struct {
 	url string
 }
 
-func (a *S3Adapter) Init(url string) {
+func (a *S3Adapter) Init(url string) error {
 	a.url = url
+	return nil
 }
 
-func (a S3Adapter) FetchFiles() []string {
+func (a S3Adapter) FetchFiles() ([]string, error) {
 	urlStr := a.url
 	var files []string
 
 	if strings.HasSuffix(urlStr, "/") {
 		u, err := url.Parse(urlStr)
 		if err != nil {
-			abort(err)
+			return files, err
 		}
 		bucket := u.Host
 		key := u.Path[1:]
@@ -49,7 +50,7 @@ func (a S3Adapter) FetchFiles() []string {
 		files = append(files, urlStr)
 	}
 
-	return files
+	return files, nil
 }
 
 func (a S3Adapter) FindFileMatches(filename string) ([][]string, int) {

@@ -23,9 +23,15 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 		} else {
 			adapter = &S3Adapter{}
 		}
-		adapter.Init(urlStr)
+		err := adapter.Init(urlStr)
+		if err != nil {
+			return err
+		}
 
-		files := adapter.FetchFiles()
+		files, err := adapter.FetchFiles()
+		if err != nil {
+			return err
+		}
 
 		if len(files) > 0 {
 			fmt.Printf("Found %s to scan...\n\n", pluralize(len(files), "file"))
