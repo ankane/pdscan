@@ -12,7 +12,7 @@ Scan your data stores for unencrypted personal data (PII)
 - Dates of birth
 - Location data
 - OAuth tokens
-- MAC addresses [unreleased]
+- MAC addresses
 
 Uses data sampling and naming, and works with compressed files
 
@@ -24,9 +24,9 @@ Uses data sampling and naming, and works with compressed files
 
 Download the latest version.
 
-- Mac - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.3/pdscan_0.1.3_Darwin_x86_64.zip) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.1.3/pdscan_0.1.3_Darwin_arm64.zip)
-- Linux - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.3/pdscan_0.1.3_Linux_x86_64.zip) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.1.3/pdscan_0.1.3_Linux_arm64.zip)
-- Windows - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.3/pdscan_0.1.3_Windows_x86_64.zip)
+- Mac - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.4/pdscan_0.1.4_Darwin_x86_64.zip) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.1.4/pdscan_0.1.4_Darwin_arm64.zip)
+- Linux - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.4/pdscan_0.1.4_Linux_x86_64.zip) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.1.4/pdscan_0.1.4_Linux_arm64.zip)
+- Windows - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.4/pdscan_0.1.4_Windows_x86_64.zip)
 
 Unzip and follow the instructions below for your data store.
 
@@ -38,16 +38,16 @@ brew install ankane/brew/pdscan
 
 ## Data Stores
 
-- [Elasticsearch](#elasticsearch) [unreleased]
+- [Elasticsearch](#elasticsearch)
 - [Files](#files)
 - [MariaDB](#mariadb)
-- [MongoDB](#mongodb) [unreleased]
+- [MongoDB](#mongodb)
 - [MySQL](#mysql)
-- [OpenSearch](#opensearch) [unreleased]
+- [OpenSearch](#opensearch)
 - [Postgres](#postgres)
-- [Redis](#redis) [unreleased]
+- [Redis](#redis)
 - [SQLite](#sqlite)
-- [SQL Server](#sql-server) [unreleased]
+- [SQL Server](#sql-server)
 - [S3](#s3)
 
 ### Elasticsearch
