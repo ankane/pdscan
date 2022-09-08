@@ -432,6 +432,11 @@ func TestSqlserver(t *testing.T) {
 	checkSql(t, url)
 }
 
+func TestBadScheme(t *testing.T) {
+	err := Main("hello://", false, false, 10000, 1)
+	assert.Contains(t, err, "unknown database scheme")
+}
+
 func TestShowData(t *testing.T) {
 	output := captureOutput(func() { Main("file://../testdata/email.txt", true, false, 10000, 1) })
 	assert.Contains(t, output, "test@example.org")
