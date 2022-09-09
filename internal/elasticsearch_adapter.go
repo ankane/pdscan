@@ -3,7 +3,6 @@ package internal
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/url"
 	"strings"
@@ -73,17 +72,17 @@ func (a ElasticsearchAdapter) FetchTables() ([]table, error) {
 		es.Cat.Indices.WithFormat("json"),
 	)
 	if err != nil {
-		return tables, err
+		return nil, err
 	}
 	defer res.Body.Close()
 
 	err = checkResult(res)
 	if err != nil {
-		return tables, err
+		return nil, err
 	}
 
 	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return tables, errors.New(fmt.Sprintf("Error parsing the response body: %s", err))
+		return nil, fmt.Errorf("error parsing the response body: %s", err)
 	}
 
 	for _, index := range r {
@@ -130,7 +129,7 @@ func (a ElasticsearchAdapter) FetchTableData(table table, limit int) ([]string, 
 	}
 
 	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, nil, errors.New(fmt.Sprintf("Error parsing the response body: %s", err))
+		return nil, nil, fmt.Errorf("error parsing the response body: %s", err)
 	}
 
 	keyMap := make(map[string]int)
@@ -186,11 +185,11 @@ func checkResult(res *esapi.Response) error {
 		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
 			return err
 		} else {
-			return errors.New(fmt.Sprintf("[%s] %s: %s",
+			return fmt.Errorf("[%s] %s: %s",
 				res.Status(),
 				e["error"].(map[string]interface{})["type"],
 				e["error"].(map[string]interface{})["reason"],
-			))
+			)
 		}
 	}
 	return nil

@@ -39,7 +39,7 @@ func (a *MongodbAdapter) Init(urlStr string) error {
 	}
 
 	if len(u.Path) < 2 {
-		return errors.New("No database specified")
+		return errors.New("no database specified")
 	}
 
 	a.DB = client.Database(u.Path[1:])
@@ -57,7 +57,7 @@ func (a MongodbAdapter) FetchTables() ([]table, error) {
 
 	result, err := db.ListCollectionNames(ctx, bson.D{{}})
 	if err != nil {
-		return tables, err
+		return nil, err
 	}
 
 	for _, name := range result {

@@ -64,7 +64,7 @@ func (a SqlAdapter) FetchTables() ([]table, error) {
 
 	err := db.Select(&tables, query)
 	if err != nil {
-		return tables, err
+		return nil, err
 	}
 
 	return tables, nil

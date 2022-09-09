@@ -44,15 +44,15 @@ func (a RedisAdapter) FetchTableData(table table, limit int) ([]string, [][]stri
 
 	columnValues := make([][]string, 0)
 
-	for i := 0; i < limit; i++ {
+	for j := 0; j < limit; j++ {
 		key, err := rdb.RandomKey(ctx).Result()
 		if err != nil {
 			return nil, nil, err
 		}
 
-		i, ok := keyMap[key]
+		_, ok := keyMap[key]
 		if !ok {
-			i = len(keyMap)
+			i := len(keyMap)
 			keyMap[key] = i
 			columnValues = append(columnValues, []string{})
 
@@ -73,17 +73,13 @@ func (a RedisAdapter) FetchTableData(table table, limit int) ([]string, [][]stri
 				if err != nil {
 					return nil, nil, err
 				}
-				for _, v := range val {
-					columnValues[i] = append(columnValues[i], v)
-				}
+				columnValues[i] = append(columnValues[i], val...)
 			} else if ty == "set" {
 				val, err := rdb.SMembers(ctx, key).Result()
 				if err != nil {
 					return nil, nil, err
 				}
-				for _, v := range val {
-					columnValues[i] = append(columnValues[i], v)
-				}
+				columnValues[i] = append(columnValues[i], val...)
 			} else if ty == "hash" {
 				val, err := rdb.HGetAll(ctx, key).Result()
 				if err != nil {
@@ -98,9 +94,7 @@ func (a RedisAdapter) FetchTableData(table table, limit int) ([]string, [][]stri
 				if err != nil {
 					return nil, nil, err
 				}
-				for _, v := range val {
-					columnValues[i] = append(columnValues[i], v)
-				}
+				columnValues[i] = append(columnValues[i], val...)
 			}
 		}
 	}

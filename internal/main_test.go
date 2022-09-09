@@ -154,7 +154,7 @@ func TestFileZip(t *testing.T) {
 func TestElasticsearch(t *testing.T) {
 	es, _ := elasticsearch.NewDefaultClient()
 
-	res, err := es.Indices.Delete([]string{"pdscan_test_users"})
+	_, err := es.Indices.Delete([]string{"pdscan_test_users"})
 	if err != nil {
 		panic(err)
 	}
@@ -190,7 +190,7 @@ func TestElasticsearch(t *testing.T) {
 	`
 
 	// TODO create separate documents like MongoDB
-	res, err = es.Index(
+	res, err := es.Index(
 		"pdscan_test_users",
 		strings.NewReader(str),
 		es.Index.WithDocumentID("1"),
