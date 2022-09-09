@@ -5,6 +5,8 @@ import (
 	"runtime"
 	"strings"
 	"sync"
+
+	"golang.org/x/sync/errgroup"
 )
 
 func Main(urlStr string, showData bool, showAll bool, limit int, processes int) error {
@@ -14,7 +16,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 
 	var appendMutex sync.Mutex
 
-	var wg sync.WaitGroup
+	var g errgroup.Group
 
 	if strings.HasPrefix(urlStr, "file://") || strings.HasPrefix(urlStr, "s3://") {
 		var adapter FileAdapter
@@ -36,21 +38,18 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 		if len(files) > 0 {
 			fmt.Printf("Found %s to scan...\n\n", pluralize(len(files), "file"))
 
-			wg.Add(len(files))
+			g.SetLimit(20)
 
-			// https://stackoverflow.com/a/25306241/1177228
-			guard := make(chan struct{}, 20)
+			for _, file := range files {
+				// important - do not remove
+				// https://go.dev/doc/faq#closures_and_goroutines
+				file := file
 
-			for _, f := range files {
-				guard <- struct{}{}
-
-				go func(file string) {
-					defer wg.Done()
-
+				g.Go(func() error {
 					// fmt.Println("Scanning " + file + "...\n")
 					matchedValues, count, err := adapter.FindFileMatches(file)
 					if err != nil {
-						abort(err)
+						return err
 					}
 					fileMatchList := checkMatches(file, matchedValues, count, true)
 					printMatchList(fileMatchList, showData, showAll, "line")
@@ -59,8 +58,8 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 					matchList = append(matchList, fileMatchList...)
 					appendMutex.Unlock()
 
-					<-guard
-				}(f)
+					return nil
+				})
 			}
 		} else {
 			fmt.Println("Found no files to scan")
@@ -90,28 +89,30 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 		if len(tables) > 0 {
 			fmt.Printf("Found %s to scan, sampling %s from each...\n\n", pluralize(len(tables), adapter.TableName()), pluralize(limit, adapter.RowName()))
 
-			wg.Add(len(tables))
-
 			var queryMutex sync.Mutex
 
-			for _, t := range tables {
-				go func(t table, limit int) {
-					defer wg.Done()
+			for _, table := range tables {
+				// important - do not remove
+				// https://go.dev/doc/faq#closures_and_goroutines
+				table := table
 
+				g.Go(func() error {
 					queryMutex.Lock()
-					columnNames, columnValues, err := adapter.FetchTableData(t, limit)
+					columnNames, columnValues, err := adapter.FetchTableData(table, limit)
 					queryMutex.Unlock()
 					if err != nil {
-						abort(err)
+						return err
 					}
 
-					tableMatchList := checkTableData(t, columnNames, columnValues)
+					tableMatchList := checkTableData(table, columnNames, columnValues)
 					printMatchList(tableMatchList, showData, showAll, "row")
 
 					appendMutex.Lock()
 					matchList = append(matchList, tableMatchList...)
 					appendMutex.Unlock()
-				}(t, limit)
+
+					return nil
+				})
 			}
 		} else {
 			fmt.Printf("Found no %s to scan\n", pluralize(0, adapter.TableName())[2:])
@@ -119,7 +120,9 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 		}
 	}
 
-	wg.Wait()
+	if err := g.Wait(); err != nil {
+		return err
+	}
 
 	if len(matchList) > 0 {
 		if showData {

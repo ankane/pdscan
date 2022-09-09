@@ -2,7 +2,6 @@ package internal
 
 import (
 	"fmt"
-	"os"
 	"regexp"
 	"sort"
 	"strings"
@@ -308,9 +307,4 @@ func showLowConfidenceMatchHelp(matchList []ruleMatch) {
 	if len(lowConfidenceMatches) > 0 {
 		fmt.Println("Also found " + pluralize(len(lowConfidenceMatches), "low confidence match") + ". Use --show-all to view them")
 	}
-}
-
-func abort(err error) {
-	fmt.Println(err)
-	os.Exit(1)
 }
