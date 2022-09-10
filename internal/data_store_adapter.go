@@ -1,6 +1,6 @@
 package internal
 
-type Adapter interface {
+type DataStoreAdapter interface {
 	TableName() string
 	RowName() string
 	Init(url string) error

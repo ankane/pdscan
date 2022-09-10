@@ -25,7 +25,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 
 		matchList, err = fileAdapterGo(&adapter, urlStr, showData, showAll)
 	} else {
-		var adapter Adapter
+		var adapter DataStoreAdapter
 		if strings.HasPrefix(urlStr, "mongodb://") {
 			adapter = &MongodbAdapter{}
 		} else if strings.HasPrefix(urlStr, "redis://") {
@@ -36,7 +36,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 			adapter = &SqlAdapter{}
 		}
 
-		matchList, err = adapterGo(&adapter, urlStr, showData, showAll, limit)
+		matchList, err = dataStoreAdapterGo(&adapter, urlStr, showData, showAll, limit)
 	}
 
 	if err != nil {
@@ -64,7 +64,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 	return nil
 }
 
-func adapterGo(a *Adapter, urlStr string, showData bool, showAll bool, limit int) ([]ruleMatch, error) {
+func dataStoreAdapterGo(a *DataStoreAdapter, urlStr string, showData bool, showAll bool, limit int) ([]ruleMatch, error) {
 	adapter := *a
 
 	err := adapter.Init(urlStr)
