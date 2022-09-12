@@ -282,10 +282,11 @@ func TestPostgres(t *testing.T) {
 			latitude float,
 			longitude float,
 			access_token text,
-			mac macaddr
+			mac macaddr,
+			emails text[]
 		)
 	`)
-	db.MustExec("INSERT INTO users (email, phone, street, ip, ip2, mac) VALUES ('test@example.org', '555-555-5555', '123 Main St', '127.0.0.1', '127.0.0.1', 'a1:b2:c3:d4:e5:f6')")
+	db.MustExec("INSERT INTO users (email, phone, street, ip, ip2, mac, emails) VALUES ('test@example.org', '555-555-5555', '123 Main St', '127.0.0.1', '127.0.0.1', 'a1:b2:c3:d4:e5:f6', ARRAY['test@example.org'])")
 
 	db.MustExec(`DROP TABLE IF EXISTS "ITEMS"`)
 	db.MustExec(`CREATE TABLE "ITEMS" ("EMAIL" text, "ZipCode" text)`)
@@ -293,6 +294,7 @@ func TestPostgres(t *testing.T) {
 
 	output := checkSql(t, "postgres://localhost/pdscan_test?sslmode=disable")
 	assert.Contains(t, output, "users.mac:")
+	assert.Contains(t, output, "users.emails:")
 }
 
 func TestRedis(t *testing.T) {
