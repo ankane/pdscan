@@ -2,13 +2,13 @@
 
 Scan your data stores for unencrypted personal data (PII)
 
-- Last names
+- Last names (US)
 - Email addresses
 - IP addresses (IPv4)
 - Street addresses (US)
 - Phone numbers
 - Credit card numbers
-- Social security numbers
+- Social Security numbers (US)
 - Dates of birth
 - Location data
 - OAuth tokens
