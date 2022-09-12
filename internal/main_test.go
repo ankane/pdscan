@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -213,13 +212,13 @@ func TestMongodb(t *testing.T) {
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
 	defer func() {
 		if err = client.Disconnect(ctx); err != nil {
-			log.Fatal(err)
+			panic(err)
 		}
 	}()
 
 	collection := client.Database("pdscan_test").Collection("users")
 	if err = collection.Drop(ctx); err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	docs := []interface{}{
@@ -235,7 +234,7 @@ func TestMongodb(t *testing.T) {
 	}
 	_, err = collection.InsertMany(ctx, docs)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	checkDocument(t, "mongodb://localhost:27017/pdscan_test")
@@ -381,7 +380,7 @@ func TestRedis(t *testing.T) {
 func TestSqlite(t *testing.T) {
 	dir, err := os.MkdirTemp("", "pdscan")
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	defer os.RemoveAll(dir)
 
@@ -518,7 +517,7 @@ func checkFile(t *testing.T, filename string, found bool) {
 func setupDb(driver string, dsn string) *sqlx.DB {
 	db, err := sqlx.Connect(driver, dsn)
 	if err != nil {
-		log.Fatalln(err)
+		panic(err)
 	}
 	db.MustExec("DROP TABLE IF EXISTS users")
 	return db
