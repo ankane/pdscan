@@ -12,6 +12,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/fatih/color"
 	"github.com/go-redis/redis/v8"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
@@ -290,7 +291,7 @@ func TestPostgres(t *testing.T) {
 			settings3 hstore
 		)
 	`)
-	db.MustExec(`INSERT INTO users (email, phone, street, ip, ip2, mac, emails, settings, settings2, settings3) VALUES ('test@example.org', '555-555-5555', '123 Main St', '127.0.0.1', '127.0.0.1', 'a1:b2:c3:d4:e5:f6', ARRAY['array@example.org'], '{"email": "json@example.org"}', '{"email": "jsonb@example.org"}', 'email=>hstore@example.org')`)
+	db.MustExec(`INSERT INTO users (email, phone, street, ip, ip2, mac, emails, settings, settings2, settings3) VALUES ('test@example.org', '555-555-5555', '123 Main St', '127.0.0.1', '127.0.0.1', 'a1:b2:c3:d4:e5:f6', ARRAY['array1@example.org', 'array2@example.org'], '{"email": "json@example.org"}', '{"email": "jsonb@example.org"}', 'email=>hstore@example.org')`)
 
 	db.MustExec(`DROP TABLE IF EXISTS "ITEMS"`)
 	db.MustExec(`CREATE TABLE "ITEMS" ("EMAIL" text, "ZipCode" text)`)
@@ -298,7 +299,7 @@ func TestPostgres(t *testing.T) {
 
 	output := checkSql(t, "postgres://localhost/pdscan_test?sslmode=disable")
 	assert.Contains(t, output, "users.mac:")
-	assert.Contains(t, output, "users.emails:")
+	assert.Contains(t, output, "users.emails: found emails (1 row)")
 	assert.Contains(t, output, "users.settings:")
 	assert.Contains(t, output, "users.settings2:")
 	assert.Contains(t, output, "users.settings3:")
@@ -487,6 +488,7 @@ func assertMatch(t *testing.T, ruleName string, columnNames []string, columnValu
 }
 
 func captureOutput(f func()) string {
+	color.NoColor = true
 	stdout := os.Stdout
 	r, w, _ := os.Pipe()
 	os.Stdout = w
@@ -494,6 +496,7 @@ func captureOutput(f func()) string {
 	w.Close()
 	out, _ := io.ReadAll(r)
 	os.Stdout = stdout
+	color.NoColor = false
 	return string(out)
 }
 
