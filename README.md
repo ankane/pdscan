@@ -24,9 +24,9 @@ Uses data sampling and naming, and works with compressed files
 
 Download the latest version.
 
-- Mac - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.4/pdscan_0.1.4_Darwin_x86_64.zip) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.1.4/pdscan_0.1.4_Darwin_arm64.zip)
-- Linux - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.4/pdscan_0.1.4_Linux_x86_64.zip) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.1.4/pdscan_0.1.4_Linux_arm64.zip)
-- Windows - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.4/pdscan_0.1.4_Windows_x86_64.zip)
+- Mac - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.5/pdscan_0.1.5_Darwin_x86_64.zip) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.1.5/pdscan_0.1.5_Darwin_arm64.zip)
+- Linux - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.5/pdscan_0.1.5_Linux_x86_64.zip) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.1.5/pdscan_0.1.5_Linux_arm64.zip)
+- Windows - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.5/pdscan_0.1.5_Windows_x86_64.zip)
 
 Unzip and follow the instructions below for your data store.
 
@@ -145,8 +145,6 @@ CREATE EXTENSION tsm_system_rows;
 ```sh
 pdscan redis://user:pass@host:6379/db
 ```
-
-Only scans string keys at the moment
 
 ### SQLite
 

@@ -1,4 +1,4 @@
-## 0.1.5 (unreleased)
+## 0.1.5 (2022-09-12)
 
 - Added scanning for nested objects with Elasticsearch and OpenSearch
 - Added scanning for lists, sets, hashes, and sorted sets with Redis
