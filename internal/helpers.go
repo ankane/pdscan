@@ -272,6 +272,7 @@ func printMatchList(matchList []ruleMatch, showData bool, showAll bool, rowStr s
 				if match.Confidence == "low" {
 					str = str + ", low confidence"
 				}
+				// TODO fix message for array values
 				description = fmt.Sprintf("found %s (%s)", match.DisplayName, str)
 			}
 

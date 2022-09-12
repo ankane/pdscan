@@ -100,7 +100,7 @@ func dataStoreAdapterGo(a *DataStoreAdapter, urlStr string, showData bool, showA
 				}
 
 				tableMatchList := checkTableData(table, columnNames, columnValues)
-				printMatchList(tableMatchList, showData, showAll, "row")
+				printMatchList(tableMatchList, showData, showAll, adapter.RowName())
 
 				appendMutex.Lock()
 				matchList = append(matchList, tableMatchList...)
