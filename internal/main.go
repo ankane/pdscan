@@ -135,7 +135,7 @@ func fileAdapterGo(a *FileAdapter, urlStr string, showData bool, showAll bool) (
 	}
 
 	if len(files) > 0 {
-		fmt.Printf("Found %s to scan...\n\n", pluralize(len(files), "file"))
+		fmt.Printf("Found %s to scan...\n\n", pluralize(len(files), adapter.ObjectName()))
 
 		matchList := []ruleMatch{}
 
@@ -172,7 +172,7 @@ func fileAdapterGo(a *FileAdapter, urlStr string, showData bool, showAll bool) (
 
 		return matchList, nil
 	} else {
-		fmt.Println("Found no files to scan")
+		fmt.Printf("Found no %s to scan\n", pluralize(0, adapter.ObjectName())[2:])
 		return nil, nil
 	}
 }

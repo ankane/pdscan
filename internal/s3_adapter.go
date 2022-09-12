@@ -14,6 +14,10 @@ type S3Adapter struct {
 	url string
 }
 
+func (a *S3Adapter) ObjectName() string {
+	return "object"
+}
+
 func (a *S3Adapter) Init(url string) error {
 	a.url = url
 	return nil

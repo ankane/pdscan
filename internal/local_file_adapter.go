@@ -9,6 +9,10 @@ type LocalFileAdapter struct {
 	url string
 }
 
+func (a *LocalFileAdapter) ObjectName() string {
+	return "file"
+}
+
 func (a *LocalFileAdapter) Init(url string) error {
 	a.url = url
 	return nil
