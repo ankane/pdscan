@@ -557,7 +557,7 @@ func checkDocument(t *testing.T, urlStr string) string {
 	assert.Contains(t, output, "users.access_token:")
 
 	// arrays
-	assert.Contains(t, output, "users.emails:")
+	assert.Contains(t, output, "users.emails: found emails (1 document)")
 	assert.Contains(t, output, "first@example.org")
 	assert.Contains(t, output, "second@example.org")
 

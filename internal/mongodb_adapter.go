@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"strings"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -133,11 +134,16 @@ func scanObject(object bson.D, prefix string, keyMap map[string]int, columnValue
 			} else {
 				arr, ok := elem.Value.(bson.A)
 				if ok {
+					values := []string{}
 					for _, av := range arr {
 						str, ok := av.(string)
 						if ok {
-							columnValues[i] = append(columnValues[i], str)
+							values = append(values, str)
 						}
+					}
+					// add as single value for now for correct document count
+					if len(values) > 0 {
+						columnValues[i] = append(columnValues[i], strings.Join(values, ", "))
 					}
 				}
 			}

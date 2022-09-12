@@ -164,13 +164,18 @@ func scanSource(object map[string]interface{}, prefix string, keyMap map[string]
 		case map[string]interface{}:
 			keyMap, columnValues = scanSource(typedVal, key+".", keyMap, columnValues)
 		case []interface{}:
+			values := []string{}
 			for _, av := range typedVal {
 				switch av2 := av.(type) {
 				case map[string]interface{}:
 					keyMap, columnValues = scanSource(av2, key+".", keyMap, columnValues)
 				case string:
-					columnValues[i] = append(columnValues[i], av2)
+					values = append(values, av2)
 				}
+			}
+			// add as single value for now for correct document count
+			if len(values) > 0 {
+				columnValues[i] = append(columnValues[i], strings.Join(values, ", "))
 			}
 		case string:
 			columnValues[i] = append(columnValues[i], typedVal)

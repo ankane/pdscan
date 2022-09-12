@@ -2,6 +2,7 @@
 
 - Added scanning for nested objects with Elasticsearch and OpenSearch
 - Added scanning for lists, sets, hashes, and sorted sets with Redis
+- Fixed document counts for Elasticsearch, OpenSearch, and MongoDB
 
 ## 0.1.4 (2022-09-07)
 
