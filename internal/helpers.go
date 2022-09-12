@@ -270,8 +270,11 @@ func printMatchList(matchList []ruleMatch, showData bool, showAll bool, rowStr s
 				if match.Confidence == "low" {
 					str = str + ", low confidence"
 				}
-				// TODO fix message for array values
-				description = fmt.Sprintf("found %s (%s)", match.DisplayName, str)
+				if rowStr == "key" {
+					description = fmt.Sprintf("found %s", match.DisplayName)
+				} else {
+					description = fmt.Sprintf("found %s (%s)", match.DisplayName, str)
+				}
 			}
 
 			yellow := color.New(color.FgYellow).SprintFunc()
