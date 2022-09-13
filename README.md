@@ -152,6 +152,8 @@ pdscan redis://user:pass@host:6379/db
 pdscan sqlite:/path/to/dbname.sqlite3
 ```
 
+> Not available with prebuilt binaries
+
 ### SQL Server
 
 ```sh
