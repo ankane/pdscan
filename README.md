@@ -30,11 +30,7 @@ Download the latest version.
 
 Unzip and follow the instructions below for your data store.
 
-With Homebrew, you can also use:
-
-```sh
-brew install ankane/brew/pdscan
-```
+You can also install it with [Homebrew](#homebrew) or [Docker](#docker).
 
 ## Data Stores
 
@@ -200,6 +196,30 @@ Specify number of processes to use (defaults to 1)
 
 ```sh
 pdscan --processes 4
+```
+
+## Additional Installation Methods
+
+### Homebrew
+
+With Homebrew, you can use:
+
+```sh
+brew install ankane/brew/pdscan
+```
+
+### Docker
+
+Get the [Docker image](https://hub.docker.com/r/ankane/pdscan) with:
+
+```sh
+docker pull ankane/pdscan
+```
+
+And run it with:
+
+```sh
+docker run -ti ankane/pdscan <connection-uri>
 ```
 
 ## History

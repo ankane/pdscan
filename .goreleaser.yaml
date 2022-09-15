@@ -25,6 +25,11 @@ archives:
       windows: Windows
       amd64: x86_64
     format: zip
+dockers:
+  - image_templates:
+      - ankane/pdscan
+    extra_files:
+      - licenses
 checksum:
   name_template: 'checksums.txt'
 snapshot:
