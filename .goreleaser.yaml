@@ -27,7 +27,8 @@ archives:
     format: zip
 dockers:
   - image_templates:
-      - ankane/pdscan
+      - ankane/pdscan:latest
+      - ankane/pdscan:{{ .Tag }}
     extra_files:
       - licenses
 checksum:
