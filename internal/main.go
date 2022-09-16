@@ -3,19 +3,32 @@ package internal
 import (
 	"fmt"
 	"runtime"
+	"sort"
 	"strings"
 	"sync"
 
 	"golang.org/x/sync/errgroup"
 )
 
-func Main(urlStr string, showData bool, showAll bool, limit int, processes int) error {
+func Main(urlStr string, showData bool, showAll bool, limit int, processes int, only string, except string) error {
 	runtime.GOMAXPROCS(processes)
 
 	var matchList []ruleMatch
 	var err error
 
 	matchConfig := NewMatchConfig()
+	if except != "" {
+		err := updateRules(&matchConfig, except, true)
+		if err != nil {
+			return err
+		}
+	}
+	if only != "" {
+		err := updateRules(&matchConfig, only, false)
+		if err != nil {
+			return err
+		}
+	}
 
 	if strings.HasPrefix(urlStr, "file://") || strings.HasPrefix(urlStr, "s3://") {
 		var adapter FileAdapter
@@ -179,4 +192,104 @@ func fileAdapterGo(a *FileAdapter, urlStr string, showData bool, showAll bool, m
 		fmt.Printf("Found no %s to scan\n", pluralize(0, adapter.ObjectName())[2:])
 		return nil, nil
 	}
+}
+
+func updateRules(matchConfig *MatchConfig, value string, except bool) error {
+	names := make(map[string]bool)
+	validNames := makeValidNames(matchConfig)
+
+	for _, name := range strings.Split(value, ",") {
+		name := strings.TrimSpace(name)
+		if name == "last_name" {
+			name = "surname"
+		}
+		if !validNames[name] {
+			arr := make([]string, 0, len(validNames))
+			for k := range validNames {
+				arr = append(arr, k)
+			}
+			sort.Strings(arr)
+			return fmt.Errorf("Invalid rule: %s\nValid rules are %s", name, strings.Join(arr, ", "))
+		}
+		names[name] = true
+	}
+
+	regexRules := []regexRule{}
+	for _, rule := range matchConfig.RegexRules {
+		var keep bool
+		if except {
+			keep = !names[rule.Name]
+		} else {
+			keep = names[rule.Name]
+		}
+
+		if keep {
+			regexRules = append(regexRules, rule)
+		}
+	}
+	matchConfig.RegexRules = regexRules
+
+	nameRules := []nameRule{}
+	for _, rule := range matchConfig.NameRules {
+		var keep bool
+		if except {
+			keep = !names[rule.Name]
+		} else {
+			keep = names[rule.Name]
+		}
+
+		if keep {
+			nameRules = append(nameRules, rule)
+		}
+	}
+	matchConfig.NameRules = nameRules
+
+	multiNameRules := []multiNameRule{}
+	for _, rule := range matchConfig.MultiNameRules {
+		var keep bool
+		if except {
+			keep = !names[rule.Name]
+		} else {
+			keep = names[rule.Name]
+		}
+
+		if keep {
+			multiNameRules = append(multiNameRules, rule)
+		}
+	}
+	matchConfig.MultiNameRules = multiNameRules
+
+	tokenRules := []tokenRule{}
+	for _, rule := range matchConfig.TokenRules {
+		var keep bool
+		if except {
+			keep = !names[rule.Name]
+		} else {
+			keep = names[rule.Name]
+		}
+
+		if keep {
+			tokenRules = append(tokenRules, rule)
+		}
+	}
+	matchConfig.TokenRules = tokenRules
+
+	return nil
+}
+
+func makeValidNames(matchConfig *MatchConfig) map[string]bool {
+	validNames := make(map[string]bool)
+	for _, rule := range matchConfig.RegexRules {
+		validNames[rule.Name] = true
+	}
+	for _, rule := range matchConfig.NameRules {
+		validNames[rule.Name] = true
+	}
+	for _, rule := range matchConfig.MultiNameRules {
+		validNames[rule.Name] = true
+	}
+	for _, rule := range matchConfig.TokenRules {
+		validNames[rule.Name] = true
+	}
+	return validNames
 }

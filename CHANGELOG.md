@@ -1,3 +1,7 @@
+## 0.1.6 (unreleased)
+
+- Added `--only` and `--except` options
+
 ## 0.1.5 (2022-09-12)
 
 - Added scanning for nested objects with Elasticsearch and OpenSearch

@@ -198,6 +198,18 @@ Specify number of processes to use (defaults to 1)
 pdscan --processes 4
 ```
 
+Only run certain rules [unreleased]
+
+```sh
+pdscan --only email,phone,location
+```
+
+Run all except certain rules [unreleased]
+
+```sh
+pdscan --except ip,mac
+```
+
 ## Additional Installation Methods
 
 ### Homebrew

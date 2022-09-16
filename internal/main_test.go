@@ -26,11 +26,11 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func TestLastName(t *testing.T) {
-	assertMatchName(t, "last_name", "last_name")
-	assertMatchName(t, "last_name", "lname")
-	assertMatchName(t, "last_name", "surname")
-	assertMatchValues(t, "last_name", []string{"Smith"})
+func TestSurname(t *testing.T) {
+	assertMatchName(t, "surname", "last_name")
+	assertMatchName(t, "surname", "lname")
+	assertMatchName(t, "surname", "surname")
+	assertMatchValues(t, "surname", []string{"Smith"})
 }
 
 func TestEmail(t *testing.T) {
@@ -353,7 +353,7 @@ func TestRedis(t *testing.T) {
 		panic(err)
 	}
 
-	output := captureOutput(func() { Main(urlStr, true, false, 10000, 1) })
+	output := captureOutput(func() { Main(urlStr, true, false, 10000, 1, "", "") })
 	assert.Contains(t, output, "sampling 10000 keys")
 	assert.Contains(t, output, "pdscan_test:email:")
 
@@ -442,12 +442,12 @@ func TestSqlserver(t *testing.T) {
 }
 
 func TestBadScheme(t *testing.T) {
-	err := Main("hello://", false, false, 10000, 1)
+	err := Main("hello://", false, false, 10000, 1, "", "")
 	assert.Contains(t, err, "unknown database scheme")
 }
 
 func TestShowData(t *testing.T) {
-	output := captureOutput(func() { Main("file://../testdata/email.txt", true, false, 10000, 1) })
+	output := captureOutput(func() { Main("file://../testdata/email.txt", true, false, 10000, 1, "", "") })
 	assert.Contains(t, output, "test@example.org")
 }
 
@@ -505,7 +505,7 @@ func captureOutput(f func()) string {
 
 func fileOutput(filename string) string {
 	urlStr := fmt.Sprintf("file://../testdata/%s", filename)
-	return captureOutput(func() { Main(urlStr, false, false, 10000, 1) })
+	return captureOutput(func() { Main(urlStr, false, false, 10000, 1, "", "") })
 }
 
 func checkFile(t *testing.T, filename string, found bool) {
@@ -528,7 +528,7 @@ func setupDb(driver string, dsn string) *sqlx.DB {
 }
 
 func checkSql(t *testing.T, urlStr string) string {
-	output := captureOutput(func() { Main(urlStr, true, false, 10000, 1) })
+	output := captureOutput(func() { Main(urlStr, true, false, 10000, 1, "", "") })
 	assert.Contains(t, output, "sampling 10000 rows")
 	assert.NotContains(t, output, "users.id:")
 	assert.Contains(t, output, "users.email:")
@@ -546,7 +546,7 @@ func checkSql(t *testing.T, urlStr string) string {
 }
 
 func checkDocument(t *testing.T, urlStr string) string {
-	output := captureOutput(func() { Main(urlStr, true, false, 10000, 1) })
+	output := captureOutput(func() { Main(urlStr, true, false, 10000, 1, "", "") })
 	assert.Contains(t, output, "sampling 10000 documents")
 	assert.NotContains(t, output, "users._id:")
 	assert.Contains(t, output, "users.email:")

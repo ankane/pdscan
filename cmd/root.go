@@ -41,11 +41,21 @@ var rootCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
+		only, err := cmd.Flags().GetString("only")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		except, err := cmd.Flags().GetString("except")
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		if len(args) == 0 {
 			cmd.Help()
 			os.Exit(1)
 		} else {
-			err = internal.Main(args[0], showData, showAll, limit, processes)
+			err = internal.Main(args[0], showData, showAll, limit, processes, only, except)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
@@ -61,6 +71,8 @@ func Execute() {
 	rootCmd.PersistentFlags().Bool("show-all", false, "Show all matches")
 	rootCmd.PersistentFlags().Int("sample-size", 10000, "Sample size")
 	rootCmd.PersistentFlags().Int("processes", 1, "Processes")
+	rootCmd.PersistentFlags().String("only", "", "Only certain rules")
+	rootCmd.PersistentFlags().String("except", "", "Except certain rules")
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)

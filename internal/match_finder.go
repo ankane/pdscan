@@ -175,7 +175,7 @@ func (a *MatchFinder) CheckTableData(table table, columnNames []string, columnVa
 			parts := strings.Split(name, ".")
 			name = parts[len(parts)-1]
 
-			rule := matchNameRule(name, nameRules)
+			rule := matchNameRule(name, a.matchConfig.NameRules)
 			if rule.Name != "" {
 				matchList = append(matchList, ruleMatch{RuleName: rule.Name, DisplayName: rule.DisplayName, Confidence: "medium", Identifier: colIdentifier, MatchedData: values, MatchType: "name"})
 			}
