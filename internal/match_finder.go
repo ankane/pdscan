@@ -11,7 +11,8 @@ type MatchFinder struct {
 }
 
 func NewMatchFinder() MatchFinder {
-	return MatchFinder{make([][]string, len(regexRules)+1), 0, len(regexRules)}
+	nameIndex := len(regexRules)
+	return MatchFinder{make([][]string, nameIndex+1), 0, nameIndex}
 }
 
 func (a *MatchFinder) Scan(v string) {
