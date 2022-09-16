@@ -419,6 +419,7 @@ func captureOutput(f func()) string {
 func runCmd(args []string) error {
 	cmd := NewRootCmd()
 	cmd.SetArgs(args)
+	cmd.SilenceErrors = true
 	return cmd.Execute()
 }
 
