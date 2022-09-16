@@ -132,7 +132,7 @@ func scanDataStore(adapter DataStoreAdapter, urlStr string, showData bool, showA
 	}
 }
 
-func scanFileAdapter(adapter FileAdapter, urlStr string, showData bool, showAll bool, matchConfig *MatchConfig) ([]ruleMatch, error) {
+func scanFiles(adapter FileAdapter, urlStr string, showData bool, showAll bool, matchConfig *MatchConfig) ([]ruleMatch, error) {
 	err := adapter.Init(urlStr)
 	if err != nil {
 		return nil, err

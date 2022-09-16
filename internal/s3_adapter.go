@@ -19,7 +19,7 @@ func (a *S3Adapter) ObjectName() string {
 }
 
 func (a *S3Adapter) Scan(urlStr string, showData bool, showAll bool, limit int, matchConfig *MatchConfig) ([]ruleMatch, error) {
-	return scanFileAdapter(a, urlStr, showData, showAll, matchConfig)
+	return scanFiles(a, urlStr, showData, showAll, matchConfig)
 }
 
 func (a *S3Adapter) Init(url string) error {

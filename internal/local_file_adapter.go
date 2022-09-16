@@ -14,7 +14,7 @@ func (a *LocalFileAdapter) ObjectName() string {
 }
 
 func (a *LocalFileAdapter) Scan(urlStr string, showData bool, showAll bool, limit int, matchConfig *MatchConfig) ([]ruleMatch, error) {
-	return scanFileAdapter(a, urlStr, showData, showAll, matchConfig)
+	return scanFiles(a, urlStr, showData, showAll, matchConfig)
 }
 
 func (a *LocalFileAdapter) Init(url string) error {
