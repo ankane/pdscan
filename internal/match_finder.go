@@ -6,16 +6,18 @@ import (
 )
 
 type MatchConfig struct {
-	RegexRules []regexRule
-	NameRules  []nameRule
-	TokenRules []tokenRule
+	RegexRules     []regexRule
+	NameRules      []nameRule
+	MultiNameRules []multiNameRule
+	TokenRules     []tokenRule
 }
 
 func NewMatchConfig() MatchConfig {
 	return MatchConfig{
-		RegexRules: regexRules,
-		NameRules:  nameRules,
-		TokenRules: tokenRules,
+		RegexRules:     regexRules,
+		NameRules:      nameRules,
+		MultiNameRules: multiNameRules,
+		TokenRules:     tokenRules,
 	}
 }
 
@@ -182,19 +184,20 @@ func (a *MatchFinder) CheckTableData(table table, columnNames []string, columnVa
 		tableMatchList = append(tableMatchList, matchList...)
 	}
 
-	// check for location data
-	var latCol string
-	var lonCol string
-	for _, col := range columnNames {
-		if stringInSlice(col, []string{"latitude", "lat"}) {
-			latCol = col
-		} else if stringInSlice(col, []string{"longitude", "lon", "lng"}) {
-			lonCol = col
+	for _, rule := range a.matchConfig.MultiNameRules {
+		var latCol string
+		var lonCol string
+		for _, col := range columnNames {
+			if stringInSlice(col, rule.ColumnNames[0]) {
+				latCol = col
+			} else if stringInSlice(col, rule.ColumnNames[1]) {
+				lonCol = col
+			}
 		}
-	}
-	if latCol != "" && lonCol != "" {
-		// TODO show data
-		tableMatchList = append(tableMatchList, ruleMatch{RuleName: "location", DisplayName: "location data", Confidence: "medium", Identifier: table.displayName() + "." + latCol + "+" + lonCol, MatchType: "name"})
+		if latCol != "" && lonCol != "" {
+			// TODO show data
+			tableMatchList = append(tableMatchList, ruleMatch{RuleName: rule.Name, DisplayName: rule.DisplayName, Confidence: "medium", Identifier: table.displayName() + "." + latCol + "+" + lonCol, MatchType: "name"})
+		}
 	}
 
 	return tableMatchList

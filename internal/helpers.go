@@ -16,6 +16,12 @@ type nameRule struct {
 	ColumnNames []string
 }
 
+type multiNameRule struct {
+	Name        string
+	DisplayName string
+	ColumnNames [][]string
+}
+
 type regexRule struct {
 	Name        string
 	DisplayName string
@@ -77,6 +83,10 @@ var nameRules = []nameRule{
 	nameRule{Name: "date_of_birth", DisplayName: "dates of birth", ColumnNames: []string{"dateofbirth", "birthday", "dob"}},
 	nameRule{Name: "postal_code", DisplayName: "postal codes", ColumnNames: []string{"zip", "zipcode", "postalcode"}},
 	nameRule{Name: "oauth_token", DisplayName: "OAuth tokens", ColumnNames: []string{"accesstoken", "refreshtoken"}},
+}
+
+var multiNameRules = []multiNameRule{
+	multiNameRule{Name: "location", DisplayName: "location data", ColumnNames: [][]string{{"latitude", "lat"}, {"longitude", "lon", "lng"}}},
 }
 
 // TODO IPv6
