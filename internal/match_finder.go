@@ -21,17 +21,20 @@ func NewMatchConfig() MatchConfig {
 
 type MatchFinder struct {
 	MatchedValues [][]string
+	TokenValues   [][]string
 	Count         int
-	nameIndex     int
 	matchConfig   *MatchConfig
 }
 
 var tokenizer = regexp.MustCompile(`\W+`)
 
 func NewMatchFinder(matchConfig *MatchConfig) MatchFinder {
-	regexRules := matchConfig.RegexRules
-	nameIndex := len(regexRules)
-	return MatchFinder{make([][]string, nameIndex+len(matchConfig.TokenRules)), 0, nameIndex, matchConfig}
+	return MatchFinder{
+		make([][]string, len(matchConfig.RegexRules)),
+		make([][]string, len(matchConfig.TokenRules)),
+		0,
+		matchConfig,
+	}
 }
 
 func (a *MatchFinder) Scan(v string) {
@@ -45,7 +48,7 @@ func (a *MatchFinder) Scan(v string) {
 		tokens := tokenizer.Split(strings.ToLower(v), -1)
 		for i, rule := range a.matchConfig.TokenRules {
 			if anyMatches(rule, tokens) {
-				a.MatchedValues[a.nameIndex+i] = append(a.MatchedValues[a.nameIndex+i], v)
+				a.TokenValues[i] = append(a.TokenValues[i], v)
 			}
 		}
 	}
@@ -68,7 +71,8 @@ func (a *MatchFinder) ScanValues(values []string) {
 }
 
 func (a *MatchFinder) Clear() {
-	a.MatchedValues = make([][]string, a.nameIndex+1)
+	a.MatchedValues = make([][]string, len(a.matchConfig.RegexRules))
+	a.TokenValues = make([][]string, len(a.matchConfig.TokenRules))
 	a.Count = 0
 }
 
@@ -114,7 +118,7 @@ func (a *MatchFinder) CheckMatches(colIdentifier string, onlyValues bool) []rule
 	}
 
 	for i, rule := range a.matchConfig.TokenRules {
-		matchedData := matchedValues[a.nameIndex+i]
+		matchedData := a.TokenValues[i]
 
 		if len(matchedData) > 0 {
 			confidence := "low"
