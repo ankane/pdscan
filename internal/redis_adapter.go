@@ -31,6 +31,14 @@ func (a *RedisAdapter) Init(urlStr string) error {
 
 	a.DB = redis.NewClient(opt)
 
+	// connect
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	_, err = a.DB.Ping(ctx).Result()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
