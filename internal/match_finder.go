@@ -139,3 +139,56 @@ func (a *MatchFinder) CheckMatches(colIdentifier string, onlyValues bool) []rule
 
 	return matchList
 }
+
+func (a *MatchFinder) CheckTableData(table table, columnNames []string, columnValues [][]string) []ruleMatch {
+	tableMatchList := []ruleMatch{}
+
+	for i, col := range columnNames {
+		// check values
+		values := columnValues[i]
+
+		var colIdentifier string
+		if table.displayName() == "" {
+			colIdentifier = col
+		} else {
+			colIdentifier = table.displayName() + "." + col
+		}
+
+		a.Clear()
+		a.ScanValues(values)
+		matchList := a.CheckMatches(colIdentifier, false)
+
+		// only check name if no matches
+		if len(matchList) == 0 {
+			name := strings.Replace(strings.ToLower(col), "_", "", -1)
+
+			// check last part for nested data
+			parts := strings.Split(name, ".")
+			name = parts[len(parts)-1]
+
+			rule := matchNameRule(name, nameRules)
+			if rule.Name != "" {
+				matchList = append(matchList, ruleMatch{RuleName: rule.Name, DisplayName: rule.DisplayName, Confidence: "medium", Identifier: colIdentifier, MatchedData: values, MatchType: "name"})
+			}
+		}
+
+		tableMatchList = append(tableMatchList, matchList...)
+	}
+
+	// check for location data
+	var latCol string
+	var lonCol string
+	for _, col := range columnNames {
+		if stringInSlice(col, []string{"latitude", "lat"}) {
+			latCol = col
+		} else if stringInSlice(col, []string{"longitude", "lon", "lng"}) {
+			lonCol = col
+		}
+	}
+	if latCol != "" && lonCol != "" {
+		// TODO show data
+		tableMatchList = append(tableMatchList, ruleMatch{RuleName: "location", DisplayName: "location data", Confidence: "medium", Identifier: table.displayName() + "." + latCol + "+" + lonCol, MatchType: "name"})
+	}
+
+	return tableMatchList
+}

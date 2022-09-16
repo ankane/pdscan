@@ -102,7 +102,7 @@ func dataStoreAdapterGo(a *DataStoreAdapter, urlStr string, showData bool, showA
 				}
 
 				matchFinder := NewMatchFinder(matchConfig)
-				tableMatchList := checkTableData(table, columnNames, columnValues, &matchFinder)
+				tableMatchList := matchFinder.CheckTableData(table, columnNames, columnValues)
 				printMatchList(tableMatchList, showData, showAll, adapter.RowName())
 
 				appendMutex.Lock()
