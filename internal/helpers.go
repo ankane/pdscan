@@ -104,13 +104,6 @@ var tokenizer = regexp.MustCompile(`\W+`)
 var space = regexp.MustCompile(`\s+`)
 var urlPassword = regexp.MustCompile(`((\/\/|%2F%2F)\S+(:|%3A))\S+(@|%40)`)
 
-func findMatches(values []string, matchFinder *MatchFinder) {
-	for _, v := range values {
-		matchFinder.Scan(v)
-	}
-	matchFinder.Count += len(values)
-}
-
 func checkTableData(table table, columnNames []string, columnValues [][]string, matchFinder *MatchFinder) []ruleMatch {
 	tableMatchList := []ruleMatch{}
 
@@ -126,7 +119,7 @@ func checkTableData(table table, columnNames []string, columnValues [][]string, 
 		}
 
 		matchFinder.Clear()
-		findMatches(values, matchFinder)
+		matchFinder.ScanValues(values)
 		matchList := matchFinder.CheckMatches(colIdentifier, false)
 
 		// only check name if no matches

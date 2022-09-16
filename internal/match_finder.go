@@ -28,6 +28,13 @@ func (a *MatchFinder) Scan(v string) {
 	}
 }
 
+func (a *MatchFinder) ScanValues(values []string) {
+	for _, v := range values {
+		a.Scan(v)
+	}
+	a.Count += len(values)
+}
+
 func (a *MatchFinder) Clear() {
 	a.MatchedValues = make([][]string, a.nameIndex+1)
 	a.Count = 0
