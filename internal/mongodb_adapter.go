@@ -68,7 +68,7 @@ func (a MongodbAdapter) FetchTables() ([]table, error) {
 	return tables, nil
 }
 
-func (a MongodbAdapter) FetchTableData(table table, limit int) ([]string, [][]string, error) {
+func (a MongodbAdapter) FetchTableData(table table, limit int) (*tableData, error) {
 	collection := a.DB.Collection(table.Name)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -84,7 +84,7 @@ func (a MongodbAdapter) FetchTableData(table table, limit int) ([]string, [][]st
 	}
 	cur, err := collection.Aggregate(ctx, pipeline)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	defer cur.Close(ctx)
 
@@ -96,13 +96,13 @@ func (a MongodbAdapter) FetchTableData(table table, limit int) ([]string, [][]st
 		var result bson.D
 		err := cur.Decode(&result)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
 		keyMap, columnValues = scanObject(result, "", keyMap, columnValues)
 	}
 	if err := cur.Err(); err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	columnNames := make([]string, len(keyMap))
@@ -110,7 +110,7 @@ func (a MongodbAdapter) FetchTableData(table table, limit int) ([]string, [][]st
 		columnNames[i] = key
 	}
 
-	return columnNames, columnValues, nil
+	return &tableData{columnNames, columnValues}, nil
 }
 
 func scanObject(object bson.D, prefix string, keyMap map[string]int, columnValues [][]string) (map[string]int, [][]string) {

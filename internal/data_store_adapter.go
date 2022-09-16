@@ -5,5 +5,5 @@ type DataStoreAdapter interface {
 	RowName() string
 	Init(url string) error
 	FetchTables() ([]table, error)
-	FetchTableData(table table, limit int) ([]string, [][]string, error)
+	FetchTableData(table table, limit int) (*tableData, error)
 }

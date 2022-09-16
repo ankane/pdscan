@@ -5,6 +5,11 @@ import (
 	"strings"
 )
 
+type tableData struct {
+	ColumnNames  []string
+	ColumnValues [][]string
+}
+
 type MatchConfig struct {
 	RegexRules     []regexRule
 	NameRules      []nameRule
@@ -155,8 +160,11 @@ func (a *MatchFinder) CheckMatches(colIdentifier string, onlyValues bool) []rule
 	return matchList
 }
 
-func (a *MatchFinder) CheckTableData(table table, columnNames []string, columnValues [][]string) []ruleMatch {
+func (a *MatchFinder) CheckTableData(table table, tableData *tableData) []ruleMatch {
 	tableMatchList := []ruleMatch{}
+
+	columnNames := tableData.ColumnNames
+	columnValues := tableData.ColumnValues
 
 	for i, col := range columnNames {
 		// check values

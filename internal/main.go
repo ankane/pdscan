@@ -109,14 +109,14 @@ func dataStoreAdapterGo(a *DataStoreAdapter, urlStr string, showData bool, showA
 
 			g.Go(func() error {
 				queryMutex.Lock()
-				columnNames, columnValues, err := adapter.FetchTableData(table, limit)
+				tableData, err := adapter.FetchTableData(table, limit)
 				queryMutex.Unlock()
 				if err != nil {
 					return err
 				}
 
 				matchFinder := NewMatchFinder(matchConfig)
-				tableMatchList := matchFinder.CheckTableData(table, columnNames, columnValues)
+				tableMatchList := matchFinder.CheckTableData(table, tableData)
 				printMatchList(tableMatchList, showData, showAll, adapter.RowName())
 
 				appendMutex.Lock()
