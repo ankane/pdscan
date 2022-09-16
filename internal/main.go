@@ -10,11 +10,12 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+type Adapter interface {
+	Scan(string, bool, bool, int, *MatchConfig) ([]ruleMatch, error)
+}
+
 func Main(urlStr string, showData bool, showAll bool, limit int, processes int, only string, except string, minCount int) error {
 	runtime.GOMAXPROCS(processes)
-
-	var matchList []ruleMatch
-	var err error
 
 	matchConfig := NewMatchConfig()
 	if except != "" {
@@ -31,29 +32,24 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int, 
 	}
 	matchConfig.MinCount = minCount
 
-	if strings.HasPrefix(urlStr, "file://") || strings.HasPrefix(urlStr, "s3://") {
-		var adapter FileAdapter
-		if strings.HasPrefix(urlStr, "file://") {
-			adapter = &LocalFileAdapter{}
-		} else {
-			adapter = &S3Adapter{}
-		}
-
-		matchList, err = fileAdapterGo(&adapter, urlStr, showData, showAll, &matchConfig)
+	var adapter Adapter
+	if strings.HasPrefix(urlStr, "file://") {
+		adapter = &LocalFileAdapter{}
+	} else if strings.HasPrefix(urlStr, "s3://") {
+		adapter = &S3Adapter{}
+	} else if strings.HasPrefix(urlStr, "mongodb://") {
+		adapter = &MongodbAdapter{}
+	} else if strings.HasPrefix(urlStr, "redis://") {
+		adapter = &RedisAdapter{}
+	} else if strings.HasPrefix(urlStr, "elasticsearch+http://") || strings.HasPrefix(urlStr, "elasticsearch+https://") {
+		adapter = &ElasticsearchAdapter{}
+	} else if strings.HasPrefix(urlStr, "opensearch+http://") || strings.HasPrefix(urlStr, "opensearch+https://") {
+		adapter = &ElasticsearchAdapter{}
 	} else {
-		var adapter DataStoreAdapter
-		if strings.HasPrefix(urlStr, "mongodb://") {
-			adapter = &MongodbAdapter{}
-		} else if strings.HasPrefix(urlStr, "redis://") {
-			adapter = &RedisAdapter{}
-		} else if strings.HasPrefix(urlStr, "elasticsearch+http://") || strings.HasPrefix(urlStr, "elasticsearch+https://") || strings.HasPrefix(urlStr, "opensearch+http://") || strings.HasPrefix(urlStr, "opensearch+https://") {
-			adapter = &ElasticsearchAdapter{}
-		} else {
-			adapter = &SqlAdapter{}
-		}
-
-		matchList, err = dataStoreAdapterGo(&adapter, urlStr, showData, showAll, limit, &matchConfig)
+		adapter = &SqlAdapter{}
 	}
+
+	matchList, err := adapter.Scan(urlStr, showData, showAll, limit, &matchConfig)
 
 	if err != nil {
 		return err
@@ -80,9 +76,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int, 
 	return nil
 }
 
-func dataStoreAdapterGo(a *DataStoreAdapter, urlStr string, showData bool, showAll bool, limit int, matchConfig *MatchConfig) ([]ruleMatch, error) {
-	adapter := *a
-
+func scanDataStore(adapter DataStoreAdapter, urlStr string, showData bool, showAll bool, limit int, matchConfig *MatchConfig) ([]ruleMatch, error) {
 	err := adapter.Init(urlStr)
 	if err != nil {
 		return nil, err
@@ -138,9 +132,7 @@ func dataStoreAdapterGo(a *DataStoreAdapter, urlStr string, showData bool, showA
 	}
 }
 
-func fileAdapterGo(a *FileAdapter, urlStr string, showData bool, showAll bool, matchConfig *MatchConfig) ([]ruleMatch, error) {
-	adapter := *a
-
+func scanFileAdapter(adapter FileAdapter, urlStr string, showData bool, showAll bool, matchConfig *MatchConfig) ([]ruleMatch, error) {
 	err := adapter.Init(urlStr)
 	if err != nil {
 		return nil, err

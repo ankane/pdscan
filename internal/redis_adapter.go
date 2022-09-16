@@ -19,6 +19,10 @@ func (a *RedisAdapter) RowName() string {
 	return "key"
 }
 
+func (a *RedisAdapter) Scan(urlStr string, showData bool, showAll bool, limit int, matchConfig *MatchConfig) ([]ruleMatch, error) {
+	return scanDataStore(a, urlStr, showData, showAll, limit, matchConfig)
+}
+
 func (a *RedisAdapter) Init(urlStr string) error {
 	opt, err := redis.ParseURL(urlStr)
 	if err != nil {

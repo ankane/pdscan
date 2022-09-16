@@ -24,6 +24,10 @@ func (a *SqlAdapter) RowName() string {
 	return "row"
 }
 
+func (a *SqlAdapter) Scan(urlStr string, showData bool, showAll bool, limit int, matchConfig *MatchConfig) ([]ruleMatch, error) {
+	return scanDataStore(a, urlStr, showData, showAll, limit, matchConfig)
+}
+
 func (a *SqlAdapter) Init(url string) error {
 	u, err := dburl.Parse(url)
 	if err != nil {

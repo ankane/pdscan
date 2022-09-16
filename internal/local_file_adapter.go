@@ -13,6 +13,10 @@ func (a *LocalFileAdapter) ObjectName() string {
 	return "file"
 }
 
+func (a *LocalFileAdapter) Scan(urlStr string, showData bool, showAll bool, limit int, matchConfig *MatchConfig) ([]ruleMatch, error) {
+	return scanFileAdapter(a, urlStr, showData, showAll, matchConfig)
+}
+
 func (a *LocalFileAdapter) Init(url string) error {
 	a.url = url
 	return nil

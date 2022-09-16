@@ -18,6 +18,10 @@ func (a *S3Adapter) ObjectName() string {
 	return "object"
 }
 
+func (a *S3Adapter) Scan(urlStr string, showData bool, showAll bool, limit int, matchConfig *MatchConfig) ([]ruleMatch, error) {
+	return scanFileAdapter(a, urlStr, showData, showAll, matchConfig)
+}
+
 func (a *S3Adapter) Init(url string) error {
 	a.url = url
 	return nil
