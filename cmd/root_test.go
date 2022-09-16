@@ -473,7 +473,7 @@ func checkSql(t *testing.T, urlStr string) string {
 }
 
 func checkDocument(t *testing.T, urlStr string) string {
-	output := captureOutput(func() { runCmd([]string{urlStr}) })
+	output := captureOutput(func() { runCmd([]string{urlStr, "--show-data"}) })
 	assert.Contains(t, output, "sampling 10000 documents")
 	assert.NotContains(t, output, "users._id:")
 	assert.Contains(t, output, "users.email:")
