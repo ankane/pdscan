@@ -32,7 +32,7 @@ func (a *RedisAdapter) Init(urlStr string) error {
 	a.DB = redis.NewClient(opt)
 
 	// connect
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	_, err = a.DB.Ping(ctx).Result()
 	if err != nil {
@@ -49,7 +49,7 @@ func (a RedisAdapter) FetchTables() ([]table, error) {
 func (a RedisAdapter) FetchTableData(table table, limit int) (*tableData, error) {
 	rdb := a.DB
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	keyMap := make(map[string]int)
