@@ -152,15 +152,15 @@ func TestFileZip(t *testing.T) {
 }
 
 func TestFileMinCount(t *testing.T) {
-	output := captureOutput(func() { Main("file://../testdata/min-count.txt", false, false, 10000, 1, "", "", 2) })
+	output := captureOutput(func() { Main(fileUrl("min-count.txt"), false, false, 10000, 1, "", "", 2) })
 	assert.Contains(t, output, "found emails (2 lines)")
 
-	output = captureOutput(func() { Main("file://../testdata/min-count.txt", false, false, 10000, 1, "", "", 3) })
+	output = captureOutput(func() { Main(fileUrl("min-count.txt"), false, false, 10000, 1, "", "", 3) })
 	assert.Contains(t, output, "No sensitive data found")
 }
 
 func TestFileLineCount(t *testing.T) {
-	output := captureOutput(func() { Main("file://../testdata/min-count.txt", true, false, 10000, 1, "", "", 1) })
+	output := captureOutput(func() { Main(fileUrl("min-count.txt"), true, false, 10000, 1, "", "", 1) })
 	assert.Contains(t, output, "found emails (2 lines)")
 	assert.Contains(t, output, "test1@example.org, test2@example.org, test3@example.org")
 }
@@ -517,9 +517,12 @@ func captureOutput(f func()) string {
 	return string(out)
 }
 
+func fileUrl(filename string) string {
+	return fmt.Sprintf("file://../testdata/%s", filename)
+}
+
 func fileOutput(filename string) string {
-	urlStr := fmt.Sprintf("file://../testdata/%s", filename)
-	return captureOutput(func() { Main(urlStr, false, false, 10000, 1, "", "", 1) })
+	return captureOutput(func() { Main(fileUrl(filename), false, false, 10000, 1, "", "", 1) })
 }
 
 func checkFile(t *testing.T, filename string, found bool) {
