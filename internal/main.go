@@ -200,7 +200,6 @@ func updateRules(matchConfig *MatchConfig, value string, except bool) error {
 	validNames := makeValidNames(matchConfig)
 
 	for _, name := range strings.Split(value, ",") {
-		name := strings.TrimSpace(name)
 		if name == "last_name" {
 			name = "surname"
 		}
