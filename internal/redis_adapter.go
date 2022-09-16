@@ -50,7 +50,9 @@ func (a RedisAdapter) FetchTableData(table table, limit int) (*tableData, error)
 
 	for j := 0; j < limit; j++ {
 		key, err := rdb.RandomKey(ctx).Result()
-		if err != nil {
+		if err == redis.Nil {
+			break
+		} else if err != nil {
 			return nil, err
 		}
 

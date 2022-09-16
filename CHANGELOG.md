@@ -1,3 +1,7 @@
+## 0.1.7 (unreleased)
+
+- Fixed error when Redis has no keys
+
 ## 0.1.6 (2022-09-16)
 
 - Added `--only` and `--except` options
