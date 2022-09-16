@@ -390,6 +390,7 @@ func TestBadScheme(t *testing.T) {
 
 func TestPattern(t *testing.T) {
 	output := captureOutput(func() { runCmd([]string{fileUrl("min-count.txt"), "--pattern", `\stest[12]`, "--show-data"}) })
+	assert.Contains(t, output, "found pattern (1 line)")
 	assert.NotContains(t, output, "test1")
 	assert.Contains(t, output, "test2")
 	assert.NotContains(t, output, "test3")
