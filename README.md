@@ -28,11 +28,9 @@ Download the latest version.
 - Linux - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.6/pdscan_0.1.6_Linux_x86_64.zip) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.1.6/pdscan_0.1.6_Linux_arm64.zip)
 - Windows - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.6/pdscan_0.1.6_Windows_x86_64.zip)
 
-Unzip and follow the instructions below for your data store.
-
 You can also install it with [Homebrew](#homebrew) or [Docker](#docker).
 
-## Data Stores
+## Data Sources
 
 - [Elasticsearch](#elasticsearch)
 - [Files](#files)
@@ -42,9 +40,9 @@ You can also install it with [Homebrew](#homebrew) or [Docker](#docker).
 - [OpenSearch](#opensearch)
 - [Postgres](#postgres)
 - [Redis](#redis)
+- [S3](#s3)
 - [SQLite](#sqlite)
 - [SQL Server](#sql-server)
-- [S3](#s3)
 
 ### Elasticsearch
 
@@ -142,20 +140,6 @@ CREATE EXTENSION tsm_system_rows;
 pdscan redis://user:pass@host:6379/db
 ```
 
-### SQLite
-
-```sh
-pdscan sqlite:/path/to/dbname.sqlite3
-```
-
-> Not available with prebuilt binaries
-
-### SQL Server
-
-```sh
-pdscan "sqlserver://user:pass@host:1433?database=dbname"
-```
-
 ### S3
 
 ```sh
@@ -171,6 +155,20 @@ pdscan s3://bucket/path/to/directory/
 ```
 
 > Requires `s3:ListBucket` and `s3:GetObject` permissions
+
+### SQLite
+
+```sh
+pdscan sqlite:/path/to/dbname.sqlite3
+```
+
+> Not available with prebuilt binaries
+
+### SQL Server
+
+```sh
+pdscan "sqlserver://user:pass@host:1433?database=dbname"
+```
 
 ## Options
 
