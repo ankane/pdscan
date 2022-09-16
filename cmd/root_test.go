@@ -189,6 +189,7 @@ func TestMysql(t *testing.T) {
 			street text,
 			zip_code text,
 			birthday date,
+			last_name text,
 			ip varchar(15),
 			ip2 varchar(15),
 			latitude float,
@@ -216,6 +217,7 @@ func TestPostgres(t *testing.T) {
 			street text,
 			zip_code text,
 			birthday date,
+			last_name text,
 			ip inet,
 			ip2 cidr,
 			latitude float,
@@ -332,6 +334,7 @@ func TestSqlite(t *testing.T) {
 			street text,
 			zip_code text,
 			birthday date,
+			last_name text,
 			ip text,
 			ip2 text,
 			latitude float,
@@ -363,6 +366,7 @@ func TestSqlserver(t *testing.T) {
 			street text,
 			zip_code text,
 			birthday date,
+			last_name text,
 			ip text,
 			ip2 text,
 			latitude float,
@@ -466,6 +470,7 @@ func checkSql(t *testing.T, urlStr string) string {
 	assert.Contains(t, output, "users.street:")
 	assert.Contains(t, output, "users.zip_code:")
 	assert.Contains(t, output, "users.birthday:")
+	assert.Contains(t, output, "users.last_name:")
 	assert.Contains(t, output, "users.ip:")
 	assert.Contains(t, output, "users.ip2:")
 	assert.Contains(t, output, "users.latitude+longitude:")
