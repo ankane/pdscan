@@ -30,7 +30,7 @@ Download the latest version.
 
 You can also install it with [Homebrew](#homebrew) or [Docker](#docker).
 
-## Data Sources
+## Data Stores
 
 - [Elasticsearch](#elasticsearch)
 - [Files](#files)
