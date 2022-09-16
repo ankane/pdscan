@@ -219,7 +219,7 @@ pdscan --min-count 10
 Specify a custom pattern [unreleased, experimental]
 
 ```sh
-pdscan --pattern '\d{16}'
+pdscan --pattern "\d{16}"
 ```
 
 ## Additional Installation Methods
