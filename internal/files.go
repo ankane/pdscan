@@ -10,18 +10,14 @@ import (
 	"github.com/h2non/filetype"
 )
 
-func findScannerMatches(reader io.Reader) ([][]string, int, error) {
-	matchFinder := NewMatchFinder()
-	count := 0
-
+func findScannerMatches(reader io.Reader, matchFinder *MatchFinder) error {
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		v := scanner.Text()
-		count += 1
+		matchFinder.Count += 1
 		matchFinder.Scan(v)
 	}
-
-	return matchFinder.MatchedValues, count, nil
+	return nil
 }
 
 // TODO make more efficient
@@ -35,18 +31,15 @@ func zipReader(file io.Reader) (io.ReaderAt, int64, error) {
 	return bytesFile, int64(bytesFile.Size()), nil
 }
 
-func processZip(file io.Reader) ([][]string, int, error) {
-	matchedValues := make([][]string, len(regexRules)+1)
-	count := 0
-
+func processZip(file io.Reader, matchFinder *MatchFinder) error {
 	readerAt, size, err := zipReader(file)
 	if err != nil {
-		return nil, 0, err
+		return err
 	}
 
 	reader, err := zip.NewReader(readerAt, size)
 	if err != nil {
-		return nil, 0, err
+		return err
 	}
 
 	for _, file := range reader.File {
@@ -56,66 +49,57 @@ func processZip(file io.Reader) ([][]string, int, error) {
 
 		fileReader, err := file.Open()
 		if err != nil {
-			return nil, 0, err
+			return err
 		}
 		defer fileReader.Close()
 
-		fileMatchedValues, fileCount, err := processFile(fileReader)
-		if err != nil {
-			return nil, 0, err
-		}
-
 		// TODO capture specific file in archive
-		for i := range matchedValues {
-			matchedValues[i] = append(matchedValues[i], fileMatchedValues[i]...)
+		err = processFile(fileReader, matchFinder)
+		if err != nil {
+			return err
 		}
-		count += fileCount
 	}
 
-	return matchedValues, count, nil
+	return nil
 }
 
-func processGzip(file io.Reader) ([][]string, int, error) {
+func processGzip(file io.Reader, matchFinder *MatchFinder) error {
 	gz, err := gzip.NewReader(file)
 	if err != nil {
-		return nil, 0, err
+		return err
 	}
 
-	return findScannerMatches(gz)
+	return findScannerMatches(gz, matchFinder)
 }
 
-func processFile(file io.Reader) ([][]string, int, error) {
+func processFile(file io.Reader, matchFinder *MatchFinder) error {
 	reader := bufio.NewReader(file)
 
 	// we only have to pass the file header = first 261 bytes
 	head, err := reader.Peek(261)
 	if err != nil && err != io.EOF {
-		return nil, 0, err
+		return err
 	}
 
 	kind, err := filetype.Match(head)
 	if err == filetype.ErrEmptyBuffer {
-		matchedValues := make([][]string, len(regexRules)+1)
-		count := 0
-		return matchedValues, count, nil
+		return nil
 	} else if err != nil {
-		return nil, 0, err
+		return err
 	}
 	// fmt.Println(kind.MIME.Value)
 
 	// skip binary
 	// TODO better method of detection
 	if kind.MIME.Type == "video" || kind.MIME.Value == "application/x-bzip2" {
-		matchedValues := make([][]string, len(regexRules)+1)
-		count := 0
-		return matchedValues, count, nil
+		return nil
 		// } else if kind.MIME.Value == "application/pdf" {
 		// 	return processPdf(file)
 	} else if kind.MIME.Value == "application/zip" {
-		return processZip(reader)
+		return processZip(reader, matchFinder)
 	} else if kind.MIME.Value == "application/gzip" {
-		return processGzip(reader)
+		return processGzip(reader, matchFinder)
 	}
 
-	return findScannerMatches(reader)
+	return findScannerMatches(reader, matchFinder)
 }

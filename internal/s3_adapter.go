@@ -57,14 +57,14 @@ func (a S3Adapter) FetchFiles() ([]string, error) {
 	return files, nil
 }
 
-func (a S3Adapter) FindFileMatches(filename string) ([][]string, int, error) {
+func (a S3Adapter) FindFileMatches(filename string, matchFinder *MatchFinder) error {
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
 	}))
 
 	u, err := url.Parse(filename)
 	if err != nil {
-		return nil, 0, err
+		return err
 	}
 	bucket := u.Host
 	key := u.Path
@@ -77,8 +77,8 @@ func (a S3Adapter) FindFileMatches(filename string) ([][]string, int, error) {
 		Key:    aws.String(key),
 	})
 	if err != nil {
-		return nil, 0, err
+		return err
 	}
 
-	return processFile(bufio.NewReader(resp.Body))
+	return processFile(bufio.NewReader(resp.Body), matchFinder)
 }

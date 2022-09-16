@@ -151,11 +151,12 @@ func fileAdapterGo(a *FileAdapter, urlStr string, showData bool, showAll bool) (
 
 			g.Go(func() error {
 				// fmt.Println("Scanning " + file + "...\n")
-				matchedValues, count, err := adapter.FindFileMatches(file)
+				matchFinder := NewMatchFinder()
+				err := adapter.FindFileMatches(file, &matchFinder)
 				if err != nil {
 					return err
 				}
-				fileMatchList := checkMatches(file, matchedValues, count, true)
+				fileMatchList := checkMatches(file, matchFinder.MatchedValues, matchFinder.Count, true)
 				printMatchList(fileMatchList, showData, showAll, "line")
 
 				appendMutex.Lock()

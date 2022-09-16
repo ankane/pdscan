@@ -38,12 +38,12 @@ func (a LocalFileAdapter) FetchFiles() ([]string, error) {
 }
 
 // TODO read metadata for certain file types
-func (a LocalFileAdapter) FindFileMatches(filename string) ([][]string, int, error) {
+func (a LocalFileAdapter) FindFileMatches(filename string, matchFinder *MatchFinder) error {
 	f, err := os.Open(filename)
 	if err != nil {
-		return nil, 0, err
+		return err
 	}
 	defer f.Close()
 
-	return processFile(f)
+	return processFile(f, matchFinder)
 }

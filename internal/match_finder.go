@@ -6,11 +6,12 @@ import (
 
 type MatchFinder struct {
 	MatchedValues [][]string
+	Count         int
 	nameIndex     int
 }
 
 func NewMatchFinder() MatchFinder {
-	return MatchFinder{make([][]string, len(regexRules)+1), len(regexRules)}
+	return MatchFinder{make([][]string, len(regexRules)+1), 0, len(regexRules)}
 }
 
 func (a *MatchFinder) Scan(v string) {
