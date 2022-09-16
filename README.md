@@ -244,6 +244,18 @@ And run it with:
 docker run -ti ankane/pdscan <connection-uri>
 ```
 
+On Mac and Windows, use `host.docker.internal` as the hostname for data stores on the host machine
+
+```sh
+docker run -ti ankane/pdscan "postgres://user@host.docker.internal:5432/dbname?sslmode=disable"
+```
+
+For files on the host machine, use:
+
+```sh
+docker run -ti -v /path/to/files:/data ankane/pdscan "file:///data"
+```
+
 ## History
 
 View the [changelog](https://github.com/ankane/pdscan/blob/master/CHANGELOG.md)
