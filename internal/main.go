@@ -157,7 +157,7 @@ func fileAdapterGo(a *FileAdapter, urlStr string, showData bool, showAll bool) (
 				if err != nil {
 					return err
 				}
-				fileMatchList := checkMatches(file, &matchFinder, true)
+				fileMatchList := matchFinder.CheckMatches(file, true)
 				printMatchList(fileMatchList, showData, showAll, "line")
 
 				appendMutex.Lock()
