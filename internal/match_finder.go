@@ -28,6 +28,11 @@ func (a *MatchFinder) Scan(v string) {
 	}
 }
 
+func (a *MatchFinder) Clear() {
+	a.MatchedValues = make([][]string, a.nameIndex+1)
+	a.Count = 0
+}
+
 func (a *MatchFinder) CheckMatches(colIdentifier string, onlyValues bool) []ruleMatch {
 	matchList := []ruleMatch{}
 

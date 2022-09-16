@@ -125,6 +125,7 @@ func checkTableData(table table, columnNames []string, columnValues [][]string, 
 			colIdentifier = table.displayName() + "." + col
 		}
 
+		matchFinder.Clear()
 		findMatches(values, matchFinder)
 		matchList := matchFinder.CheckMatches(colIdentifier, false)
 
