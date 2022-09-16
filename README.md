@@ -122,6 +122,8 @@ pdscan "opensearch+http://user:pass@host:9200/index*"
 pdscan postgres://user:pass@host:5432/dbname
 ```
 
+Always make sure your [connection is secure](https://ankane.org/postgres-sslmode-explained) when connecting to a database over a network you don’t fully trust. Your best option is to connect over SSH or a VPN. Another option is to use `sslmode=verify-full`. If you don’t do this, your database credentials can be compromised.
+
 If your connection doesn’t use SSL, append to the URI:
 
 ```
