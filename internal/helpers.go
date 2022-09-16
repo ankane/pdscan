@@ -104,14 +104,11 @@ var tokenizer = regexp.MustCompile(`\W+`)
 var space = regexp.MustCompile(`\s+`)
 var urlPassword = regexp.MustCompile(`((\/\/|%2F%2F)\S+(:|%3A))\S+(@|%40)`)
 
-func findMatches(values []string) ([][]string, int) {
-	matchFinder := NewMatchFinder()
-
+func findMatches(values []string, matchFinder *MatchFinder) {
 	for _, v := range values {
 		matchFinder.Scan(v)
 	}
-
-	return matchFinder.MatchedValues, len(values)
+	matchFinder.Count += len(values)
 }
 
 func checkMatches(colIdentifier string, matchedValues [][]string, count int, onlyValues bool) []ruleMatch {
@@ -181,7 +178,7 @@ func checkMatches(colIdentifier string, matchedValues [][]string, count int, onl
 	return matchList
 }
 
-func checkTableData(table table, columnNames []string, columnValues [][]string) []ruleMatch {
+func checkTableData(table table, columnNames []string, columnValues [][]string, matchFinder *MatchFinder) []ruleMatch {
 	tableMatchList := []ruleMatch{}
 
 	for i, col := range columnNames {
@@ -195,8 +192,8 @@ func checkTableData(table table, columnNames []string, columnValues [][]string) 
 			colIdentifier = table.displayName() + "." + col
 		}
 
-		matchedValues, count := findMatches(values)
-		matchList := checkMatches(colIdentifier, matchedValues, count, false)
+		findMatches(values, matchFinder)
+		matchList := checkMatches(colIdentifier, matchFinder.MatchedValues, matchFinder.Count, false)
 
 		// only check name if no matches
 		if len(matchList) == 0 {
