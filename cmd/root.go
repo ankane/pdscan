@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/ankane/pdscan/internal"
@@ -11,64 +10,57 @@ import (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "pdscan [connection-uri]",
-	Short: "Scan your data stores for unencrypted personal data (PII)",
-	Long:  "Scan your data stores for unencrypted personal data (PII)",
-	Run: func(cmd *cobra.Command, args []string) {
-		// remove timestamp
-		log.SetFlags(0)
-
+	Use:          "pdscan [connection-uri]",
+	Short:        "Scan your data stores for unencrypted personal data (PII)",
+	Long:         "Scan your data stores for unencrypted personal data (PII)",
+	SilenceUsage: true,
+	RunE: func(cmd *cobra.Command, args []string) error {
 		showData, err := cmd.Flags().GetBool("show-data")
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 
 		showAll, err := cmd.Flags().GetBool("show-all")
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 
 		limit, err := cmd.Flags().GetInt("sample-size")
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 		if limit < 1 {
-			log.Fatal("Limit must be positive")
+			return fmt.Errorf("sample-size must be positive")
 		}
 
 		processes, err := cmd.Flags().GetInt("processes")
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 
 		only, err := cmd.Flags().GetString("only")
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 
 		except, err := cmd.Flags().GetString("except")
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 
 		minCount, err := cmd.Flags().GetInt("min-count")
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 		if minCount < 1 {
-			log.Fatal("min-count must be positive")
+			return fmt.Errorf("min-count must be positive")
 		}
 
 		if len(args) == 0 {
 			cmd.Help()
 			os.Exit(1)
-		} else {
-			err = internal.Main(args[0], showData, showAll, limit, processes, only, except, minCount)
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
 		}
+		return internal.Main(args[0], showData, showAll, limit, processes, only, except, minCount)
 	},
 }
 
@@ -82,9 +74,5 @@ func Execute() {
 	rootCmd.PersistentFlags().String("only", "", "Only certain rules")
 	rootCmd.PersistentFlags().String("except", "", "Except certain rules")
 	rootCmd.PersistentFlags().Int("min-count", 1, "Minimum rows/documents/lines for a match (experimental)")
-
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	rootCmd.Execute()
 }
