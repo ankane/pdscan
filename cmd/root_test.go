@@ -84,9 +84,12 @@ func TestFileLineCount(t *testing.T) {
 }
 
 func TestElasticsearch(t *testing.T) {
-	es, _ := elasticsearch.NewDefaultClient()
+	es, err := elasticsearch.NewDefaultClient()
+	if err != nil {
+		panic(err)
+	}
 
-	_, err := es.Indices.Delete([]string{"pdscan_test_users"})
+	_, err = es.Indices.Delete([]string{"pdscan_test_users"})
 	if err != nil {
 		panic(err)
 	}
@@ -173,7 +176,10 @@ func TestMongodb(t *testing.T) {
 }
 
 func TestMysql(t *testing.T) {
-	currentUser, _ := user.Current()
+	currentUser, err := user.Current()
+	if err != nil {
+		panic(err)
+	}
 	db := setupDb("mysql", fmt.Sprintf("%s@/pdscan_test", currentUser.Username))
 	db.MustExec(`
 		CREATE TABLE users (
