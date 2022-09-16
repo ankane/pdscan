@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"regexp"
 	"runtime"
 	"sort"
 	"strings"
@@ -14,20 +15,31 @@ type Adapter interface {
 	Scan(string, bool, bool, int, *MatchConfig) ([]ruleMatch, error)
 }
 
-func Main(urlStr string, showData bool, showAll bool, limit int, processes int, only string, except string, minCount int) error {
+func Main(urlStr string, showData bool, showAll bool, limit int, processes int, only string, except string, minCount int, pattern string) error {
 	runtime.GOMAXPROCS(processes)
 
 	matchConfig := NewMatchConfig()
-	if except != "" {
-		err := updateRules(&matchConfig, except, true)
+	if pattern != "" {
+		regex, err := regexp.Compile(pattern)
 		if err != nil {
 			return err
 		}
-	}
-	if only != "" {
-		err := updateRules(&matchConfig, only, false)
-		if err != nil {
-			return err
+		matchConfig.RegexRules = []regexRule{regexRule{Name: "pattern", DisplayName: "pattern", Regex: regex}}
+		matchConfig.NameRules = matchConfig.NameRules[:0]
+		matchConfig.MultiNameRules = matchConfig.MultiNameRules[:0]
+		matchConfig.TokenRules = matchConfig.TokenRules[:0]
+	} else {
+		if except != "" {
+			err := updateRules(&matchConfig, except, true)
+			if err != nil {
+				return err
+			}
+		}
+		if only != "" {
+			err := updateRules(&matchConfig, only, false)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	matchConfig.MinCount = minCount

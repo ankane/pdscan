@@ -109,7 +109,7 @@ func (a *MatchFinder) CheckMatches(colIdentifier string, onlyValues bool) []rule
 
 		if len(matchedData) >= a.matchConfig.MinCount {
 			confidence := "low"
-			if rule.Name == "email" || float64(len(matchedData))/float64(count) > 0.5 {
+			if rule.Name == "email" || rule.Name == "pattern" || float64(len(matchedData))/float64(count) > 0.5 {
 				confidence = "high"
 			}
 

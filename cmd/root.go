@@ -57,11 +57,16 @@ func NewRootCmd() *cobra.Command {
 				return fmt.Errorf("min-count must be positive")
 			}
 
+			pattern, err := cmd.Flags().GetString("pattern")
+			if err != nil {
+				return err
+			}
+
 			if len(args) == 0 {
 				cmd.Help()
 				os.Exit(1)
 			}
-			return internal.Main(args[0], showData, showAll, limit, processes, only, except, minCount)
+			return internal.Main(args[0], showData, showAll, limit, processes, only, except, minCount, pattern)
 		},
 	}
 	cmd.PersistentFlags().Bool("show-data", false, "Show data")
@@ -71,6 +76,7 @@ func NewRootCmd() *cobra.Command {
 	cmd.PersistentFlags().String("only", "", "Only certain rules")
 	cmd.PersistentFlags().String("except", "", "Except certain rules")
 	cmd.PersistentFlags().Int("min-count", 1, "Minimum rows/documents/lines for a match (experimental)")
+	cmd.PersistentFlags().String("pattern", "", "Custom pattern")
 	return cmd
 }
 
