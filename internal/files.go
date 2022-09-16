@@ -6,34 +6,22 @@ import (
 	"bytes"
 	"compress/gzip"
 	"io"
-	"strings"
 
 	"github.com/h2non/filetype"
 )
 
 func findScannerMatches(reader io.Reader) ([][]string, int, error) {
-	matchedValues := make([][]string, len(regexRules)+1)
-	nameIndex := len(regexRules)
+	matchFinder := NewMatchFinder()
 	count := 0
 
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		v := scanner.Text()
 		count += 1
-
-		for i, rule := range regexRules {
-			if rule.Regex.MatchString(v) {
-				matchedValues[i] = append(matchedValues[i], v)
-			}
-		}
-
-		tokens := tokenizer.Split(strings.ToLower(v), -1)
-		if anyMatches(tokens) {
-			matchedValues[nameIndex] = append(matchedValues[nameIndex], v)
-		}
+		matchFinder.Scan(v)
 	}
 
-	return matchedValues, count, nil
+	return matchFinder.MatchedValues, count, nil
 }
 
 // TODO make more efficient

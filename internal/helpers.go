@@ -105,23 +105,13 @@ var space = regexp.MustCompile(`\s+`)
 var urlPassword = regexp.MustCompile(`((\/\/|%2F%2F)\S+(:|%3A))\S+(@|%40)`)
 
 func findMatches(values []string) ([][]string, int) {
-	matchedValues := make([][]string, len(regexRules)+1)
-	nameIndex := len(regexRules)
+	matchFinder := NewMatchFinder()
 
 	for _, v := range values {
-		for i, rule := range regexRules {
-			if rule.Regex.MatchString(v) {
-				matchedValues[i] = append(matchedValues[i], v)
-			}
-		}
-
-		tokens := tokenizer.Split(strings.ToLower(v), -1)
-		if anyMatches(tokens) {
-			matchedValues[nameIndex] = append(matchedValues[nameIndex], v)
-		}
+		matchFinder.Scan(v)
 	}
 
-	return matchedValues, len(values)
+	return matchFinder.MatchedValues, len(values)
 }
 
 func checkMatches(colIdentifier string, matchedValues [][]string, count int, onlyValues bool) []ruleMatch {
