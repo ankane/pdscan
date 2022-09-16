@@ -51,11 +51,19 @@ var rootCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
+		minCount, err := cmd.Flags().GetInt("min-count")
+		if err != nil {
+			log.Fatal(err)
+		}
+		if minCount < 1 {
+			log.Fatal("min-count must be positive")
+		}
+
 		if len(args) == 0 {
 			cmd.Help()
 			os.Exit(1)
 		} else {
-			err = internal.Main(args[0], showData, showAll, limit, processes, only, except)
+			err = internal.Main(args[0], showData, showAll, limit, processes, only, except, minCount)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
@@ -73,6 +81,7 @@ func Execute() {
 	rootCmd.PersistentFlags().Int("processes", 1, "Processes")
 	rootCmd.PersistentFlags().String("only", "", "Only certain rules")
 	rootCmd.PersistentFlags().String("except", "", "Except certain rules")
+	rootCmd.PersistentFlags().Int("min-count", 1, "Minimum rows/documents/lines for a match (experimental)")
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)

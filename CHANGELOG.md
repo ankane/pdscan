@@ -1,6 +1,8 @@
 ## 0.1.6 (unreleased)
 
 - Added `--only` and `--except` options
+- Added experimental `--min-count` option
+- Fixed line counts
 
 ## 0.1.5 (2022-09-12)
 

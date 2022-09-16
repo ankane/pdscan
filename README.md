@@ -210,6 +210,12 @@ Run all except certain rules [unreleased]
 pdscan --except ip,mac
 ```
 
+Specify the minimum number of rows/documents/lines for a match [unreleased, experimental]
+
+```sh
+pdscan --min-count 10
+```
+
 ## Additional Installation Methods
 
 ### Homebrew

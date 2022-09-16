@@ -10,7 +10,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func Main(urlStr string, showData bool, showAll bool, limit int, processes int, only string, except string) error {
+func Main(urlStr string, showData bool, showAll bool, limit int, processes int, only string, except string, minCount int) error {
 	runtime.GOMAXPROCS(processes)
 
 	var matchList []ruleMatch
@@ -29,6 +29,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int, 
 			return err
 		}
 	}
+	matchConfig.MinCount = minCount
 
 	if strings.HasPrefix(urlStr, "file://") || strings.HasPrefix(urlStr, "s3://") {
 		var adapter FileAdapter

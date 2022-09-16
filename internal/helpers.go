@@ -41,6 +41,7 @@ type ruleMatch struct {
 	Identifier  string
 	MatchedData []string
 	MatchType   string
+	LineCount   int
 }
 
 func unique(arr []string) []string {
@@ -131,7 +132,7 @@ func printMatchList(matchList []ruleMatch, showData bool, showAll bool, rowStr s
 		if showAll || match.Confidence != "low" {
 			var description string
 
-			count := len(match.MatchedData)
+			count := match.LineCount
 			if match.MatchType == "name" {
 				description = fmt.Sprintf("possible %s (name match)", match.DisplayName)
 			} else {

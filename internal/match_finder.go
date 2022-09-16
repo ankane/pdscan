@@ -10,6 +10,7 @@ type MatchConfig struct {
 	NameRules      []nameRule
 	MultiNameRules []multiNameRule
 	TokenRules     []tokenRule
+	MinCount       int
 }
 
 func NewMatchConfig() MatchConfig {
@@ -18,6 +19,7 @@ func NewMatchConfig() MatchConfig {
 		NameRules:      nameRules,
 		MultiNameRules: multiNameRules,
 		TokenRules:     tokenRules,
+		MinCount:       1,
 	}
 }
 
@@ -100,11 +102,13 @@ func (a *MatchFinder) CheckMatches(colIdentifier string, onlyValues bool) []rule
 			}
 		}
 
-		if len(matchedData) > 0 {
+		if len(matchedData) >= a.matchConfig.MinCount {
 			confidence := "low"
 			if rule.Name == "email" || float64(len(matchedData))/float64(count) > 0.5 {
 				confidence = "high"
 			}
+
+			lineCount := len(matchedData)
 
 			if onlyValues {
 				var matchedValues []string
@@ -115,18 +119,20 @@ func (a *MatchFinder) CheckMatches(colIdentifier string, onlyValues bool) []rule
 				matchedData = matchedValues
 			}
 
-			matchList = append(matchList, ruleMatch{RuleName: rule.Name, DisplayName: rule.DisplayName, Confidence: confidence, Identifier: colIdentifier, MatchedData: matchedData})
+			matchList = append(matchList, ruleMatch{RuleName: rule.Name, DisplayName: rule.DisplayName, Confidence: confidence, Identifier: colIdentifier, MatchedData: matchedData, LineCount: lineCount})
 		}
 	}
 
 	for i, rule := range a.matchConfig.TokenRules {
 		matchedData := a.TokenValues[i]
 
-		if len(matchedData) > 0 {
+		if len(matchedData) >= a.matchConfig.MinCount {
 			confidence := "low"
 			if float64(len(matchedData))/float64(count) > 0.1 && len(unique(matchedData)) >= 10 {
 				confidence = "high"
 			}
+
+			lineCount := len(matchedData)
 
 			if onlyValues {
 				var matchedValues []string
@@ -142,7 +148,7 @@ func (a *MatchFinder) CheckMatches(colIdentifier string, onlyValues bool) []rule
 				matchedData = matchedValues
 			}
 
-			matchList = append(matchList, ruleMatch{RuleName: rule.Name, DisplayName: rule.DisplayName, Confidence: confidence, Identifier: colIdentifier, MatchedData: matchedData})
+			matchList = append(matchList, ruleMatch{RuleName: rule.Name, DisplayName: rule.DisplayName, Confidence: confidence, Identifier: colIdentifier, MatchedData: matchedData, LineCount: lineCount})
 		}
 	}
 

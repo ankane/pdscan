@@ -151,6 +151,14 @@ func TestFileZip(t *testing.T) {
 	checkFile(t, "email.zip", true)
 }
 
+func TestFileMinCount(t *testing.T) {
+	output := captureOutput(func() { Main("file://../testdata/min-count.txt", false, false, 10000, 1, "", "", 2) })
+	assert.Contains(t, output, "found emails (2 lines)")
+
+	output = captureOutput(func() { Main("file://../testdata/min-count.txt", false, false, 10000, 1, "", "", 3) })
+	assert.Contains(t, output, "No sensitive data found")
+}
+
 func TestElasticsearch(t *testing.T) {
 	es, _ := elasticsearch.NewDefaultClient()
 
@@ -353,7 +361,7 @@ func TestRedis(t *testing.T) {
 		panic(err)
 	}
 
-	output := captureOutput(func() { Main(urlStr, true, false, 10000, 1, "", "") })
+	output := captureOutput(func() { Main(urlStr, true, false, 10000, 1, "", "", 1) })
 	assert.Contains(t, output, "sampling 10000 keys")
 	assert.Contains(t, output, "pdscan_test:email:")
 
@@ -442,12 +450,12 @@ func TestSqlserver(t *testing.T) {
 }
 
 func TestBadScheme(t *testing.T) {
-	err := Main("hello://", false, false, 10000, 1, "", "")
+	err := Main("hello://", false, false, 10000, 1, "", "", 1)
 	assert.Contains(t, err, "unknown database scheme")
 }
 
 func TestShowData(t *testing.T) {
-	output := captureOutput(func() { Main("file://../testdata/email.txt", true, false, 10000, 1, "", "") })
+	output := captureOutput(func() { Main("file://../testdata/email.txt", true, false, 10000, 1, "", "", 1) })
 	assert.Contains(t, output, "test@example.org")
 }
 
@@ -505,7 +513,7 @@ func captureOutput(f func()) string {
 
 func fileOutput(filename string) string {
 	urlStr := fmt.Sprintf("file://../testdata/%s", filename)
-	return captureOutput(func() { Main(urlStr, false, false, 10000, 1, "", "") })
+	return captureOutput(func() { Main(urlStr, false, false, 10000, 1, "", "", 1) })
 }
 
 func checkFile(t *testing.T, filename string, found bool) {
@@ -528,7 +536,7 @@ func setupDb(driver string, dsn string) *sqlx.DB {
 }
 
 func checkSql(t *testing.T, urlStr string) string {
-	output := captureOutput(func() { Main(urlStr, true, false, 10000, 1, "", "") })
+	output := captureOutput(func() { Main(urlStr, true, false, 10000, 1, "", "", 1) })
 	assert.Contains(t, output, "sampling 10000 rows")
 	assert.NotContains(t, output, "users.id:")
 	assert.Contains(t, output, "users.email:")
@@ -550,7 +558,7 @@ func checkSql(t *testing.T, urlStr string) string {
 }
 
 func checkDocument(t *testing.T, urlStr string) string {
-	output := captureOutput(func() { Main(urlStr, true, false, 10000, 1, "", "") })
+	output := captureOutput(func() { Main(urlStr, true, false, 10000, 1, "", "", 1) })
 	assert.Contains(t, output, "sampling 10000 documents")
 	assert.NotContains(t, output, "users._id:")
 	assert.Contains(t, output, "users.email:")
@@ -575,7 +583,7 @@ func checkDocument(t *testing.T, urlStr string) string {
 }
 
 func checkOnly(t *testing.T, urlStr string) {
-	output := captureOutput(func() { Main(urlStr, true, false, 10000, 1, "email,postal_code,location", "") })
+	output := captureOutput(func() { Main(urlStr, true, false, 10000, 1, "email,postal_code,location", "", 1) })
 	assert.Contains(t, output, "users.email:")
 	assert.NotContains(t, output, "users.phone:")
 	assert.NotContains(t, output, "users.street:")
@@ -586,13 +594,13 @@ func checkOnly(t *testing.T, urlStr string) {
 	assert.Contains(t, output, "users.latitude+longitude:")
 	assert.NotContains(t, output, "users.access_token:")
 
-	err := Main(urlStr, true, false, 10000, 1, "email,phone2", "")
+	err := Main(urlStr, true, false, 10000, 1, "email,phone2", "", 1)
 	assert.Contains(t, err.Error(), "Invalid rule: phone2")
 	assert.Contains(t, err.Error(), "Valid rules are credit_card, date_of_birth, email")
 }
 
 func checkExcept(t *testing.T, urlStr string) {
-	output := captureOutput(func() { Main(urlStr, true, false, 10000, 1, "", "email,postal_code,location") })
+	output := captureOutput(func() { Main(urlStr, true, false, 10000, 1, "", "email,postal_code,location", 1) })
 	assert.NotContains(t, output, "users.email:")
 	assert.Contains(t, output, "users.phone:")
 	assert.Contains(t, output, "users.street:")
@@ -603,7 +611,7 @@ func checkExcept(t *testing.T, urlStr string) {
 	assert.NotContains(t, output, "users.latitude+longitude:")
 	assert.Contains(t, output, "users.access_token:")
 
-	err := Main(urlStr, true, false, 10000, 1, "", "email,phone2")
+	err := Main(urlStr, true, false, 10000, 1, "", "email,phone2", 1)
 	assert.Contains(t, err.Error(), "Invalid rule: phone2")
 	assert.Contains(t, err.Error(), "Valid rules are credit_card, date_of_birth, email")
 }
