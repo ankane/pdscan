@@ -1,4 +1,4 @@
-## 0.1.6 (unreleased)
+## 0.1.6 (2022-09-16)
 
 - Added `--only` and `--except` options
 - Added experimental `--min-count` option

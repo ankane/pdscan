@@ -24,9 +24,9 @@ Uses data sampling and naming, and works with compressed files
 
 Download the latest version.
 
-- Mac - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.5/pdscan_0.1.5_Darwin_x86_64.zip) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.1.5/pdscan_0.1.5_Darwin_arm64.zip)
-- Linux - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.5/pdscan_0.1.5_Linux_x86_64.zip) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.1.5/pdscan_0.1.5_Linux_arm64.zip)
-- Windows - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.5/pdscan_0.1.5_Windows_x86_64.zip)
+- Mac - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.6/pdscan_0.1.6_Darwin_x86_64.zip) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.1.6/pdscan_0.1.6_Darwin_arm64.zip)
+- Linux - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.6/pdscan_0.1.6_Linux_x86_64.zip) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.1.6/pdscan_0.1.6_Linux_arm64.zip)
+- Windows - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.6/pdscan_0.1.6_Windows_x86_64.zip)
 
 Unzip and follow the instructions below for your data store.
 
@@ -198,25 +198,25 @@ Specify number of processes to use (defaults to 1)
 pdscan --processes 4
 ```
 
-Only run certain rules [unreleased]
+Only run certain rules
 
 ```sh
 pdscan --only email,phone,location
 ```
 
-Run all except certain rules [unreleased]
+Run all except certain rules
 
 ```sh
 pdscan --except ip,mac
 ```
 
-Specify the minimum number of rows/documents/lines for a match [unreleased, experimental]
+Specify the minimum number of rows/documents/lines for a match (experimental)
 
 ```sh
 pdscan --min-count 10
 ```
 
-Specify a custom pattern [unreleased, experimental]
+Specify a custom pattern (experimental)
 
 ```sh
 pdscan --pattern "\d{16}"
