@@ -1,31 +1,61 @@
 package internal
 
 import (
+	"regexp"
 	"strings"
+
+	"github.com/deckarep/golang-set"
 )
+
+type MatchConfig struct {
+	RegexRules   []regexRule
+	NameRules    []nameRule
+	LastNamesSet mapset.Set
+}
+
+func NewMatchConfig() MatchConfig {
+	return MatchConfig{
+		RegexRules:   regexRules,
+		NameRules:    nameRules,
+		LastNamesSet: lastNamesSet,
+	}
+}
 
 type MatchFinder struct {
 	MatchedValues [][]string
 	Count         int
 	nameIndex     int
+	matchConfig   *MatchConfig
 }
 
-func NewMatchFinder() MatchFinder {
+var tokenizer = regexp.MustCompile(`\W+`)
+
+func NewMatchFinder(matchConfig *MatchConfig) MatchFinder {
+	regexRules := matchConfig.RegexRules
 	nameIndex := len(regexRules)
-	return MatchFinder{make([][]string, nameIndex+1), 0, nameIndex}
+	return MatchFinder{make([][]string, nameIndex+1), 0, nameIndex, matchConfig}
 }
 
 func (a *MatchFinder) Scan(v string) {
-	for i, rule := range regexRules {
+	for i, rule := range a.matchConfig.RegexRules {
 		if rule.Regex.MatchString(v) {
 			a.MatchedValues[i] = append(a.MatchedValues[i], v)
 		}
 	}
 
 	tokens := tokenizer.Split(strings.ToLower(v), -1)
-	if anyMatches(tokens) {
+	if a.anyMatches(tokens) {
 		a.MatchedValues[a.nameIndex] = append(a.MatchedValues[a.nameIndex], v)
 	}
+}
+
+func (a *MatchFinder) anyMatches(values []string) bool {
+	for _, value := range values {
+		if a.matchConfig.LastNamesSet.Contains(value) {
+			return true
+		}
+	}
+	return false
 }
 
 func (a *MatchFinder) ScanValues(values []string) {
@@ -46,7 +76,7 @@ func (a *MatchFinder) CheckMatches(colIdentifier string, onlyValues bool) []rule
 	matchedValues := a.MatchedValues
 	count := a.Count
 
-	for i, rule := range regexRules {
+	for i, rule := range a.matchConfig.RegexRules {
 		matchedData := matchedValues[i]
 
 		if rule.Name == "email" {

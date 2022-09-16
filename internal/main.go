@@ -15,6 +15,8 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 	var matchList []ruleMatch
 	var err error
 
+	matchConfig := NewMatchConfig()
+
 	if strings.HasPrefix(urlStr, "file://") || strings.HasPrefix(urlStr, "s3://") {
 		var adapter FileAdapter
 		if strings.HasPrefix(urlStr, "file://") {
@@ -23,7 +25,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 			adapter = &S3Adapter{}
 		}
 
-		matchList, err = fileAdapterGo(&adapter, urlStr, showData, showAll)
+		matchList, err = fileAdapterGo(&adapter, urlStr, showData, showAll, &matchConfig)
 	} else {
 		var adapter DataStoreAdapter
 		if strings.HasPrefix(urlStr, "mongodb://") {
@@ -36,7 +38,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 			adapter = &SqlAdapter{}
 		}
 
-		matchList, err = dataStoreAdapterGo(&adapter, urlStr, showData, showAll, limit)
+		matchList, err = dataStoreAdapterGo(&adapter, urlStr, showData, showAll, limit, &matchConfig)
 	}
 
 	if err != nil {
@@ -64,7 +66,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int) 
 	return nil
 }
 
-func dataStoreAdapterGo(a *DataStoreAdapter, urlStr string, showData bool, showAll bool, limit int) ([]ruleMatch, error) {
+func dataStoreAdapterGo(a *DataStoreAdapter, urlStr string, showData bool, showAll bool, limit int, matchConfig *MatchConfig) ([]ruleMatch, error) {
 	adapter := *a
 
 	err := adapter.Init(urlStr)
@@ -99,7 +101,7 @@ func dataStoreAdapterGo(a *DataStoreAdapter, urlStr string, showData bool, showA
 					return err
 				}
 
-				matchFinder := NewMatchFinder()
+				matchFinder := NewMatchFinder(matchConfig)
 				tableMatchList := checkTableData(table, columnNames, columnValues, &matchFinder)
 				printMatchList(tableMatchList, showData, showAll, adapter.RowName())
 
@@ -122,7 +124,7 @@ func dataStoreAdapterGo(a *DataStoreAdapter, urlStr string, showData bool, showA
 	}
 }
 
-func fileAdapterGo(a *FileAdapter, urlStr string, showData bool, showAll bool) ([]ruleMatch, error) {
+func fileAdapterGo(a *FileAdapter, urlStr string, showData bool, showAll bool, matchConfig *MatchConfig) ([]ruleMatch, error) {
 	adapter := *a
 
 	err := adapter.Init(urlStr)
@@ -152,7 +154,7 @@ func fileAdapterGo(a *FileAdapter, urlStr string, showData bool, showAll bool) (
 
 			g.Go(func() error {
 				// fmt.Println("Scanning " + file + "...\n")
-				matchFinder := NewMatchFinder()
+				matchFinder := NewMatchFinder(matchConfig)
 				err := adapter.FindFileMatches(file, &matchFinder)
 				if err != nil {
 					return err

@@ -476,13 +476,15 @@ func assertMatchValues(t *testing.T, ruleName string, values []string) {
 }
 
 func refuteMatchValues(t *testing.T, values []string) {
-	matchFinder := NewMatchFinder()
+	matchConfig := NewMatchConfig()
+	matchFinder := NewMatchFinder(&matchConfig)
 	matches := checkTableData(table{Name: "users"}, []string{"col"}, [][]string{values}, &matchFinder)
 	assert.Equal(t, 0, len(matches))
 }
 
 func assertMatch(t *testing.T, ruleName string, columnNames []string, columnValues [][]string) {
-	matchFinder := NewMatchFinder()
+	matchConfig := NewMatchConfig()
+	matchFinder := NewMatchFinder(&matchConfig)
 	matches := checkTableData(table{Name: "users"}, columnNames, columnValues, &matchFinder)
 	assert.Equal(t, 1, len(matches))
 	assert.Equal(t, ruleName, matches[0].RuleName)
