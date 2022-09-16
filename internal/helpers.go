@@ -111,8 +111,11 @@ func findMatches(values []string, matchFinder *MatchFinder) {
 	matchFinder.Count += len(values)
 }
 
-func checkMatches(colIdentifier string, matchedValues [][]string, count int, onlyValues bool) []ruleMatch {
+func checkMatches(colIdentifier string, matchFinder *MatchFinder, onlyValues bool) []ruleMatch {
 	matchList := []ruleMatch{}
+
+	matchedValues := matchFinder.MatchedValues
+	count := matchFinder.Count
 
 	for i, rule := range regexRules {
 		matchedData := matchedValues[i]
@@ -193,7 +196,7 @@ func checkTableData(table table, columnNames []string, columnValues [][]string, 
 		}
 
 		findMatches(values, matchFinder)
-		matchList := checkMatches(colIdentifier, matchFinder.MatchedValues, matchFinder.Count, false)
+		matchList := checkMatches(colIdentifier, matchFinder, false)
 
 		// only check name if no matches
 		if len(matchList) == 0 {
