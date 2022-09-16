@@ -542,6 +542,10 @@ func checkSql(t *testing.T, urlStr string) string {
 	assert.Contains(t, output, "users.access_token:")
 	assert.Contains(t, output, "ITEMS.EMAIL:")
 	assert.Contains(t, output, "ITEMS.ZipCode:")
+
+	checkOnly(t, urlStr)
+	checkExcept(t, urlStr)
+
 	return output
 }
 
@@ -568,4 +572,38 @@ func checkDocument(t *testing.T, urlStr string) string {
 	assert.Contains(t, output, "users.nested.email:")
 	assert.Contains(t, output, "users.nested.zip_code:")
 	return output
+}
+
+func checkOnly(t *testing.T, urlStr string) {
+	output := captureOutput(func() { Main(urlStr, true, false, 10000, 1, "email,postal_code,location", "") })
+	assert.Contains(t, output, "users.email:")
+	assert.NotContains(t, output, "users.phone:")
+	assert.NotContains(t, output, "users.street:")
+	assert.Contains(t, output, "users.zip_code:")
+	assert.NotContains(t, output, "users.birthday:")
+	assert.NotContains(t, output, "users.ip:")
+	assert.NotContains(t, output, "users.ip2:")
+	assert.Contains(t, output, "users.latitude+longitude:")
+	assert.NotContains(t, output, "users.access_token:")
+
+	err := Main(urlStr, true, false, 10000, 1, "email,phone2", "")
+	assert.Contains(t, err.Error(), "Invalid rule: phone2")
+	assert.Contains(t, err.Error(), "Valid rules are credit_card, date_of_birth, email")
+}
+
+func checkExcept(t *testing.T, urlStr string) {
+	output := captureOutput(func() { Main(urlStr, true, false, 10000, 1, "", "email,postal_code,location") })
+	assert.NotContains(t, output, "users.email:")
+	assert.Contains(t, output, "users.phone:")
+	assert.Contains(t, output, "users.street:")
+	assert.NotContains(t, output, "users.zip_code:")
+	assert.Contains(t, output, "users.birthday:")
+	assert.Contains(t, output, "users.ip:")
+	assert.Contains(t, output, "users.ip2:")
+	assert.NotContains(t, output, "users.latitude+longitude:")
+	assert.Contains(t, output, "users.access_token:")
+
+	err := Main(urlStr, true, false, 10000, 1, "", "email,phone2")
+	assert.Contains(t, err.Error(), "Invalid rule: phone2")
+	assert.Contains(t, err.Error(), "Valid rules are credit_card, date_of_birth, email")
 }
