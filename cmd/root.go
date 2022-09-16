@@ -15,6 +15,9 @@ var rootCmd = &cobra.Command{
 	Short: "Scan your data stores for unencrypted personal data (PII)",
 	Long:  "Scan your data stores for unencrypted personal data (PII)",
 	Run: func(cmd *cobra.Command, args []string) {
+		// remove timestamp
+		log.SetFlags(0)
+
 		showData, err := cmd.Flags().GetBool("show-data")
 		if err != nil {
 			log.Fatal(err)
