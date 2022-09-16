@@ -3,21 +3,19 @@ package internal
 import (
 	"regexp"
 	"strings"
-
-	"github.com/deckarep/golang-set"
 )
 
 type MatchConfig struct {
-	RegexRules   []regexRule
-	NameRules    []nameRule
-	LastNamesSet mapset.Set
+	RegexRules []regexRule
+	NameRules  []nameRule
+	TokenRules []tokenRule
 }
 
 func NewMatchConfig() MatchConfig {
 	return MatchConfig{
-		RegexRules:   regexRules,
-		NameRules:    nameRules,
-		LastNamesSet: lastNamesSet,
+		RegexRules: regexRules,
+		NameRules:  nameRules,
+		TokenRules: tokenRules,
 	}
 }
 
@@ -33,7 +31,7 @@ var tokenizer = regexp.MustCompile(`\W+`)
 func NewMatchFinder(matchConfig *MatchConfig) MatchFinder {
 	regexRules := matchConfig.RegexRules
 	nameIndex := len(regexRules)
-	return MatchFinder{make([][]string, nameIndex+1), 0, nameIndex, matchConfig}
+	return MatchFinder{make([][]string, nameIndex+len(matchConfig.TokenRules)), 0, nameIndex, matchConfig}
 }
 
 func (a *MatchFinder) Scan(v string) {
@@ -43,15 +41,19 @@ func (a *MatchFinder) Scan(v string) {
 		}
 	}
 
-	tokens := tokenizer.Split(strings.ToLower(v), -1)
-	if a.anyMatches(tokens) {
-		a.MatchedValues[a.nameIndex] = append(a.MatchedValues[a.nameIndex], v)
+	if len(a.matchConfig.TokenRules) > 0 {
+		tokens := tokenizer.Split(strings.ToLower(v), -1)
+		for i, rule := range a.matchConfig.TokenRules {
+			if anyMatches(rule, tokens) {
+				a.MatchedValues[a.nameIndex+i] = append(a.MatchedValues[a.nameIndex+i], v)
+			}
+		}
 	}
 }
 
-func (a *MatchFinder) anyMatches(values []string) bool {
+func anyMatches(rule tokenRule, values []string) bool {
 	for _, value := range values {
-		if a.matchConfig.LastNamesSet.Contains(value) {
+		if rule.Tokens.Contains(value) {
 			return true
 		}
 	}
@@ -111,30 +113,31 @@ func (a *MatchFinder) CheckMatches(colIdentifier string, onlyValues bool) []rule
 		}
 	}
 
-	// find names
-	nameIndex := a.nameIndex
-	matchedData := matchedValues[nameIndex]
+	for i, rule := range a.matchConfig.TokenRules {
+		matchedData := matchedValues[a.nameIndex+i]
 
-	if len(matchedData) > 0 {
-		confidence := "low"
-		if float64(len(matchedData))/float64(count) > 0.1 && len(unique(matchedData)) >= 10 {
-			confidence = "high"
-		}
+		if len(matchedData) > 0 {
+			confidence := "low"
+			if float64(len(matchedData))/float64(count) > 0.1 && len(unique(matchedData)) >= 10 {
+				confidence = "high"
+			}
 
-		if onlyValues {
-			var matchedValues []string
-			for _, v := range matchedData {
-				tokens := tokenizer.Split(strings.ToLower(v), -1)
-				for _, v2 := range tokens {
-					if lastNamesSet.Contains(v2) {
-						matchedValues = append(matchedValues, v2)
+			if onlyValues {
+				var matchedValues []string
+				for _, v := range matchedData {
+					tokens := tokenizer.Split(strings.ToLower(v), -1)
+					for _, v2 := range tokens {
+						// TODO check all tokens
+						if rule.Tokens.Contains(v2) {
+							matchedValues = append(matchedValues, v2)
+						}
 					}
 				}
+				matchedData = matchedValues
 			}
-			matchedData = matchedValues
-		}
 
-		matchList = append(matchList, ruleMatch{RuleName: "last_name", DisplayName: "last names", Confidence: confidence, Identifier: colIdentifier, MatchedData: matchedData})
+			matchList = append(matchList, ruleMatch{RuleName: rule.Name, DisplayName: rule.DisplayName, Confidence: confidence, Identifier: colIdentifier, MatchedData: matchedData})
+		}
 	}
 
 	return matchList
