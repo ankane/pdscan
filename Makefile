@@ -2,7 +2,7 @@ install:
 	go install
 
 test:
-	cd internal && go test -v
+	go test ./... -v
 
 lint:
 	staticcheck ./...
