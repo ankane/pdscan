@@ -161,7 +161,7 @@ func TestFileMinCount(t *testing.T) {
 
 func TestFileLineCount(t *testing.T) {
 	output := captureOutput(func() { Main("file://../testdata/min-count.txt", true, false, 10000, 1, "", "", 1) })
-	assert.Contains(t, output, "testdata/min-count.txt: found emails (2 lines)")
+	assert.Contains(t, output, "found emails (2 lines)")
 	assert.Contains(t, output, "test1@example.org, test2@example.org, test3@example.org")
 }
 
