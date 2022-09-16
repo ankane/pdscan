@@ -461,7 +461,7 @@ func TestBadScheme(t *testing.T) {
 }
 
 func TestShowData(t *testing.T) {
-	output := captureOutput(func() { Main("file://../testdata/email.txt", true, false, 10000, 1, "", "", 1) })
+	output := captureOutput(func() { Main(fileUrl("email.txt"), true, false, 10000, 1, "", "", 1) })
 	assert.Contains(t, output, "test@example.org")
 }
 
