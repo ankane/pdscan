@@ -253,7 +253,7 @@ docker run -ti ankane/pdscan "postgres://user@host.docker.internal:5432/dbname?s
 For files on the host machine, use:
 
 ```sh
-docker run -ti -v /path/to/files:/data ankane/pdscan "file:///data"
+docker run -ti -v /path/to/files:/data ankane/pdscan file:///data
 ```
 
 ## History
