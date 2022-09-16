@@ -114,6 +114,7 @@ func scanDataStore(adapter DataStoreAdapter, urlStr string, showData bool, showA
 			table := table
 
 			g.Go(func() error {
+				// limit to one query at a time
 				queryMutex.Lock()
 				tableData, err := adapter.FetchTableData(table, limit)
 				queryMutex.Unlock()
