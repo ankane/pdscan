@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"runtime"
 	"sort"
@@ -135,7 +136,7 @@ func scanDataStore(adapter DataStoreAdapter, scanOpts ScanOpts) ([]ruleMatch, er
 
 				if scanOpts.Debug {
 					duration := time.Now().Sub(start)
-					fmt.Printf("Scanned %s (%d ms)\n", table.displayName(), duration.Milliseconds())
+					fmt.Fprintf(os.Stderr, "Scanned %s (%d ms)\n", table.displayName(), duration.Milliseconds())
 				}
 
 				if err != nil {
@@ -199,7 +200,7 @@ func scanFiles(adapter FileAdapter, scanOpts ScanOpts) ([]ruleMatch, error) {
 
 				if scanOpts.Debug {
 					duration := time.Now().Sub(start)
-					fmt.Printf("Scanned %s (%d ms)\n", file, duration.Milliseconds())
+					fmt.Fprintf(os.Stderr, "Scanned %s (%d ms)\n", file, duration.Milliseconds())
 				}
 
 				if err != nil {
