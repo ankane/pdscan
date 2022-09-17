@@ -184,7 +184,7 @@ pdscan "sqlserver://user:pass@host:1433?database=dbname"
 
 ## Options
 
-Show data found
+Show the data found
 
 ```sh
 pdscan --show-data
@@ -196,25 +196,25 @@ Show low confidence matches
 pdscan --show-all
 ```
 
-Change sample size
+Change the sample size
 
 ```sh
 pdscan --sample-size 50000
 ```
 
-Specify number of processes to use (defaults to 1)
+Specify the number of processes to use (defaults to 1)
 
 ```sh
 pdscan --processes 4
 ```
 
-Only run certain rules
+Scan for only certain types of data
 
 ```sh
 pdscan --only email,phone,location
 ```
 
-Run all except certain rules
+Scan for all except certain types of data
 
 ```sh
 pdscan --except ip,mac
