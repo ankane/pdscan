@@ -24,8 +24,8 @@ func (a *ElasticsearchAdapter) RowName() string {
 	return "document"
 }
 
-func (a *ElasticsearchAdapter) Scan(urlStr string, showData bool, showAll bool, limit int, matchConfig *MatchConfig) ([]ruleMatch, error) {
-	return scanDataStore(a, urlStr, showData, showAll, limit, matchConfig)
+func (a *ElasticsearchAdapter) Scan(scanOpts ScanOpts) ([]ruleMatch, error) {
+	return scanDataStore(a, scanOpts)
 }
 
 func (a *ElasticsearchAdapter) Init(urlStr string) error {

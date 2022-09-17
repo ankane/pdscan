@@ -7,15 +7,25 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
 	"golang.org/x/sync/errgroup"
 )
 
 type Adapter interface {
-	Scan(string, bool, bool, int, *MatchConfig) ([]ruleMatch, error)
+	Scan(scanOpts ScanOpts) ([]ruleMatch, error)
 }
 
-func Main(urlStr string, showData bool, showAll bool, limit int, processes int, only string, except string, minCount int, pattern string) error {
+type ScanOpts struct {
+	UrlStr      string
+	ShowData    bool
+	ShowAll     bool
+	Limit       int
+	Debug       bool
+	MatchConfig *MatchConfig
+}
+
+func Main(urlStr string, showData bool, showAll bool, limit int, processes int, only string, except string, minCount int, pattern string, debug bool) error {
 	runtime.GOMAXPROCS(processes)
 
 	matchConfig := NewMatchConfig()
@@ -61,7 +71,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int, 
 		adapter = &SqlAdapter{}
 	}
 
-	matchList, err := adapter.Scan(urlStr, showData, showAll, limit, &matchConfig)
+	matchList, err := adapter.Scan(ScanOpts{urlStr, showData, showAll, limit, debug, &matchConfig})
 
 	if err != nil {
 		return err
@@ -88,8 +98,8 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int, 
 	return nil
 }
 
-func scanDataStore(adapter DataStoreAdapter, urlStr string, showData bool, showAll bool, limit int, matchConfig *MatchConfig) ([]ruleMatch, error) {
-	err := adapter.Init(urlStr)
+func scanDataStore(adapter DataStoreAdapter, scanOpts ScanOpts) ([]ruleMatch, error) {
+	err := adapter.Init(scanOpts.UrlStr)
 	if err != nil {
 		return nil, err
 	}
@@ -100,6 +110,8 @@ func scanDataStore(adapter DataStoreAdapter, urlStr string, showData bool, showA
 	}
 
 	if len(tables) > 0 {
+		limit := scanOpts.Limit
+
 		fmt.Printf("Found %s to scan, sampling %s from each...\n\n", pluralize(len(tables), adapter.TableName()), pluralize(limit, adapter.RowName()))
 
 		matchList := []ruleMatch{}
@@ -114,17 +126,25 @@ func scanDataStore(adapter DataStoreAdapter, urlStr string, showData bool, showA
 			table := table
 
 			g.Go(func() error {
+				start := time.Now()
+
 				// limit to one query at a time
 				queryMutex.Lock()
 				tableData, err := adapter.FetchTableData(table, limit)
 				queryMutex.Unlock()
+
+				if scanOpts.Debug {
+					duration := time.Now().Sub(start)
+					fmt.Printf("Scanned %s (%d ms)\n", table.displayName(), duration.Milliseconds())
+				}
+
 				if err != nil {
 					return err
 				}
 
-				matchFinder := NewMatchFinder(matchConfig)
+				matchFinder := NewMatchFinder(scanOpts.MatchConfig)
 				tableMatchList := matchFinder.CheckTableData(table, tableData)
-				printMatchList(tableMatchList, showData, showAll, adapter.RowName())
+				printMatchList(tableMatchList, scanOpts.ShowData, scanOpts.ShowAll, adapter.RowName())
 
 				appendMutex.Lock()
 				matchList = append(matchList, tableMatchList...)
@@ -145,8 +165,8 @@ func scanDataStore(adapter DataStoreAdapter, urlStr string, showData bool, showA
 	}
 }
 
-func scanFiles(adapter FileAdapter, urlStr string, showData bool, showAll bool, matchConfig *MatchConfig) ([]ruleMatch, error) {
-	err := adapter.Init(urlStr)
+func scanFiles(adapter FileAdapter, scanOpts ScanOpts) ([]ruleMatch, error) {
+	err := adapter.Init(scanOpts.UrlStr)
 	if err != nil {
 		return nil, err
 	}
@@ -172,14 +192,22 @@ func scanFiles(adapter FileAdapter, urlStr string, showData bool, showAll bool, 
 			file := file
 
 			g.Go(func() error {
-				// fmt.Println("Scanning " + file + "...\n")
-				matchFinder := NewMatchFinder(matchConfig)
+				start := time.Now()
+
+				matchFinder := NewMatchFinder(scanOpts.MatchConfig)
 				err := adapter.FindFileMatches(file, &matchFinder)
+
+				if scanOpts.Debug {
+					duration := time.Now().Sub(start)
+					fmt.Printf("Scanned %s (%d ms)\n", file, duration.Milliseconds())
+				}
+
 				if err != nil {
 					return err
 				}
+
 				fileMatchList := matchFinder.CheckMatches(file, true)
-				printMatchList(fileMatchList, showData, showAll, "line")
+				printMatchList(fileMatchList, scanOpts.ShowData, scanOpts.ShowAll, "line")
 
 				appendMutex.Lock()
 				matchList = append(matchList, fileMatchList...)

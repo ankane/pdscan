@@ -25,8 +25,8 @@ func (a *MongodbAdapter) RowName() string {
 	return "document"
 }
 
-func (a *MongodbAdapter) Scan(urlStr string, showData bool, showAll bool, limit int, matchConfig *MatchConfig) ([]ruleMatch, error) {
-	return scanDataStore(a, urlStr, showData, showAll, limit, matchConfig)
+func (a *MongodbAdapter) Scan(scanOpts ScanOpts) ([]ruleMatch, error) {
+	return scanDataStore(a, scanOpts)
 }
 
 func (a *MongodbAdapter) Init(urlStr string) error {

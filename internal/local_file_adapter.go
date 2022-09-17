@@ -13,8 +13,8 @@ func (a *LocalFileAdapter) ObjectName() string {
 	return "file"
 }
 
-func (a *LocalFileAdapter) Scan(urlStr string, showData bool, showAll bool, limit int, matchConfig *MatchConfig) ([]ruleMatch, error) {
-	return scanFiles(a, urlStr, showData, showAll, matchConfig)
+func (a *LocalFileAdapter) Scan(scanOpts ScanOpts) ([]ruleMatch, error) {
+	return scanFiles(a, scanOpts)
 }
 
 func (a *LocalFileAdapter) Init(url string) error {

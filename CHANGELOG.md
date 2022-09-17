@@ -1,5 +1,6 @@
 ## 0.1.7 (unreleased)
 
+- Added `--debug` option
 - Fixed error when Redis has no keys
 
 ## 0.1.6 (2022-09-16)

@@ -19,8 +19,8 @@ func (a *RedisAdapter) RowName() string {
 	return "key"
 }
 
-func (a *RedisAdapter) Scan(urlStr string, showData bool, showAll bool, limit int, matchConfig *MatchConfig) ([]ruleMatch, error) {
-	return scanDataStore(a, urlStr, showData, showAll, limit, matchConfig)
+func (a *RedisAdapter) Scan(scanOpts ScanOpts) ([]ruleMatch, error) {
+	return scanDataStore(a, scanOpts)
 }
 
 func (a *RedisAdapter) Init(urlStr string) error {

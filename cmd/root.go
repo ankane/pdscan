@@ -62,11 +62,16 @@ func NewRootCmd() *cobra.Command {
 				return err
 			}
 
+			debug, err := cmd.Flags().GetBool("debug")
+			if err != nil {
+				return err
+			}
+
 			if len(args) == 0 {
 				cmd.Help()
 				os.Exit(1)
 			}
-			return internal.Main(args[0], showData, showAll, limit, processes, only, except, minCount, pattern)
+			return internal.Main(args[0], showData, showAll, limit, processes, only, except, minCount, pattern, debug)
 		},
 	}
 	cmd.PersistentFlags().Bool("show-data", false, "Show data")
@@ -77,6 +82,8 @@ func NewRootCmd() *cobra.Command {
 	cmd.PersistentFlags().String("except", "", "Except certain rules")
 	cmd.PersistentFlags().Int("min-count", 1, "Minimum rows/documents/lines for a match (experimental)")
 	cmd.PersistentFlags().String("pattern", "", "Custom pattern")
+	cmd.PersistentFlags().Bool("debug", false, "Debug")
+	cmd.PersistentFlags().MarkHidden("debug")
 	return cmd
 }
 
