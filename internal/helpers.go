@@ -44,6 +44,12 @@ type ruleMatch struct {
 	LineCount   int
 }
 
+type matchInfo struct {
+	ruleMatch
+	Description string
+	Values      []string
+}
+
 func unique(arr []string) []string {
 	keys := make(map[string]bool)
 	list := []string{}
@@ -127,7 +133,6 @@ func pluralize(count int, singular string) string {
 }
 
 func printMatchList(matchList []ruleMatch, showData bool, showAll bool, rowStr string) {
-	// print matches for table
 	for _, match := range matchList {
 		if showAll || match.Confidence != "low" {
 			var description string
@@ -147,12 +152,10 @@ func printMatchList(matchList []ruleMatch, showData bool, showAll bool, rowStr s
 				}
 			}
 
-			yellow := color.New(color.FgYellow).SprintFunc()
-			fmt.Printf("%s %s\n", yellow(match.Identifier+":"), description)
-
+			var values []string
 			if showData {
 				v := unique(match.MatchedData)
-				if len(v) > 0 && showData {
+				if len(v) > 0 {
 					if len(v) > 50 {
 						v = v[0:50]
 					}
@@ -161,11 +164,25 @@ func printMatchList(matchList []ruleMatch, showData bool, showAll bool, rowStr s
 						v[i] = space.ReplaceAllString(v2, " ")
 					}
 					sort.Strings(v)
-					fmt.Println("    " + strings.Join(v, ", "))
 				}
-				fmt.Println("")
+				values = v
 			}
+
+			printMatch(matchInfo{match, description, values})
 		}
+	}
+}
+
+func printMatch(match matchInfo) {
+	yellow := color.New(color.FgYellow).SprintFunc()
+	fmt.Printf("%s %s\n", yellow(match.Identifier+":"), match.Description)
+
+	values := match.Values
+	if values != nil {
+		if len(values) > 0 {
+			fmt.Println("    " + strings.Join(values, ", "))
+		}
+		fmt.Println("")
 	}
 }
 
