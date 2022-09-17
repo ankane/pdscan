@@ -171,7 +171,7 @@ pdscan s3://bucket/path/to/directory/
 ### SQLite
 
 ```sh
-pdscan sqlite:/path/to/dbname.sqlite3
+pdscan sqlite://path/to/dbname.sqlite3
 ```
 
 > Not available with prebuilt binaries

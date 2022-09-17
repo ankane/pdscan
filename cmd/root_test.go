@@ -348,7 +348,7 @@ func TestSqlite(t *testing.T) {
 	db.MustExec(`CREATE TABLE "ITEMS" ("EMAIL" text, "ZipCode" text)`)
 	db.MustExec(`INSERT INTO "ITEMS" ("EMAIL") VALUES ('test@example.org')`)
 
-	checkSql(t, fmt.Sprintf("sqlite:%s", path))
+	checkSql(t, fmt.Sprintf("sqlite://%s", path))
 }
 
 func TestSqlserver(t *testing.T) {
