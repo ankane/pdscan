@@ -23,11 +23,17 @@ type ScanOpts struct {
 	ShowAll     bool
 	Limit       int
 	Debug       bool
+	Formatter   Formatter
 	MatchConfig *MatchConfig
 }
 
-func Main(urlStr string, showData bool, showAll bool, limit int, processes int, only string, except string, minCount int, pattern string, debug bool) error {
+func Main(urlStr string, showData bool, showAll bool, limit int, processes int, only string, except string, minCount int, pattern string, debug bool, format string) error {
 	runtime.GOMAXPROCS(processes)
+
+	formatter, found := Formatters[format]
+	if !found {
+		return fmt.Errorf("Invalid format: %s\nValid formats are ndjson, text", format)
+	}
 
 	matchConfig := NewMatchConfig()
 	if pattern != "" {
@@ -72,7 +78,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int, 
 		adapter = &SqlAdapter{}
 	}
 
-	matchList, err := adapter.Scan(ScanOpts{urlStr, showData, showAll, limit, debug, &matchConfig})
+	matchList, err := adapter.Scan(ScanOpts{urlStr, showData, showAll, limit, debug, formatter, &matchConfig})
 
 	if err != nil {
 		return err
@@ -84,16 +90,16 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int, 
 
 	if len(matchList) > 0 {
 		if showData {
-			fmt.Println("Showing 50 unique values from each")
+			fmt.Fprintln(os.Stderr, "Showing 50 unique values from each")
 		} else {
-			fmt.Println("\nUse --show-data to view data")
+			fmt.Fprintln(os.Stderr, "\nUse --show-data to view data")
 		}
 
 		if !showAll {
 			showLowConfidenceMatchHelp(matchList)
 		}
 	} else {
-		fmt.Println("No sensitive data found")
+		fmt.Fprintln(os.Stderr, "No sensitive data found")
 	}
 
 	return nil
@@ -113,7 +119,7 @@ func scanDataStore(adapter DataStoreAdapter, scanOpts ScanOpts) ([]ruleMatch, er
 	if len(tables) > 0 {
 		limit := scanOpts.Limit
 
-		fmt.Printf("Found %s to scan, sampling %s from each...\n\n", pluralize(len(tables), adapter.TableName()), pluralize(limit, adapter.RowName()))
+		fmt.Fprintf(os.Stderr, "Found %s to scan, sampling %s from each...\n\n", pluralize(len(tables), adapter.TableName()), pluralize(limit, adapter.RowName()))
 
 		matchList := []ruleMatch{}
 
@@ -145,7 +151,11 @@ func scanDataStore(adapter DataStoreAdapter, scanOpts ScanOpts) ([]ruleMatch, er
 
 				matchFinder := NewMatchFinder(scanOpts.MatchConfig)
 				tableMatchList := matchFinder.CheckTableData(table, tableData)
-				printMatchList(tableMatchList, scanOpts.ShowData, scanOpts.ShowAll, adapter.RowName())
+
+				err = printMatchList(scanOpts.Formatter, tableMatchList, scanOpts.ShowData, scanOpts.ShowAll, adapter.RowName())
+				if err != nil {
+					return err
+				}
 
 				appendMutex.Lock()
 				matchList = append(matchList, tableMatchList...)
@@ -161,7 +171,7 @@ func scanDataStore(adapter DataStoreAdapter, scanOpts ScanOpts) ([]ruleMatch, er
 
 		return matchList, nil
 	} else {
-		fmt.Printf("Found no %s to scan\n", pluralize(0, adapter.TableName())[2:])
+		fmt.Fprintf(os.Stderr, "Found no %s to scan\n", pluralize(0, adapter.TableName())[2:])
 		return nil, nil
 	}
 }
@@ -178,7 +188,7 @@ func scanFiles(adapter FileAdapter, scanOpts ScanOpts) ([]ruleMatch, error) {
 	}
 
 	if len(files) > 0 {
-		fmt.Printf("Found %s to scan...\n\n", pluralize(len(files), adapter.ObjectName()))
+		fmt.Fprintf(os.Stderr, "Found %s to scan...\n\n", pluralize(len(files), adapter.ObjectName()))
 
 		matchList := []ruleMatch{}
 
@@ -208,7 +218,11 @@ func scanFiles(adapter FileAdapter, scanOpts ScanOpts) ([]ruleMatch, error) {
 				}
 
 				fileMatchList := matchFinder.CheckMatches(file, true)
-				printMatchList(fileMatchList, scanOpts.ShowData, scanOpts.ShowAll, "line")
+
+				err = printMatchList(scanOpts.Formatter, fileMatchList, scanOpts.ShowData, scanOpts.ShowAll, "line")
+				if err != nil {
+					return err
+				}
 
 				appendMutex.Lock()
 				matchList = append(matchList, fileMatchList...)
@@ -224,7 +238,7 @@ func scanFiles(adapter FileAdapter, scanOpts ScanOpts) ([]ruleMatch, error) {
 
 		return matchList, nil
 	} else {
-		fmt.Printf("Found no %s to scan\n", pluralize(0, adapter.ObjectName())[2:])
+		fmt.Fprintf(os.Stderr, "Found no %s to scan\n", pluralize(0, adapter.ObjectName())[2:])
 		return nil, nil
 	}
 }

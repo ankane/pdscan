@@ -67,11 +67,16 @@ func NewRootCmd() *cobra.Command {
 				return err
 			}
 
+			format, err := cmd.Flags().GetString("format")
+			if err != nil {
+				return err
+			}
+
 			if len(args) == 0 {
 				cmd.Help()
 				os.Exit(1)
 			}
-			return internal.Main(args[0], showData, showAll, limit, processes, only, except, minCount, pattern, debug)
+			return internal.Main(args[0], showData, showAll, limit, processes, only, except, minCount, pattern, debug, format)
 		},
 	}
 	cmd.PersistentFlags().Bool("show-data", false, "Show data")
@@ -84,6 +89,7 @@ func NewRootCmd() *cobra.Command {
 	cmd.PersistentFlags().String("pattern", "", "Custom pattern")
 	cmd.PersistentFlags().Bool("debug", false, "Debug")
 	cmd.PersistentFlags().MarkHidden("debug")
+	cmd.PersistentFlags().String("format", "text", "Output format")
 	return cmd
 }
 

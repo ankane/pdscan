@@ -2,12 +2,12 @@ package internal
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"sort"
 	"strings"
 
 	"github.com/deckarep/golang-set"
-	"github.com/fatih/color"
 )
 
 type nameRule struct {
@@ -132,7 +132,7 @@ func pluralize(count int, singular string) string {
 	return fmt.Sprintf("%d %s", count, singular)
 }
 
-func printMatchList(matchList []ruleMatch, showData bool, showAll bool, rowStr string) {
+func printMatchList(formatter Formatter, matchList []ruleMatch, showData bool, showAll bool, rowStr string) error {
 	for _, match := range matchList {
 		if showAll || match.Confidence != "low" {
 			var description string
@@ -168,22 +168,13 @@ func printMatchList(matchList []ruleMatch, showData bool, showAll bool, rowStr s
 				values = v
 			}
 
-			printMatch(matchInfo{match, description, values})
+			err := formatter.PrintMatch(os.Stdout, matchInfo{match, description, values})
+			if err != nil {
+				return err
+			}
 		}
 	}
-}
-
-func printMatch(match matchInfo) {
-	yellow := color.New(color.FgYellow).SprintFunc()
-	fmt.Printf("%s %s\n", yellow(match.Identifier+":"), match.Description)
-
-	values := match.Values
-	if values != nil {
-		if len(values) > 0 {
-			fmt.Println("    " + strings.Join(values, ", "))
-		}
-		fmt.Println("")
-	}
+	return nil
 }
 
 func showLowConfidenceMatchHelp(matchList []ruleMatch) {
@@ -194,6 +185,6 @@ func showLowConfidenceMatchHelp(matchList []ruleMatch) {
 		}
 	}
 	if len(lowConfidenceMatches) > 0 {
-		fmt.Println("Also found " + pluralize(len(lowConfidenceMatches), "low confidence match") + ". Use --show-all to view them")
+		fmt.Fprintln(os.Stderr, "Also found "+pluralize(len(lowConfidenceMatches), "low confidence match")+". Use --show-all to view them")
 	}
 }

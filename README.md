@@ -232,6 +232,12 @@ Specify a custom pattern (experimental)
 pdscan --pattern "\d{16}"
 ```
 
+Output newline delimited JSON (experimental) [unreleased]
+
+```sh
+pdscan --format ndjson
+```
+
 ## Additional Installation Methods
 
 ### Homebrew

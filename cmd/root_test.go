@@ -418,11 +418,13 @@ func TestShowData(t *testing.T) {
 func captureOutput(f func()) string {
 	color.NoColor = true
 	stdout := os.Stdout
+	stderr := os.Stderr
 	r, w, err := os.Pipe()
 	if err != nil {
 		panic(err)
 	}
 	os.Stdout = w
+	os.Stderr = w
 	f()
 	w.Close()
 	out, err := io.ReadAll(r)
@@ -430,6 +432,7 @@ func captureOutput(f func()) string {
 		panic(err)
 	}
 	os.Stdout = stdout
+	os.Stderr = stderr
 	color.NoColor = false
 	return string(out)
 }
