@@ -78,6 +78,16 @@ pdscan file://path/to/directory
 
 For absolute paths, use `file:///`.
 
+```sh
+pdscan file:///absolute/path/to/file.txt
+```
+
+For paths relative to your home directory on Mac and Linux, use:
+
+```sh
+pdscan file://$HOME/file.txt
+```
+
 ### MariaDB
 
 ```sh
