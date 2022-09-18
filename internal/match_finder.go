@@ -29,27 +29,33 @@ func NewMatchConfig() MatchConfig {
 }
 
 type MatchFinder struct {
-	MatchedValues [][]string
-	TokenValues   [][]string
+	MatchedValues [][]MatchLine
+	TokenValues   [][]MatchLine
 	Count         int
 	matchConfig   *MatchConfig
+}
+
+// TODO keep track of full location (columns, archive file)
+type MatchLine struct {
+	LineIndex int
+	Line      string
 }
 
 var tokenizer = regexp.MustCompile(`\W+`)
 
 func NewMatchFinder(matchConfig *MatchConfig) MatchFinder {
 	return MatchFinder{
-		make([][]string, len(matchConfig.RegexRules)),
-		make([][]string, len(matchConfig.TokenRules)),
+		make([][]MatchLine, len(matchConfig.RegexRules)),
+		make([][]MatchLine, len(matchConfig.TokenRules)),
 		0,
 		matchConfig,
 	}
 }
 
-func (a *MatchFinder) Scan(v string) {
+func (a *MatchFinder) Scan(v string, index int) {
 	for i, rule := range a.matchConfig.RegexRules {
 		if rule.Regex.MatchString(v) {
-			a.MatchedValues[i] = append(a.MatchedValues[i], v)
+			a.MatchedValues[i] = append(a.MatchedValues[i], MatchLine{index, v})
 		}
 	}
 
@@ -57,7 +63,7 @@ func (a *MatchFinder) Scan(v string) {
 		tokens := tokenizer.Split(strings.ToLower(v), -1)
 		for i, rule := range a.matchConfig.TokenRules {
 			if anyMatches(rule, tokens) {
-				a.TokenValues[i] = append(a.TokenValues[i], v)
+				a.TokenValues[i] = append(a.TokenValues[i], MatchLine{index, v})
 			}
 		}
 	}
@@ -73,15 +79,15 @@ func anyMatches(rule tokenRule, values []string) bool {
 }
 
 func (a *MatchFinder) ScanValues(values []string) {
-	for _, v := range values {
-		a.Scan(v)
+	for i, v := range values {
+		a.Scan(v, i)
 	}
 	a.Count += len(values)
 }
 
 func (a *MatchFinder) Clear() {
-	a.MatchedValues = make([][]string, len(a.matchConfig.RegexRules))
-	a.TokenValues = make([][]string, len(a.matchConfig.TokenRules))
+	a.MatchedValues = make([][]MatchLine, len(a.matchConfig.RegexRules))
+	a.TokenValues = make([][]MatchLine, len(a.matchConfig.TokenRules))
 	a.Count = 0
 }
 
@@ -92,7 +98,10 @@ func (a *MatchFinder) CheckMatches(colIdentifier string, onlyValues bool) []rule
 	count := a.Count
 
 	for i, rule := range a.matchConfig.RegexRules {
-		matchedData := matchedValues[i]
+		matchedData := []string{}
+		for _, v := range matchedValues[i] {
+			matchedData = append(matchedData, v.Line)
+		}
 
 		if rule.Name == "email" {
 			// filter out false positives with URL credentials
@@ -129,7 +138,10 @@ func (a *MatchFinder) CheckMatches(colIdentifier string, onlyValues bool) []rule
 	}
 
 	for i, rule := range a.matchConfig.TokenRules {
-		matchedData := a.TokenValues[i]
+		matchedData := []string{}
+		for _, v := range a.TokenValues[i] {
+			matchedData = append(matchedData, v.Line)
+		}
 
 		if len(matchedData) >= a.matchConfig.MinCount {
 			confidence := "low"

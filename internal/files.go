@@ -14,8 +14,9 @@ func findScannerMatches(reader io.Reader, matchFinder *MatchFinder) error {
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		v := scanner.Text()
+		// TODO pass archive file and line number in file
+		matchFinder.Scan(v, matchFinder.Count)
 		matchFinder.Count += 1
-		matchFinder.Scan(v)
 	}
 	return nil
 }
