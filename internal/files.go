@@ -21,24 +21,16 @@ func findScannerMatches(reader io.Reader, matchFinder *MatchFinder) error {
 	return nil
 }
 
-// TODO make more efficient
-func zipReader(file io.Reader) (io.ReaderAt, int64, error) {
-	data, err := io.ReadAll(file)
-	if err != nil {
-		return nil, 0, err
-	}
-	bytesFile := bytes.NewReader(data)
-
-	return bytesFile, int64(bytesFile.Size()), nil
-}
-
 func processZip(file io.Reader, matchFinder *MatchFinder) error {
-	readerAt, size, err := zipReader(file)
+	// TODO make more efficient
+	data, err := io.ReadAll(file)
 	if err != nil {
 		return err
 	}
+	bytesFile := bytes.NewReader(data)
+	size := int64(bytesFile.Size())
 
-	reader, err := zip.NewReader(readerAt, size)
+	reader, err := zip.NewReader(bytesFile, size)
 	if err != nil {
 		return err
 	}
