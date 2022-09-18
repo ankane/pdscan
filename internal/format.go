@@ -42,10 +42,10 @@ func (f TextFormatter) PrintMatch(writer io.Writer, match matchInfo) error {
 type JSONFormatter struct{}
 
 type jsonEntry struct {
-	Identifier  string `json:"identifier"`
-	Name        string `json:"name"`
-	MatchType   string `json:"match_type"`
-	Confidence  string `json:"confidence"`
+	Identifier string `json:"identifier"`
+	Name       string `json:"name"`
+	MatchType  string `json:"match_type"`
+	Confidence string `json:"confidence"`
 }
 
 type jsonEntryWithMatches struct {
@@ -59,10 +59,10 @@ func (f JSONFormatter) PrintMatch(writer io.Writer, match matchInfo) error {
 	encoder := json.NewEncoder(writer)
 
 	entry := jsonEntry{
-		Identifier:  match.Identifier,
-		Name:        match.RuleName,
-		MatchType:   match.MatchType,
-		Confidence:  match.Confidence,
+		Identifier: match.Identifier,
+		Name:       match.RuleName,
+		MatchType:  match.MatchType,
+		Confidence: match.Confidence,
 	}
 
 	values := match.Values
