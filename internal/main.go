@@ -32,7 +32,12 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int, 
 
 	formatter, found := Formatters[format]
 	if !found {
-		return fmt.Errorf("Invalid format: %s\nValid formats are ndjson, text", format)
+		arr := make([]string, 0, len(Formatters))
+		for k := range Formatters {
+			arr = append(arr, k)
+		}
+		sort.Strings(arr)
+		return fmt.Errorf("Invalid format: %s\nValid formats are %s", format, strings.Join(arr, ", "))
 	}
 
 	matchConfig := NewMatchConfig()
