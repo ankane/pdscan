@@ -293,8 +293,8 @@ func TestRedis(t *testing.T) {
 		panic(err)
 	}
 
-	stdout, _ := captureOutput(func() { runCmd([]string{urlStr, "--show-data"}) })
-	assert.Contains(t, stdout, "sampling 10000 keys")
+	stdout, stderr := captureOutput(func() { runCmd([]string{urlStr, "--show-data"}) })
+	assert.Contains(t, stderr, "sampling 10000 keys")
 	assert.Contains(t, stdout, "pdscan_test:email:")
 
 	// lists
