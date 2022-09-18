@@ -402,6 +402,12 @@ func TestBadPattern(t *testing.T) {
 	assert.Contains(t, err.Error(), "error parsing regexp: invalid escape sequence: `\\e`")
 }
 
+func TestBadFormat(t *testing.T) {
+	err := runCmd([]string{fileUrl("email.txt"), "--format", "bad"})
+	assert.Contains(t, err.Error(), "Invalid format: bad")
+	assert.Contains(t, err.Error(), "Valid formats are ndjson, text")
+}
+
 func TestShowData(t *testing.T) {
 	output := captureOutput(func() { runCmd([]string{fileUrl("email.txt"), "--show-data"}) })
 	assert.Contains(t, output, "test@example.org")
