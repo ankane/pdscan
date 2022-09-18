@@ -408,6 +408,17 @@ func TestFormatNdjson(t *testing.T) {
 	assert.Contains(t, stdout, `"confidence":"high"`)
 }
 
+func TestFormatNdjsonShowData(t *testing.T) {
+	stdout, _ := captureOutput(func() { runCmd([]string{fileUrl("email.txt"), "--format", "ndjson", "--show-data"}) })
+	assert.Contains(t, stdout, `"matches":["test@example.org"]`)
+}
+
+func TestFormatNdjsonShowAll(t *testing.T) {
+	stdout, _ := captureOutput(func() { runCmd([]string{fileUrl("email.txt"), "--format", "ndjson", "--show-all"}) })
+	// TODO test low confidence
+	assert.Contains(t, stdout, `"confidence":"high"`)
+}
+
 func TestBadFormat(t *testing.T) {
 	err := runCmd([]string{fileUrl("email.txt"), "--format", "bad"})
 	assert.Contains(t, err.Error(), "Invalid format: bad")
