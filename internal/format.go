@@ -59,7 +59,7 @@ func (f JSONFormatter) PrintMatch(writer io.Writer, match matchInfo) error {
 	encoder := json.NewEncoder(writer)
 
 	entry := jsonEntry{
-		Name:        match.DisplayName,
+		Name:        match.RuleName,
 		Confidence:  match.Confidence,
 		Identifier:  match.Identifier,
 		Description: match.Description,
