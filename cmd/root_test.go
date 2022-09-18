@@ -36,8 +36,8 @@ func TestFileCsvLocation(t *testing.T) {
 }
 
 func TestFileGit(t *testing.T) {
-	output := fileOutput("../.git")
-	assert.Contains(t, output, ".git/logs/HEAD:")
+	stdout, _ := fileOutput("../.git")
+	assert.Contains(t, stdout, ".git/logs/HEAD:")
 }
 
 func TestFileNoExt(t *testing.T) {
@@ -53,8 +53,8 @@ func TestFileEmpty(t *testing.T) {
 }
 
 func TestFileMissing(t *testing.T) {
-	output := fileOutput("missing.txt")
-	assert.Contains(t, output, "Found no files to scan")
+	_, stderr := fileOutput("missing.txt")
+	assert.Contains(t, stderr, "Found no files to scan")
 }
 
 func TestFileTarGz(t *testing.T) {
@@ -70,17 +70,17 @@ func TestFileZip(t *testing.T) {
 }
 
 func TestFileMinCount(t *testing.T) {
-	output := captureOutput(func() { runCmd([]string{fileUrl("min-count.txt"), "--min-count", "2"}) })
-	assert.Contains(t, output, "found emails (2 lines)")
+	stdout, _ := captureOutput(func() { runCmd([]string{fileUrl("min-count.txt"), "--min-count", "2"}) })
+	assert.Contains(t, stdout, "found emails (2 lines)")
 
-	output = captureOutput(func() { runCmd([]string{fileUrl("min-count.txt"), "--min-count", "3"}) })
-	assert.Contains(t, output, "No sensitive data found")
+	_, stderr := captureOutput(func() { runCmd([]string{fileUrl("min-count.txt"), "--min-count", "3"}) })
+	assert.Contains(t, stderr, "No sensitive data found")
 }
 
 func TestFileLineCount(t *testing.T) {
-	output := captureOutput(func() { runCmd([]string{fileUrl("min-count.txt"), "--show-data"}) })
-	assert.Contains(t, output, "found emails (2 lines)")
-	assert.Contains(t, output, "test1@example.org, test2@example.org, test3@example.org")
+	stdout, _ := captureOutput(func() { runCmd([]string{fileUrl("min-count.txt"), "--show-data"}) })
+	assert.Contains(t, stdout, "found emails (2 lines)")
+	assert.Contains(t, stdout, "test1@example.org, test2@example.org, test3@example.org")
 }
 
 func TestElasticsearch(t *testing.T) {
@@ -136,8 +136,8 @@ func TestElasticsearch(t *testing.T) {
 	}
 	defer res.Body.Close()
 
-	output := checkDocument(t, "elasticsearch+http://localhost:9200/pdscan_test_*")
-	assert.Contains(t, output, "users.nested_type.email:")
+	stdout, _ := checkDocument(t, "elasticsearch+http://localhost:9200/pdscan_test_*")
+	assert.Contains(t, stdout, "users.nested_type.email:")
 }
 
 func TestMongodb(t *testing.T) {
@@ -236,12 +236,12 @@ func TestPostgres(t *testing.T) {
 	db.MustExec(`CREATE TABLE "ITEMS" ("EMAIL" text, "ZipCode" text)`)
 	db.MustExec(`INSERT INTO "ITEMS" ("EMAIL") VALUES ('test@example.org')`)
 
-	output := checkSql(t, "postgres://localhost/pdscan_test?sslmode=disable")
-	assert.Contains(t, output, "users.mac:")
-	assert.Contains(t, output, "users.emails: found emails (1 row)")
-	assert.Contains(t, output, "users.settings:")
-	assert.Contains(t, output, "users.settings2:")
-	assert.Contains(t, output, "users.settings3:")
+	stdout, _ := checkSql(t, "postgres://localhost/pdscan_test?sslmode=disable")
+	assert.Contains(t, stdout, "users.mac:")
+	assert.Contains(t, stdout, "users.emails: found emails (1 row)")
+	assert.Contains(t, stdout, "users.settings:")
+	assert.Contains(t, stdout, "users.settings2:")
+	assert.Contains(t, stdout, "users.settings3:")
 }
 
 func TestRedis(t *testing.T) {
@@ -293,28 +293,28 @@ func TestRedis(t *testing.T) {
 		panic(err)
 	}
 
-	output := captureOutput(func() { runCmd([]string{urlStr, "--show-data"}) })
-	assert.Contains(t, output, "sampling 10000 keys")
-	assert.Contains(t, output, "pdscan_test:email:")
+	stdout, _ := captureOutput(func() { runCmd([]string{urlStr, "--show-data"}) })
+	assert.Contains(t, stdout, "sampling 10000 keys")
+	assert.Contains(t, stdout, "pdscan_test:email:")
 
 	// lists
-	assert.Contains(t, output, "pdscan_test:list:")
-	assert.Contains(t, output, "list1@example.org")
-	assert.Contains(t, output, "list2@example.org")
+	assert.Contains(t, stdout, "pdscan_test:list:")
+	assert.Contains(t, stdout, "list1@example.org")
+	assert.Contains(t, stdout, "list2@example.org")
 
 	// sets
-	assert.Contains(t, output, "pdscan_test:set:")
-	assert.Contains(t, output, "set1@example.org")
-	assert.Contains(t, output, "set2@example.org")
+	assert.Contains(t, stdout, "pdscan_test:set:")
+	assert.Contains(t, stdout, "set1@example.org")
+	assert.Contains(t, stdout, "set2@example.org")
 
 	// hashes
-	assert.Contains(t, output, "pdscan_test:hash:")
-	assert.Contains(t, output, "hash@example.org")
+	assert.Contains(t, stdout, "pdscan_test:hash:")
+	assert.Contains(t, stdout, "hash@example.org")
 
 	// sorted sets
-	assert.Contains(t, output, "pdscan_test:zset:")
-	assert.Contains(t, output, "zset1@example.org")
-	assert.Contains(t, output, "zset2@example.org")
+	assert.Contains(t, stdout, "pdscan_test:zset:")
+	assert.Contains(t, stdout, "zset1@example.org")
+	assert.Contains(t, stdout, "zset2@example.org")
 }
 
 func TestSqlite(t *testing.T) {
@@ -389,12 +389,12 @@ func TestBadScheme(t *testing.T) {
 }
 
 func TestPattern(t *testing.T) {
-	output := captureOutput(func() { runCmd([]string{fileUrl("min-count.txt"), "--pattern", `\stest[12]`, "--show-data"}) })
-	assert.Contains(t, output, "found pattern (1 line)")
-	assert.NotContains(t, output, "found email")
-	assert.NotContains(t, output, "test1")
-	assert.Contains(t, output, "test2")
-	assert.NotContains(t, output, "test3")
+	stdout, _ := captureOutput(func() { runCmd([]string{fileUrl("min-count.txt"), "--pattern", `\stest[12]`, "--show-data"}) })
+	assert.Contains(t, stdout, "found pattern (1 line)")
+	assert.NotContains(t, stdout, "found email")
+	assert.NotContains(t, stdout, "test1")
+	assert.Contains(t, stdout, "test2")
+	assert.NotContains(t, stdout, "test3")
 }
 
 func TestBadPattern(t *testing.T) {
@@ -403,9 +403,9 @@ func TestBadPattern(t *testing.T) {
 }
 
 func TestFormatNdjson(t *testing.T) {
-	output := captureOutput(func() { runCmd([]string{fileUrl("email.txt"), "--format", "ndjson"}) })
-	assert.Contains(t, output, `"name":"email"`)
-	assert.Contains(t, output, `"confidence":"high"`)
+	stdout, _ := captureOutput(func() { runCmd([]string{fileUrl("email.txt"), "--format", "ndjson"}) })
+	assert.Contains(t, stdout, `"name":"email"`)
+	assert.Contains(t, stdout, `"confidence":"high"`)
 }
 
 func TestBadFormat(t *testing.T) {
@@ -415,8 +415,8 @@ func TestBadFormat(t *testing.T) {
 }
 
 func TestShowData(t *testing.T) {
-	output := captureOutput(func() { runCmd([]string{fileUrl("email.txt"), "--show-data"}) })
-	assert.Contains(t, output, "test@example.org")
+	stdout, _ := captureOutput(func() { runCmd([]string{fileUrl("email.txt"), "--show-data"}) })
+	assert.Contains(t, stdout, "test@example.org")
 }
 
 // TODO fix
@@ -427,7 +427,7 @@ func TestShowData(t *testing.T) {
 
 // helpers
 
-func captureOutput(f func()) string {
+func captureOutput(f func()) (string, string) {
 	color.NoColor = true
 	stdout := os.Stdout
 	stderr := os.Stderr
@@ -435,18 +435,27 @@ func captureOutput(f func()) string {
 	if err != nil {
 		panic(err)
 	}
+	r2, w2, err := os.Pipe()
+	if err != nil {
+		panic(err)
+	}
 	os.Stdout = w
-	os.Stderr = w
+	os.Stderr = w2
 	f()
 	w.Close()
+	w2.Close()
 	out, err := io.ReadAll(r)
+	if err != nil {
+		panic(err)
+	}
+	out2, err := io.ReadAll(r2)
 	if err != nil {
 		panic(err)
 	}
 	os.Stdout = stdout
 	os.Stderr = stderr
 	color.NoColor = false
-	return string(out)
+	return string(out), string(out2)
 }
 
 func runCmd(args []string) error {
@@ -460,17 +469,17 @@ func fileUrl(filename string) string {
 	return fmt.Sprintf("file://../testdata/%s", filename)
 }
 
-func fileOutput(filename string) string {
+func fileOutput(filename string) (string, string) {
 	return captureOutput(func() { runCmd([]string{fileUrl(filename)}) })
 }
 
 func checkFile(t *testing.T, filename string, found bool) {
-	output := fileOutput(filename)
-	assert.Contains(t, output, "Found 1 file to scan...")
+	stdout, stderr := fileOutput(filename)
+	assert.Contains(t, stderr, "Found 1 file to scan...")
 	if found {
-		assert.Contains(t, output, fmt.Sprintf("%s:", filename))
+		assert.Contains(t, stdout, fmt.Sprintf("%s:", filename))
 	} else {
-		assert.Contains(t, output, "No sensitive data found")
+		assert.Contains(t, stderr, "No sensitive data found")
 	}
 }
 
@@ -483,65 +492,65 @@ func setupDb(driver string, dsn string) *sqlx.DB {
 	return db
 }
 
-func checkSql(t *testing.T, urlStr string) string {
-	output := captureOutput(func() { runCmd([]string{urlStr}) })
-	assert.Contains(t, output, "sampling 10000 rows")
-	assert.NotContains(t, output, "users.id:")
-	assert.Contains(t, output, "users.email:")
-	assert.Contains(t, output, "users.phone:")
-	assert.Contains(t, output, "users.street:")
-	assert.Contains(t, output, "users.zip_code:")
-	assert.Contains(t, output, "users.birthday:")
-	assert.Contains(t, output, "users.last_name:")
-	assert.Contains(t, output, "users.ip:")
-	assert.Contains(t, output, "users.ip2:")
-	assert.Contains(t, output, "users.latitude+longitude:")
-	assert.Contains(t, output, "users.access_token:")
-	assert.Contains(t, output, "ITEMS.EMAIL:")
-	assert.Contains(t, output, "ITEMS.ZipCode:")
+func checkSql(t *testing.T, urlStr string) (string, string) {
+	stdout, stderr := captureOutput(func() { runCmd([]string{urlStr}) })
+	assert.Contains(t, stderr, "sampling 10000 rows")
+	assert.NotContains(t, stdout, "users.id:")
+	assert.Contains(t, stdout, "users.email:")
+	assert.Contains(t, stdout, "users.phone:")
+	assert.Contains(t, stdout, "users.street:")
+	assert.Contains(t, stdout, "users.zip_code:")
+	assert.Contains(t, stdout, "users.birthday:")
+	assert.Contains(t, stdout, "users.last_name:")
+	assert.Contains(t, stdout, "users.ip:")
+	assert.Contains(t, stdout, "users.ip2:")
+	assert.Contains(t, stdout, "users.latitude+longitude:")
+	assert.Contains(t, stdout, "users.access_token:")
+	assert.Contains(t, stdout, "ITEMS.EMAIL:")
+	assert.Contains(t, stdout, "ITEMS.ZipCode:")
 
 	checkOnly(t, urlStr)
 	checkExcept(t, urlStr)
 
-	return output
+	return stdout, stderr
 }
 
-func checkDocument(t *testing.T, urlStr string) string {
-	output := captureOutput(func() { runCmd([]string{urlStr, "--show-data"}) })
-	assert.Contains(t, output, "sampling 10000 documents")
-	assert.NotContains(t, output, "users._id:")
-	assert.Contains(t, output, "users.email:")
-	assert.Contains(t, output, "users.phone:")
-	assert.Contains(t, output, "users.street:")
-	assert.Contains(t, output, "users.zip_code:")
-	assert.Contains(t, output, "users.birthday:")
-	assert.Contains(t, output, "users.ip:")
-	assert.Contains(t, output, "users.ip2:")
-	assert.Contains(t, output, "users.latitude+longitude:")
-	assert.Contains(t, output, "users.access_token:")
+func checkDocument(t *testing.T, urlStr string) (string, string) {
+	stdout, stderr := captureOutput(func() { runCmd([]string{urlStr, "--show-data"}) })
+	assert.Contains(t, stderr, "sampling 10000 documents")
+	assert.NotContains(t, stdout, "users._id:")
+	assert.Contains(t, stdout, "users.email:")
+	assert.Contains(t, stdout, "users.phone:")
+	assert.Contains(t, stdout, "users.street:")
+	assert.Contains(t, stdout, "users.zip_code:")
+	assert.Contains(t, stdout, "users.birthday:")
+	assert.Contains(t, stdout, "users.ip:")
+	assert.Contains(t, stdout, "users.ip2:")
+	assert.Contains(t, stdout, "users.latitude+longitude:")
+	assert.Contains(t, stdout, "users.access_token:")
 
 	// arrays
-	assert.Contains(t, output, "users.emails: found emails (1 document)")
-	assert.Contains(t, output, "first@example.org")
-	assert.Contains(t, output, "second@example.org")
+	assert.Contains(t, stdout, "users.emails: found emails (1 document)")
+	assert.Contains(t, stdout, "first@example.org")
+	assert.Contains(t, stdout, "second@example.org")
 
 	// nested
-	assert.Contains(t, output, "users.nested.email:")
-	assert.Contains(t, output, "users.nested.zip_code:")
-	return output
+	assert.Contains(t, stdout, "users.nested.email:")
+	assert.Contains(t, stdout, "users.nested.zip_code:")
+	return stdout, stderr
 }
 
 func checkOnly(t *testing.T, urlStr string) {
-	output := captureOutput(func() { runCmd([]string{urlStr, "--only", "email,postal_code,location"}) })
-	assert.Contains(t, output, "users.email:")
-	assert.NotContains(t, output, "users.phone:")
-	assert.NotContains(t, output, "users.street:")
-	assert.Contains(t, output, "users.zip_code:")
-	assert.NotContains(t, output, "users.birthday:")
-	assert.NotContains(t, output, "users.ip:")
-	assert.NotContains(t, output, "users.ip2:")
-	assert.Contains(t, output, "users.latitude+longitude:")
-	assert.NotContains(t, output, "users.access_token:")
+	stdout, _ := captureOutput(func() { runCmd([]string{urlStr, "--only", "email,postal_code,location"}) })
+	assert.Contains(t, stdout, "users.email:")
+	assert.NotContains(t, stdout, "users.phone:")
+	assert.NotContains(t, stdout, "users.street:")
+	assert.Contains(t, stdout, "users.zip_code:")
+	assert.NotContains(t, stdout, "users.birthday:")
+	assert.NotContains(t, stdout, "users.ip:")
+	assert.NotContains(t, stdout, "users.ip2:")
+	assert.Contains(t, stdout, "users.latitude+longitude:")
+	assert.NotContains(t, stdout, "users.access_token:")
 
 	err := runCmd([]string{urlStr, "--only", "email,phone2"})
 	assert.Contains(t, err.Error(), "Invalid rule: phone2")
@@ -549,16 +558,16 @@ func checkOnly(t *testing.T, urlStr string) {
 }
 
 func checkExcept(t *testing.T, urlStr string) {
-	output := captureOutput(func() { runCmd([]string{urlStr, "--except", "email,postal_code,location"}) })
-	assert.NotContains(t, output, "users.email:")
-	assert.Contains(t, output, "users.phone:")
-	assert.Contains(t, output, "users.street:")
-	assert.NotContains(t, output, "users.zip_code:")
-	assert.Contains(t, output, "users.birthday:")
-	assert.Contains(t, output, "users.ip:")
-	assert.Contains(t, output, "users.ip2:")
-	assert.NotContains(t, output, "users.latitude+longitude:")
-	assert.Contains(t, output, "users.access_token:")
+	stdout, _ := captureOutput(func() { runCmd([]string{urlStr, "--except", "email,postal_code,location"}) })
+	assert.NotContains(t, stdout, "users.email:")
+	assert.Contains(t, stdout, "users.phone:")
+	assert.Contains(t, stdout, "users.street:")
+	assert.NotContains(t, stdout, "users.zip_code:")
+	assert.Contains(t, stdout, "users.birthday:")
+	assert.Contains(t, stdout, "users.ip:")
+	assert.Contains(t, stdout, "users.ip2:")
+	assert.NotContains(t, stdout, "users.latitude+longitude:")
+	assert.Contains(t, stdout, "users.access_token:")
 
 	err := runCmd([]string{urlStr, "--except", "email,phone2"})
 	assert.Contains(t, err.Error(), "Invalid rule: phone2")
