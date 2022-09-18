@@ -124,7 +124,7 @@ func (a *MatchFinder) CheckMatches(colIdentifier string, onlyValues bool) []rule
 				matchedData = matchedValues
 			}
 
-			matchList = append(matchList, ruleMatch{RuleName: rule.Name, DisplayName: rule.DisplayName, Confidence: confidence, Identifier: colIdentifier, MatchedData: matchedData, LineCount: lineCount})
+			matchList = append(matchList, ruleMatch{RuleName: rule.Name, DisplayName: rule.DisplayName, Confidence: confidence, Identifier: colIdentifier, MatchedData: matchedData, LineCount: lineCount, MatchType: "value"})
 		}
 	}
 
@@ -153,7 +153,7 @@ func (a *MatchFinder) CheckMatches(colIdentifier string, onlyValues bool) []rule
 				matchedData = matchedValues
 			}
 
-			matchList = append(matchList, ruleMatch{RuleName: rule.Name, DisplayName: rule.DisplayName, Confidence: confidence, Identifier: colIdentifier, MatchedData: matchedData, LineCount: lineCount})
+			matchList = append(matchList, ruleMatch{RuleName: rule.Name, DisplayName: rule.DisplayName, Confidence: confidence, Identifier: colIdentifier, MatchedData: matchedData, LineCount: lineCount, MatchType: "value"})
 		}
 	}
 

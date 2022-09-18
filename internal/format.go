@@ -43,6 +43,7 @@ type JSONFormatter struct{}
 
 type jsonEntry struct {
 	Name        string `json:"name"`
+	MatchType   string `json:"match_type"`
 	Confidence  string `json:"confidence"`
 	Identifier  string `json:"identifier"`
 	Description string `json:"description"`
@@ -60,6 +61,7 @@ func (f JSONFormatter) PrintMatch(writer io.Writer, match matchInfo) error {
 
 	entry := jsonEntry{
 		Name:        match.RuleName,
+		MatchType:   match.MatchType,
 		Confidence:  match.Confidence,
 		Identifier:  match.Identifier,
 		Description: match.Description,
