@@ -430,6 +430,12 @@ func TestShowData(t *testing.T) {
 	assert.Contains(t, stdout, "test@example.org")
 }
 
+// TODO uncomment in 0.2.0
+// func TestExtraArgs(t *testing.T) {
+// 	err := runCmd([]string{fileUrl("email.txt"), "other"})
+// 	assert.Contains(t, err.Error(), "Too many arguments")
+// }
+
 // TODO fix
 // func TestSampleSize(t *testing.T) {
 // 	output := captureOutput(func() { internal.Main("sqlite:../testdata/test.sqlite3", false, false, 250, 1) })
