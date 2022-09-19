@@ -35,7 +35,6 @@ type MatchFinder struct {
 	matchConfig   *MatchConfig
 }
 
-// TODO keep track of full location (columns, archive file)
 type MatchLine struct {
 	LineIndex int
 	Line      string
@@ -52,6 +51,8 @@ func NewMatchFinder(matchConfig *MatchConfig) MatchFinder {
 	}
 }
 
+// fast check for matches
+// extract values and index in a later step if needed (if --show-data is passed)
 func (a *MatchFinder) Scan(v string, index int) {
 	for i, rule := range a.matchConfig.RegexRules {
 		if rule.Regex.MatchString(v) {
