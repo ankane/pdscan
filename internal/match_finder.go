@@ -35,16 +35,10 @@ type MatchFinder struct {
 	matchConfig   *MatchConfig
 }
 
-type MatchLocation struct {
-	Start int
-	Value string
-}
-
 // TODO keep track of full location (columns, archive file)
 type MatchLine struct {
 	LineIndex int
 	Line      string
-	Locations []MatchLocation
 }
 
 var tokenizer = regexp.MustCompile(`\W+`)
@@ -60,22 +54,16 @@ func NewMatchFinder(matchConfig *MatchConfig) MatchFinder {
 
 func (a *MatchFinder) Scan(v string, index int) {
 	for i, rule := range a.matchConfig.RegexRules {
-		indices := rule.Regex.FindAllStringIndex(v, -1)
-		if len(indices) > 0 {
-			locations := make([]MatchLocation, len(indices))
-			for i, loc := range indices {
-				locations[i] = MatchLocation{loc[0], v[loc[0]:loc[1]]}
-			}
-			a.MatchedValues[i] = append(a.MatchedValues[i], MatchLine{index, v, locations})
+		if rule.Regex.MatchString(v) {
+			a.MatchedValues[i] = append(a.MatchedValues[i], MatchLine{index, v})
 		}
 	}
 
 	if len(a.matchConfig.TokenRules) > 0 {
-		// TODO tokenize with offsets for locations
 		tokens := tokenizer.Split(strings.ToLower(v), -1)
 		for i, rule := range a.matchConfig.TokenRules {
 			if anyMatches(rule, tokens) {
-				a.TokenValues[i] = append(a.TokenValues[i], MatchLine{LineIndex: index, Line: v})
+				a.TokenValues[i] = append(a.TokenValues[i], MatchLine{index, v})
 			}
 		}
 	}
