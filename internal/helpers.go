@@ -20,8 +20,8 @@ type ruleMatch struct {
 
 type matchInfo struct {
 	ruleMatch
-	Description string
-	Values      []string
+	RowStr string
+	Values []string
 }
 
 func unique(arr []string) []string {
@@ -73,23 +73,6 @@ func pluralize(count int, singular string) string {
 func printMatchList(formatter Formatter, matchList []ruleMatch, showData bool, showAll bool, rowStr string) error {
 	for _, match := range matchList {
 		if showAll || match.Confidence != "low" {
-			var description string
-
-			count := match.LineCount
-			if match.MatchType == "name" {
-				description = fmt.Sprintf("possible %s (name match)", match.DisplayName)
-			} else {
-				str := pluralize(count, rowStr)
-				if match.Confidence == "low" {
-					str = str + ", low confidence"
-				}
-				if rowStr == "key" {
-					description = fmt.Sprintf("found %s", match.DisplayName)
-				} else {
-					description = fmt.Sprintf("found %s (%s)", match.DisplayName, str)
-				}
-			}
-
 			var values []string
 			if showData {
 				v := unique(match.MatchedData)
@@ -106,7 +89,7 @@ func printMatchList(formatter Formatter, matchList []ruleMatch, showData bool, s
 				values = v
 			}
 
-			err := formatter.PrintMatch(os.Stdout, matchInfo{match, description, values})
+			err := formatter.PrintMatch(os.Stdout, matchInfo{match, rowStr, values})
 			if err != nil {
 				return err
 			}

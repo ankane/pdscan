@@ -25,8 +25,23 @@ var Formatters = map[string]Formatter{
 type TextFormatter struct{}
 
 func (f TextFormatter) PrintMatch(writer io.Writer, match matchInfo) error {
+	var description string
+	if match.MatchType == "name" {
+		description = fmt.Sprintf("possible %s (name match)", match.DisplayName)
+	} else {
+		str := pluralize(match.LineCount, match.RowStr)
+		if match.Confidence == "low" {
+			str = str + ", low confidence"
+		}
+		if match.RowStr == "key" {
+			description = fmt.Sprintf("found %s", match.DisplayName)
+		} else {
+			description = fmt.Sprintf("found %s (%s)", match.DisplayName, str)
+		}
+	}
+
 	yellow := color.New(color.FgYellow).SprintFunc()
-	fmt.Fprintf(writer, "%s %s\n", yellow(match.Identifier+":"), match.Description)
+	fmt.Fprintf(writer, "%s %s\n", yellow(match.Identifier+":"), description)
 
 	values := match.Values
 	if values != nil {
