@@ -110,6 +110,7 @@ func (a *MatchFinder) CheckMatches(colIdentifier string, onlyValues bool) []rule
 			matchedData = []string{}
 			for _, v := range newMatchedData {
 				// replace urls and check for email match again
+				// TODO preserve offset
 				v2 := urlPassword.ReplaceAllString(v, "[FILTERED]")
 				if rule.Regex.MatchString(v2) {
 					matchedData = append(matchedData, v)

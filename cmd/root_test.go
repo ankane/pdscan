@@ -83,6 +83,10 @@ func TestFileLineCount(t *testing.T) {
 	assert.Contains(t, stdout, "test1@example.org, test2@example.org, test3@example.org")
 }
 
+func TestUrl(t *testing.T) {
+	checkFile(t, "url.txt", false)
+}
+
 func TestElasticsearch(t *testing.T) {
 	es, err := elasticsearch.NewDefaultClient()
 	if err != nil {
