@@ -117,9 +117,14 @@ func (a *MatchFinder) CheckMatches(colIdentifier string, onlyValues bool) []rule
 		}
 
 		if len(matchedData) >= a.matchConfig.MinCount {
-			confidence := "low"
-			if rule.Name == "email" || rule.Name == "pattern" || float64(len(matchedData))/float64(count) > 0.5 {
-				confidence = "high"
+			confidence := rule.Confidence
+			// variable confidence
+			if confidence == "" {
+				if float64(len(matchedData))/float64(count) > 0.5 {
+					confidence = "high"
+				} else {
+					confidence = "low"
+				}
 			}
 
 			lineCount := len(matchedData)

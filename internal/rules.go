@@ -21,6 +21,7 @@ type multiNameRule struct {
 type regexRule struct {
 	Name        string
 	DisplayName string
+	Confidence  string
 	Regex       *regexp.Regexp
 }
 
@@ -49,13 +50,15 @@ var multiNameRules = []multiNameRule{
 // TODO IPv6
 // TODO more popular access tokens
 var regexRules = []regexRule{
-	regexRule{Name: "email", DisplayName: "emails", Regex: regexp.MustCompile(`\b[\w][\w+.-]+(@|%40)[a-z\d-]+(\.[a-z\d-]+)*\.[a-z]+\b`)},
+	regexRule{Name: "email", DisplayName: "emails", Confidence: "high", Regex: regexp.MustCompile(`\b[\w][\w+.-]+(@|%40)[a-z\d-]+(\.[a-z\d-]+)*\.[a-z]+\b`)},
+	// TODO make high confidence
 	regexRule{Name: "ip", DisplayName: "IP addresses", Regex: regexp.MustCompile(`\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b`)},
 	regexRule{Name: "credit_card", DisplayName: "credit card numbers", Regex: regexp.MustCompile(`(\b[3456]\d{3}[\s+-]\d{4}[\s+-]\d{4}[\s+-]\d{4}\b)|(\b[3456]\d{15}\b)`)},
 	regexRule{Name: "phone", DisplayName: "phone numbers", Regex: regexp.MustCompile(`(\b(\+\d{1,2}\s)?\(?\d{3}\)?[\s+.-]\d{3}[\s+.-]\d{4}\b)|((?:\+|%2B)[1-9]\d{6,14}\b)`)},
 	regexRule{Name: "ssn", DisplayName: "SSNs", Regex: regexp.MustCompile(`\b\d{3}[\s+-]\d{2}[\s+-]\d{4}\b`)},
 	regexRule{Name: "street", DisplayName: "street addresses", Regex: regexp.MustCompile(`(?i)\b\d+\b.{4,60}\b(st|street|ave|avenue|road|rd|drive|dr)\b`)},
 	regexRule{Name: "oauth_token", DisplayName: "OAuth tokens", Regex: regexp.MustCompile(`ya29\..{60,200}`)}, // google
+	// TODO make high confidence
 	regexRule{Name: "mac", DisplayName: "MAC addresses", Regex: regexp.MustCompile(`\b[0-9a-fA-F]{2}(?:(?::|%3A)[0-9a-fA-F]{2}){5}\b`)},
 }
 

@@ -46,7 +46,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int, 
 		if err != nil {
 			return err
 		}
-		matchConfig.RegexRules = []regexRule{regexRule{Name: "pattern", DisplayName: "pattern", Regex: regex}}
+		matchConfig.RegexRules = []regexRule{regexRule{Name: "pattern", DisplayName: "pattern", Confidence: "high", Regex: regex}}
 		matchConfig.NameRules = matchConfig.NameRules[:0]
 		matchConfig.MultiNameRules = matchConfig.MultiNameRules[:0]
 		matchConfig.TokenRules = matchConfig.TokenRules[:0]
