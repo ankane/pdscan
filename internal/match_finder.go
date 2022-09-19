@@ -155,10 +155,10 @@ func (a *MatchFinder) CheckMatches(colIdentifier string, onlyValues bool) []rule
 				var matchedValues []string
 				for _, v := range matchedData {
 					tokens := tokenizer.Split(strings.ToLower(v), -1)
-					for _, v2 := range tokens {
+					for _, token := range tokens {
 						// TODO check all tokens
-						if rule.Tokens.Contains(v2) {
-							matchedValues = append(matchedValues, v2)
+						if rule.Tokens.Contains(token) {
+							matchedValues = append(matchedValues, token)
 						}
 					}
 				}
