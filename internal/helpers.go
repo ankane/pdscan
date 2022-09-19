@@ -75,18 +75,11 @@ func printMatchList(formatter Formatter, matchList []ruleMatch, showData bool, s
 		if showAll || match.Confidence != "low" {
 			var values []string
 			if showData {
-				v := unique(match.MatchedData)
-				if len(v) > 0 {
-					if len(v) > 50 {
-						v = v[0:50]
-					}
-
-					for i, v2 := range v {
-						v[i] = space.ReplaceAllString(v2, " ")
-					}
-					sort.Strings(v)
+				values = unique(match.MatchedData)
+				if len(values) > 50 {
+					values = values[0:50]
 				}
-				values = v
+				sort.Strings(values)
 			}
 
 			err := formatter.PrintMatch(os.Stdout, matchInfo{match, rowStr, values})

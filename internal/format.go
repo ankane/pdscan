@@ -45,6 +45,12 @@ func (f TextFormatter) PrintMatch(writer io.Writer, match matchInfo) error {
 
 	values := match.Values
 	if values != nil {
+		// squish whitespace
+		// TODO show whitespace
+		for i, value := range values {
+			values[i] = space.ReplaceAllString(value, " ")
+		}
+
 		if len(values) > 0 {
 			fmt.Fprintln(writer, "    "+strings.Join(values, ", "))
 		}
