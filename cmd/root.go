@@ -92,10 +92,10 @@ func NewRootCmd() *cobra.Command {
 	cmd.PersistentFlags().String("only", "", "Only certain rules")
 	cmd.PersistentFlags().String("except", "", "Except certain rules")
 	cmd.PersistentFlags().Int("min-count", 1, "Minimum rows/documents/lines for a match (experimental)")
-	cmd.PersistentFlags().String("pattern", "", "Custom pattern")
+	cmd.PersistentFlags().String("pattern", "", "Custom pattern (experimental)")
 	cmd.PersistentFlags().Bool("debug", false, "Debug")
 	cmd.PersistentFlags().MarkHidden("debug")
-	cmd.PersistentFlags().String("format", "text", "Output format")
+	cmd.PersistentFlags().String("format", "text", "Output format (experimental)")
 	return cmd
 }
 
