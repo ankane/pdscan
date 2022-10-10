@@ -1,4 +1,4 @@
-## 0.1.7 (unreleased)
+## 0.1.7 (2022-10-09)
 
 - Added `--debug` option
 - Added experimental `--format` option

@@ -24,9 +24,9 @@ Uses data sampling and naming, and works with compressed files
 
 Download the latest version.
 
-- Mac - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.6/pdscan_0.1.6_Darwin_x86_64.zip) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.1.6/pdscan_0.1.6_Darwin_arm64.zip)
-- Linux - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.6/pdscan_0.1.6_Linux_x86_64.zip) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.1.6/pdscan_0.1.6_Linux_arm64.zip)
-- Windows - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.6/pdscan_0.1.6_Windows_x86_64.zip)
+- Mac - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.7/pdscan-0.1.7-x86_64-darwin.zip) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.1.7/pdscan-0.1.7-arm64-darwin.zip)
+- Linux - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.7/pdscan-0.1.7-x86_64-linux.zip) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.1.7/pdscan-0.1.7-arm64-linux.zip)
+- Windows - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.7/pdscan-0.1.7-x86_64-windows.zip)
 
 You can also install it with [Homebrew](#homebrew) or [Docker](#docker).
 
@@ -232,7 +232,7 @@ Specify a custom pattern (experimental)
 pdscan --pattern "\d{16}"
 ```
 
-Output newline delimited JSON (experimental) [unreleased]
+Output newline delimited JSON (experimental)
 
 ```sh
 pdscan --format ndjson
@@ -268,7 +268,7 @@ For data stores on the host machine, use `host.docker.internal` as the hostname
 docker run -ti ankane/pdscan "postgres://user@host.docker.internal:5432/dbname?sslmode=disable"
 ```
 
-> On Linux, this requires Docker 20.04 and `--add-host=host.docker.internal:host-gateway`
+> On Linux, this requires Docker 20.04+ and `--add-host=host.docker.internal:host-gateway`
 
 For files on the host machine, use:
 
