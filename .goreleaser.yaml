@@ -19,10 +19,8 @@ builds:
       - goos: windows
         goarch: arm64
 archives:
-  - replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
+  - name_template: "{{ .ProjectName }}-{{ .Version }}-{{ .Arch }}-{{ .Os }}"
+    replacements:
       amd64: x86_64
     format: zip
 dockers:
