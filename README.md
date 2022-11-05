@@ -24,8 +24,8 @@ Uses data sampling and naming, and works with compressed files
 
 Download the latest version:
 
-- Mac - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.7/pdscan-0.1.7-x86_64-darwin.zip) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.1.7/pdscan-0.1.7-arm64-darwin.zip)
 - Linux - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.7/pdscan-0.1.7-x86_64-linux.zip) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.1.7/pdscan-0.1.7-arm64-linux.zip)
+- Mac - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.7/pdscan-0.1.7-x86_64-darwin.zip) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.1.7/pdscan-0.1.7-arm64-darwin.zip)
 - Windows - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.7/pdscan-0.1.7-x86_64-windows.zip)
 
 You can also install it with [Homebrew](#homebrew) or [Docker](#docker).
