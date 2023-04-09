@@ -1,3 +1,7 @@
+## 0.1.8 (unreleased)
+
+- Reduced load of scan on Redis
+
 ## 0.1.7 (2022-10-09)
 
 - Added `--debug` option

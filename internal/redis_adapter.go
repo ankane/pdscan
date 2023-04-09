@@ -83,32 +83,38 @@ func (a RedisAdapter) FetchTableData(table table, limit int) (*tableData, error)
 				columnValues[i] = append(columnValues[i], val)
 			} else if ty == "list" {
 				// TODO fetch in batches
-				val, err := rdb.LRange(ctx, key, 0, -1).Result()
+				val, err := rdb.LRange(ctx, key, 0, 1000).Result()
 				if err != nil {
 					return nil, err
 				}
 				columnValues[i] = append(columnValues[i], val...)
 			} else if ty == "set" {
-				val, err := rdb.SMembers(ctx, key).Result()
-				if err != nil {
-					return nil, err
-				}
-				columnValues[i] = append(columnValues[i], val...)
-			} else if ty == "hash" {
-				val, err := rdb.HGetAll(ctx, key).Result()
-				if err != nil {
-					return nil, err
-				}
-				for _, v := range val {
+				iter := rdb.SScan(ctx, key, 0, "", 0).Iterator()
+				for iter.Next(ctx) {
+					v := iter.Val()
 					columnValues[i] = append(columnValues[i], v)
 				}
-			} else if ty == "zset" {
-				// TODO fetch in batches
-				val, err := rdb.ZRange(ctx, key, 0, -1).Result()
-				if err != nil {
+				if err := iter.Err(); err != nil {
 					return nil, err
 				}
-				columnValues[i] = append(columnValues[i], val...)
+			} else if ty == "hash" {
+				iter := rdb.HScan(ctx, key, 0, "", 0).Iterator()
+				for iter.Next(ctx) {
+					v := iter.Val()
+					columnValues[i] = append(columnValues[i], v)
+				}
+				if err := iter.Err(); err != nil {
+					return nil, err
+				}
+			} else if ty == "zset" {
+				iter := rdb.ZScan(ctx, key, 0, "", 0).Iterator()
+				for iter.Next(ctx) {
+					v := iter.Val()
+					columnValues[i] = append(columnValues[i], v)
+				}
+				if err := iter.Err(); err != nil {
+					return nil, err
+				}
 			}
 		}
 	}
