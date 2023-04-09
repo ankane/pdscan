@@ -7,13 +7,13 @@ require (
 	github.com/deckarep/golang-set v1.8.0
 	github.com/denisenkom/go-mssqldb v0.12.2
 	github.com/fatih/color v1.13.0
-	github.com/go-redis/redis/v8 v8.11.5
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/h2non/filetype v1.1.3
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/lib/pq v1.10.6
 	github.com/mattn/go-sqlite3 v1.14.15
 	github.com/opensearch-project/opensearch-go v1.1.0
+	github.com/redis/go-redis/v9 v9.0.3
 	github.com/spf13/cobra v1.5.0
 	github.com/stretchr/testify v1.7.0
 	github.com/xo/dburl v0.12.0
@@ -22,7 +22,7 @@ require (
 )
 
 require (
-	github.com/cespare/xxhash/v2 v2.1.2 // indirect
+	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/golang-sql/civil v0.0.0-20190719163853-cb61b32ac6fe // indirect

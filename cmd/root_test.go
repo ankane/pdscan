@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/fatih/color"
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 
@@ -287,12 +287,12 @@ func TestRedis(t *testing.T) {
 		panic(err)
 	}
 
-	err = rdb.ZAdd(ctx, "pdscan_test:zset", &redis.Z{Member: "zset1@example.org", Score: 1}).Err()
+	err = rdb.ZAdd(ctx, "pdscan_test:zset", redis.Z{Member: "zset1@example.org", Score: 1}).Err()
 	if err != nil {
 		panic(err)
 	}
 
-	err = rdb.ZAdd(ctx, "pdscan_test:zset", &redis.Z{Member: "zset2@example.org", Score: 2}).Err()
+	err = rdb.ZAdd(ctx, "pdscan_test:zset", redis.Z{Member: "zset2@example.org", Score: 2}).Err()
 	if err != nil {
 		panic(err)
 	}
