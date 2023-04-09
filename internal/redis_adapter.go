@@ -93,8 +93,7 @@ func (a RedisAdapter) FetchTableData(table table, limit int) (*tableData, error)
 			} else if ty == "set" {
 				iter := rdb.SScan(ctx, key, 0, "", 0).Iterator()
 				for iter.Next(ctx) {
-					v := iter.Val()
-					columnValues[i] = append(columnValues[i], v)
+					columnValues[i] = append(columnValues[i], iter.Val())
 				}
 				if err := iter.Err(); err != nil {
 					return nil, err
@@ -102,8 +101,7 @@ func (a RedisAdapter) FetchTableData(table table, limit int) (*tableData, error)
 			} else if ty == "hash" {
 				iter := rdb.HScan(ctx, key, 0, "", 0).Iterator()
 				for iter.Next(ctx) {
-					v := iter.Val()
-					columnValues[i] = append(columnValues[i], v)
+					columnValues[i] = append(columnValues[i], iter.Val())
 				}
 				if err := iter.Err(); err != nil {
 					return nil, err
@@ -111,8 +109,7 @@ func (a RedisAdapter) FetchTableData(table table, limit int) (*tableData, error)
 			} else if ty == "zset" {
 				iter := rdb.ZScan(ctx, key, 0, "", 0).Iterator()
 				for iter.Next(ctx) {
-					v := iter.Val()
-					columnValues[i] = append(columnValues[i], v)
+					columnValues[i] = append(columnValues[i], iter.Val())
 				}
 				if err := iter.Err(); err != nil {
 					return nil, err
