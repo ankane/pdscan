@@ -82,6 +82,8 @@ func (a RedisAdapter) FetchTableData(table table, limit int) (*tableData, error)
 				}
 				columnValues[i] = append(columnValues[i], val)
 			} else if ty == "list" {
+				// no LSCAN
+				// https://github.com/redis/redis/issues/6538
 				// TODO fetch in batches
 				val, err := rdb.LRange(ctx, key, 0, 1000).Result()
 				if err != nil {
