@@ -1,4 +1,4 @@
-## 0.1.8 (unreleased)
+## 0.1.8 (2023-04-18)
 
 - Reduced load of scan on Redis
 
