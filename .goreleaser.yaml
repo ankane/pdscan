@@ -19,9 +19,12 @@ builds:
       - goos: windows
         goarch: arm64
 archives:
-  - name_template: "{{ .ProjectName }}-{{ .Version }}-{{ .Arch }}-{{ .Os }}"
-    replacements:
-      amd64: x86_64
+  - name_template: >-
+      {{ .ProjectName }}-
+      {{- .Version }}-
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else }}{{ .Arch }}{{ end }}-
+      {{- .Os }}
     format: zip
 dockers:
   - image_templates:
