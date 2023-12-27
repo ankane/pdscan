@@ -146,7 +146,7 @@ func scanDataStore(adapter DataStoreAdapter, scanOpts ScanOpts) ([]ruleMatch, er
 				queryMutex.Unlock()
 
 				if scanOpts.Debug {
-					duration := time.Now().Sub(start)
+					duration := time.Since(start)
 					fmt.Fprintf(os.Stderr, "Scanned %s (%d ms)\n", table.displayName(), duration.Milliseconds())
 				}
 
@@ -214,7 +214,7 @@ func scanFiles(adapter FileAdapter, scanOpts ScanOpts) ([]ruleMatch, error) {
 				err := adapter.FindFileMatches(file, &matchFinder)
 
 				if scanOpts.Debug {
-					duration := time.Now().Sub(start)
+					duration := time.Since(start)
 					fmt.Fprintf(os.Stderr, "Scanned %s (%d ms)\n", file, duration.Milliseconds())
 				}
 
