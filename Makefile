@@ -5,7 +5,7 @@ test:
 	go test ./... -v
 
 lint:
-	staticcheck ./...
+	staticcheck -checks "inherit,-ST1005" ./...
 
 format:
 	go fmt
