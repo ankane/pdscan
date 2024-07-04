@@ -149,6 +149,9 @@ func TestMongodb(t *testing.T) {
 	defer cancel()
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
+	if err != nil {
+		panic(err)
+	}
 	defer func() {
 		if err = client.Disconnect(ctx); err != nil {
 			panic(err)
