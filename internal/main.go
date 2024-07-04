@@ -71,7 +71,7 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int, 
 		adapter = &LocalFileAdapter{}
 	} else if strings.HasPrefix(urlStr, "s3://") {
 		adapter = &S3Adapter{}
-	} else if strings.HasPrefix(urlStr, "mongodb://") {
+	} else if strings.HasPrefix(urlStr, "mongodb://") || strings.HasPrefix(urlStr, "mongodb+srv://") {
 		adapter = &MongodbAdapter{}
 	} else if strings.HasPrefix(urlStr, "redis://") {
 		adapter = &RedisAdapter{}
