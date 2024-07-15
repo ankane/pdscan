@@ -73,7 +73,10 @@ func NewRootCmd() *cobra.Command {
 			}
 
 			if len(args) == 0 {
-				cmd.Help()
+				err := cmd.Help()
+				if err != nil {
+					return err
+				}
 				os.Exit(1)
 			}
 
@@ -94,7 +97,7 @@ func NewRootCmd() *cobra.Command {
 	cmd.PersistentFlags().Int("min-count", 1, "Minimum rows/documents/lines for a match (experimental)")
 	cmd.PersistentFlags().String("pattern", "", "Custom pattern (experimental)")
 	cmd.PersistentFlags().Bool("debug", false, "Debug")
-	cmd.PersistentFlags().MarkHidden("debug")
+	_ = cmd.PersistentFlags().MarkHidden("debug")
 	cmd.PersistentFlags().String("format", "text", "Output format (experimental)")
 	return cmd
 }
@@ -103,5 +106,5 @@ func NewRootCmd() *cobra.Command {
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	cmd := NewRootCmd()
-	cmd.Execute()
+	_ = cmd.Execute()
 }
