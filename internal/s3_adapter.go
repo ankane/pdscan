@@ -2,12 +2,13 @@ package internal
 
 import (
 	"bufio"
+	"context"
 	"net/url"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 type S3Adapter struct {
@@ -39,18 +40,23 @@ func (a S3Adapter) FetchFiles() ([]string, error) {
 		bucket := u.Host
 		key := u.Path[1:]
 
-		sess := session.Must(session.NewSessionWithOptions(session.Options{
-			SharedConfigState: session.SharedConfigEnable,
-		}))
+		ctx := context.TODO()
+		cfg, err := config.LoadDefaultConfig(ctx)
+		if err != nil {
+			return files, err
+		}
 
-		svc := s3.New(sess)
+		svc := s3.NewFromConfig(cfg)
 
 		params := &s3.ListObjectsInput{
 			Bucket: aws.String(bucket),
 			Prefix: aws.String(key),
 		}
 
-		resp, _ := svc.ListObjects(params)
+		resp, err := svc.ListObjects(ctx, params)
+		if err != nil {
+			return files, err
+		}
 		for _, key := range resp.Contents {
 			files = append(files, "s3://"+bucket+"/"+*key.Key)
 		}
@@ -62,9 +68,11 @@ func (a S3Adapter) FetchFiles() ([]string, error) {
 }
 
 func (a S3Adapter) FindFileMatches(filename string, matchFinder *MatchFinder) error {
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		SharedConfigState: session.SharedConfigEnable,
-	}))
+	ctx := context.TODO()
+	cfg, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+		return err
+	}
 
 	u, err := url.Parse(filename)
 	if err != nil {
@@ -75,10 +83,10 @@ func (a S3Adapter) FindFileMatches(filename string, matchFinder *MatchFinder) er
 
 	// TODO stream
 	// TODO get file type before full download
-	svc := s3.New(sess)
-	resp, err := svc.GetObject(&s3.GetObjectInput{
+	svc := s3.NewFromConfig(cfg)
+	resp, err := svc.GetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(bucket),
-		Key:    aws.String(key),
+		Key:    aws.String(key[1:]),
 	})
 	if err != nil {
 		return err
