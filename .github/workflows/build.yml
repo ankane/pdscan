@@ -4,27 +4,27 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-go@v5
-      with:
-        go-version: 1.22
-        cache: true
-    - uses: ankane/setup-mysql@v1
-      with:
-        database: pdscan_test
-    - uses: ankane/setup-postgres@v1
-      with:
-        database: pdscan_test
-    - uses: ankane/setup-sqlserver@v1
-      with:
-        accept-eula: true
-    - run: sqlcmd -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE pdscan_test'
-    - uses: ankane/setup-mongodb@v1
-    - uses: ankane/setup-elasticsearch@v1
-    - run: |
-        sudo apt-get update
-        sudo apt-get install redis-server
-        sudo systemctl start redis-server
-    - run: make test
-      env:
-        SQLSERVER_URL: sqlserver://SA:YourStrong!Passw0rd@localhost:1433?database=pdscan_test
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 1.22
+          cache: true
+      - uses: ankane/setup-mysql@v1
+        with:
+          database: pdscan_test
+      - uses: ankane/setup-postgres@v1
+        with:
+          database: pdscan_test
+      - uses: ankane/setup-sqlserver@v1
+        with:
+          accept-eula: true
+      - run: sqlcmd -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE pdscan_test'
+      - uses: ankane/setup-mongodb@v1
+      - uses: ankane/setup-elasticsearch@v1
+      - run: |
+          sudo apt-get update
+          sudo apt-get install redis-server
+          sudo systemctl start redis-server
+      - run: make test
+        env:
+          SQLSERVER_URL: sqlserver://SA:YourStrong!Passw0rd@localhost:1433?database=pdscan_test
