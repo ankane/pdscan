@@ -1,3 +1,5 @@
+.PHONY: install test lint format release snapshot
+
 install:
 	go install
 
