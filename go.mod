@@ -15,7 +15,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/opensearch-project/opensearch-go v1.1.0
-	github.com/redis/go-redis/v9 v9.5.4
+	github.com/redis/go-redis/v9 v9.5.5
 	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.7.0
 	github.com/xo/dburl v0.23.2
