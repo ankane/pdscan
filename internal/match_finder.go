@@ -55,16 +55,21 @@ func NewMatchFinder(matchConfig *MatchConfig) MatchFinder {
 // extract values and index in a later step if needed (if --show-data is passed)
 func (a *MatchFinder) Scan(v string, index int) {
 	for i, rule := range a.matchConfig.RegexRules {
-		if rule.Regex.MatchString(v) {
-			a.MatchedValues[i] = append(a.MatchedValues[i], MatchLine{index, v})
+		matches := rule.Regex.FindAllString(v, -1)
+		if len(matches) > 0 {
+			for _, match := range matches {
+				a.MatchedValues[i] = append(a.MatchedValues[i], MatchLine{index, match})
+			}
 		}
 	}
 
 	if len(a.matchConfig.TokenRules) > 0 {
 		tokens := tokenizer.Split(strings.ToLower(v), -1)
 		for i, rule := range a.matchConfig.TokenRules {
-			if anyMatches(rule, tokens) {
-				a.TokenValues[i] = append(a.TokenValues[i], MatchLine{index, v})
+			for _, token := range tokens {
+				if anyMatches(rule, []string{token}) {
+					a.TokenValues[i] = append(a.TokenValues[i], MatchLine{index, token})
+				}
 			}
 		}
 	}
