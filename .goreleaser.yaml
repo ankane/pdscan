@@ -36,7 +36,6 @@ dockers:
       - --platform=linux/amd64
     extra_files:
       - licenses
-    skip_push: true
   - goarch: arm64
     use: buildx
     image_templates:
@@ -45,7 +44,6 @@ dockers:
       - --platform=linux/arm64
     extra_files:
       - licenses
-    skip_push: true
 docker_manifests:
   - name_template: ankane/pdscan:v{{ .Version }}
     image_templates:
