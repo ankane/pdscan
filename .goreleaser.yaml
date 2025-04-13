@@ -28,11 +28,12 @@ archives:
       {{- .Os }}
     formats: ['zip']
 dockers:
-  - image_templates:
+  - use: buildx
+    image_templates:
       - ankane/pdscan:latest
       - ankane/pdscan:{{ .Tag }}
     build_flag_templates:
-      - --platform=linux/amd64
+      - --platform=linux/amd64,linux/arm64
     extra_files:
       - licenses
 checksum:
