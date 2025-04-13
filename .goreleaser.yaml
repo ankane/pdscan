@@ -28,17 +28,36 @@ archives:
       {{- .Os }}
     formats: ['zip']
 dockers:
-  - use: buildx
+  - goarch: amd64
+    use: buildx
     image_templates:
-      - ankane/pdscan:latest
-      - ankane/pdscan:{{ .Tag }}
+      - ankane/pdscan:{{ .Tag }}-amd64
     build_flag_templates:
-      - --platform=linux/amd64,linux/arm64
+      - --platform=linux/amd64
     extra_files:
       - licenses
+  - goarch: arm64
+    use: buildx
+    image_templates:
+      - ankane/pdscan:{{ .Tag }}-arm64
+    build_flag_templates:
+      - --platform=linux/arm64
+    extra_files:
+      - licenses
+docker_manifests:
+  - name_template: ankane/pdscan:{{ .Tag }}
+    image_templates:
+      - ankane/pdscan:{{ .Tag }}-amd64
+      - ankane/pdscan:{{ .Tag }}-arm64
+  - name_template: ankane/pdscan:latest
+    image_templates:
+      - ankane/pdscan:{{ .Tag }}-amd64
+      - ankane/pdscan:{{ .Tag }}-arm64
 checksum:
   name_template: 'checksums.txt'
 snapshot:
   version_template: "{{ incpatch .Version }}-next"
+release:
+  disable: true
 changelog:
   disable: true

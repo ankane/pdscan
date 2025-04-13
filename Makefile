@@ -13,7 +13,7 @@ format:
 	go fmt ./...
 
 release:
-	goreleaser --clean --skip=publish
+	goreleaser --clean
 
 snapshot:
 	goreleaser --clean --snapshot
