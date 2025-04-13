@@ -1,4 +1,4 @@
-## 0.1.9 (unreleased)
+## 0.1.9 (2025-04-12)
 
 - Updated dependencies
 
