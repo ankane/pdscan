@@ -31,28 +31,12 @@ dockers:
   - goarch: amd64
     use: buildx
     image_templates:
-      - ankane/pdscan:v{{ .Version }}-amd64
+      - ankane/pdscan:latest
+      - ankane/pdscan:v{{ .Version }}
     build_flag_templates:
       - --platform=linux/amd64
     extra_files:
       - licenses
-  - goarch: arm64
-    use: buildx
-    image_templates:
-      - ankane/pdscan:v{{ .Version }}-arm64
-    build_flag_templates:
-      - --platform=linux/arm64
-    extra_files:
-      - licenses
-docker_manifests:
-  - name_template: ankane/pdscan:v{{ .Version }}
-    image_templates:
-      - ankane/pdscan:v{{ .Version }}-amd64
-      - ankane/pdscan:v{{ .Version }}-arm64
-  - name_template: ankane/pdscan:latest
-    image_templates:
-      - ankane/pdscan:v{{ .Version }}-amd64
-      - ankane/pdscan:v{{ .Version }}-arm64
 checksum:
   name_template: 'checksums.txt'
 snapshot:
