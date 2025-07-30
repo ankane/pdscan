@@ -268,7 +268,7 @@ For data stores on the host machine, use `host.docker.internal` as the hostname
 docker run -ti ankane/pdscan "postgres://user@host.docker.internal:5432/dbname?sslmode=disable"
 ```
 
-> On Linux, this requires Docker 20.04+ and `--add-host=host.docker.internal:host-gateway`
+> On Linux, this requires `--add-host=host.docker.internal:host-gateway`
 
 For files on the host machine, use:
 
