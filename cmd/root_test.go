@@ -466,8 +466,14 @@ func captureOutput(f func()) (string, string) {
 	os.Stdout = w
 	os.Stderr = w2
 	f()
-	w.Close()
-	w2.Close()
+	err = w.Close()
+	if err != nil {
+		panic(err)
+	}
+	err = w2.Close()
+	if err != nil {
+		panic(err)
+	}
 	out, err := io.ReadAll(r)
 	if err != nil {
 		panic(err)
