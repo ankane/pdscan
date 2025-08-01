@@ -41,7 +41,10 @@ func (f TextFormatter) PrintMatch(writer io.Writer, match matchInfo) error {
 	}
 
 	yellow := color.New(color.FgYellow).SprintFunc()
-	fmt.Fprintf(writer, "%s %s\n", yellow(match.Identifier+":"), description)
+	_, err := fmt.Fprintf(writer, "%s %s\n", yellow(match.Identifier+":"), description)
+	if err != nil {
+		return err
+	}
 
 	values := match.Values
 	if values != nil {
@@ -52,9 +55,15 @@ func (f TextFormatter) PrintMatch(writer io.Writer, match matchInfo) error {
 		}
 
 		if len(values) > 0 {
-			fmt.Fprintln(writer, "    "+strings.Join(values, ", "))
+			_, err = fmt.Fprintln(writer, "    "+strings.Join(values, ", "))
+			if err != nil {
+				return err
+			}
 		}
-		fmt.Fprintln(writer, "")
+		_, err = fmt.Fprintln(writer, "")
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
