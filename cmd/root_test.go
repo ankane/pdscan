@@ -391,7 +391,7 @@ func TestSqlserver(t *testing.T) {
 }
 
 func TestBadScheme(t *testing.T) {
-	err := runCmd([]string{"hello://"})
+	err := runCmd("hello://")
 	assert.Contains(t, err, "unknown database scheme")
 }
 
@@ -405,7 +405,7 @@ func TestPattern(t *testing.T) {
 }
 
 func TestBadPattern(t *testing.T) {
-	err := runCmd([]string{fileUrl("min-count.txt"), "--pattern", `\e`})
+	err := runCmd(fileUrl("min-count.txt"), "--pattern", `\e`)
 	assert.Contains(t, err.Error(), "error parsing regexp: invalid escape sequence: `\\e`")
 }
 
@@ -427,7 +427,7 @@ func TestFormatNdjsonShowAll(t *testing.T) {
 }
 
 func TestBadFormat(t *testing.T) {
-	err := runCmd([]string{fileUrl("email.txt"), "--format", "bad"})
+	err := runCmd(fileUrl("email.txt"), "--format", "bad")
 	assert.Contains(t, err.Error(), "Invalid format: bad")
 	assert.Contains(t, err.Error(), "Valid formats are ndjson, text")
 }
@@ -490,14 +490,14 @@ func captureOutput(f func()) (string, string) {
 
 func cmdOutput(args ...string) (string, string) {
 	return captureOutput(func() {
-		err := runCmd(args)
+		err := runCmd(args...)
 		if err != nil {
 			panic(err)
 		}
 	})
 }
 
-func runCmd(args []string) error {
+func runCmd(args ...string) error {
 	cmd := NewRootCmd()
 	cmd.SetArgs(args)
 	cmd.SilenceErrors = true
@@ -591,7 +591,7 @@ func checkOnly(t *testing.T, urlStr string) {
 	assert.Contains(t, stdout, "users.latitude+longitude:")
 	assert.NotContains(t, stdout, "users.access_token:")
 
-	err := runCmd([]string{urlStr, "--only", "email,phone2"})
+	err := runCmd(urlStr, "--only", "email,phone2")
 	assert.Contains(t, err.Error(), "Invalid rule: phone2")
 	assert.Contains(t, err.Error(), "Valid rules are credit_card, date_of_birth, email")
 }
@@ -608,7 +608,7 @@ func checkExcept(t *testing.T, urlStr string) {
 	assert.NotContains(t, stdout, "users.latitude+longitude:")
 	assert.Contains(t, stdout, "users.access_token:")
 
-	err := runCmd([]string{urlStr, "--except", "email,phone2"})
+	err := runCmd(urlStr, "--except", "email,phone2")
 	assert.Contains(t, err.Error(), "Invalid rule: phone2")
 	assert.Contains(t, err.Error(), "Valid rules are credit_card, date_of_birth, email")
 }
