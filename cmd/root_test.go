@@ -439,7 +439,7 @@ func TestShowData(t *testing.T) {
 
 // TODO uncomment in 0.2.0
 // func TestExtraArgs(t *testing.T) {
-// 	err := runCmd([]string{fileUrl("email.txt"), "other"})
+// 	err := runCmd(fileUrl("email.txt"), "other")
 // 	assert.Contains(t, err.Error(), "Too many arguments")
 // }
 
