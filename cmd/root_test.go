@@ -70,15 +70,15 @@ func TestFileZip(t *testing.T) {
 }
 
 func TestFileMinCount(t *testing.T) {
-	stdout, _ := captureOutput(func() { runCmd([]string{fileUrl("min-count.txt"), "--min-count", "2"}) })
+	stdout, _ := cmdOutput(fileUrl("min-count.txt"), "--min-count", "2")
 	assert.Contains(t, stdout, "found emails (2 lines)")
 
-	_, stderr := captureOutput(func() { runCmd([]string{fileUrl("min-count.txt"), "--min-count", "3"}) })
+	_, stderr := cmdOutput(fileUrl("min-count.txt"), "--min-count", "3")
 	assert.Contains(t, stderr, "No sensitive data found")
 }
 
 func TestFileLineCount(t *testing.T) {
-	stdout, _ := captureOutput(func() { runCmd([]string{fileUrl("min-count.txt"), "--show-data"}) })
+	stdout, _ := cmdOutput(fileUrl("min-count.txt"), "--show-data")
 	assert.Contains(t, stdout, "found emails (2 lines)")
 	assert.Contains(t, stdout, "test1@example.org, test2@example.org, test3@example.org")
 }
@@ -300,7 +300,7 @@ func TestRedis(t *testing.T) {
 		panic(err)
 	}
 
-	stdout, stderr := captureOutput(func() { runCmd([]string{urlStr, "--show-data"}) })
+	stdout, stderr := cmdOutput(urlStr, "--show-data")
 	assert.Contains(t, stderr, "sampling 10000 keys")
 	assert.Contains(t, stdout, "pdscan_test:email:")
 
@@ -396,7 +396,7 @@ func TestBadScheme(t *testing.T) {
 }
 
 func TestPattern(t *testing.T) {
-	stdout, _ := captureOutput(func() { runCmd([]string{fileUrl("min-count.txt"), "--pattern", `\stest[12]`, "--show-data"}) })
+	stdout, _ := cmdOutput(fileUrl("min-count.txt"), "--pattern", `\stest[12]`, "--show-data")
 	assert.Contains(t, stdout, "found pattern (1 line)")
 	assert.NotContains(t, stdout, "found email")
 	assert.NotContains(t, stdout, "test1")
@@ -410,18 +410,18 @@ func TestBadPattern(t *testing.T) {
 }
 
 func TestFormatNdjson(t *testing.T) {
-	stdout, _ := captureOutput(func() { runCmd([]string{fileUrl("email.txt"), "--format", "ndjson"}) })
+	stdout, _ := cmdOutput(fileUrl("email.txt"), "--format", "ndjson")
 	assert.Contains(t, stdout, `"name":"email"`)
 	assert.Contains(t, stdout, `"confidence":"high"`)
 }
 
 func TestFormatNdjsonShowData(t *testing.T) {
-	stdout, _ := captureOutput(func() { runCmd([]string{fileUrl("email.txt"), "--format", "ndjson", "--show-data"}) })
+	stdout, _ := cmdOutput(fileUrl("email.txt"), "--format", "ndjson", "--show-data")
 	assert.Contains(t, stdout, `"matches":["test@example.org"]`)
 }
 
 func TestFormatNdjsonShowAll(t *testing.T) {
-	stdout, _ := captureOutput(func() { runCmd([]string{fileUrl("email.txt"), "--format", "ndjson", "--show-all"}) })
+	stdout, _ := cmdOutput(fileUrl("email.txt"), "--format", "ndjson", "--show-all")
 	// TODO test low confidence
 	assert.Contains(t, stdout, `"confidence":"high"`)
 }
@@ -433,7 +433,7 @@ func TestBadFormat(t *testing.T) {
 }
 
 func TestShowData(t *testing.T) {
-	stdout, _ := captureOutput(func() { runCmd([]string{fileUrl("email.txt"), "--show-data"}) })
+	stdout, _ := cmdOutput(fileUrl("email.txt"), "--show-data")
 	assert.Contains(t, stdout, "test@example.org")
 }
 
@@ -488,6 +488,15 @@ func captureOutput(f func()) (string, string) {
 	return string(out), string(out2)
 }
 
+func cmdOutput(args ...string) (string, string) {
+	return captureOutput(func() {
+		err := runCmd(args)
+		if err != nil {
+			panic(err)
+		}
+	})
+}
+
 func runCmd(args []string) error {
 	cmd := NewRootCmd()
 	cmd.SetArgs(args)
@@ -500,7 +509,7 @@ func fileUrl(filename string) string {
 }
 
 func fileOutput(filename string) (string, string) {
-	return captureOutput(func() { runCmd([]string{fileUrl(filename)}) })
+	return cmdOutput(fileUrl(filename))
 }
 
 func checkFile(t *testing.T, filename string, found bool) {
@@ -523,7 +532,7 @@ func setupDb(driver string, dsn string) *sqlx.DB {
 }
 
 func checkSql(t *testing.T, urlStr string) (string, string) {
-	stdout, stderr := captureOutput(func() { runCmd([]string{urlStr}) })
+	stdout, stderr := cmdOutput(urlStr)
 	assert.Contains(t, stderr, "sampling 10000 rows")
 	assert.NotContains(t, stdout, "users.id:")
 	assert.Contains(t, stdout, "users.email:")
@@ -546,7 +555,7 @@ func checkSql(t *testing.T, urlStr string) (string, string) {
 }
 
 func checkDocument(t *testing.T, urlStr string) (string, string) {
-	stdout, stderr := captureOutput(func() { runCmd([]string{urlStr, "--show-data"}) })
+	stdout, stderr := cmdOutput(urlStr, "--show-data")
 	assert.Contains(t, stderr, "sampling 10000 documents")
 	assert.NotContains(t, stdout, "users._id:")
 	assert.Contains(t, stdout, "users.email:")
@@ -571,7 +580,7 @@ func checkDocument(t *testing.T, urlStr string) (string, string) {
 }
 
 func checkOnly(t *testing.T, urlStr string) {
-	stdout, _ := captureOutput(func() { runCmd([]string{urlStr, "--only", "email,postal_code,location"}) })
+	stdout, _ := cmdOutput(urlStr, "--only", "email,postal_code,location")
 	assert.Contains(t, stdout, "users.email:")
 	assert.NotContains(t, stdout, "users.phone:")
 	assert.NotContains(t, stdout, "users.street:")
@@ -588,7 +597,7 @@ func checkOnly(t *testing.T, urlStr string) {
 }
 
 func checkExcept(t *testing.T, urlStr string) {
-	stdout, _ := captureOutput(func() { runCmd([]string{urlStr, "--except", "email,postal_code,location"}) })
+	stdout, _ := cmdOutput(urlStr, "--except", "email,postal_code,location")
 	assert.NotContains(t, stdout, "users.email:")
 	assert.Contains(t, stdout, "users.phone:")
 	assert.Contains(t, stdout, "users.street:")
