@@ -29,8 +29,8 @@ func (a *ElasticsearchAdapter) Scan(scanOpts ScanOpts) ([]ruleMatch, error) {
 }
 
 func (a *ElasticsearchAdapter) Init(urlStr string) error {
-	if strings.HasPrefix(urlStr, "elasticsearch+") {
-		urlStr = strings.TrimPrefix(urlStr, "elasticsearch+")
+	if after, ok := strings.CutPrefix(urlStr, "elasticsearch+"); ok {
+		urlStr = after
 	} else {
 		urlStr = strings.TrimPrefix(urlStr, "opensearch+")
 	}
@@ -68,7 +68,7 @@ func (a ElasticsearchAdapter) FetchTables() ([]table, error) {
 
 	es := a.DB
 
-	var r []interface{}
+	var r []any
 
 	res, err := es.Cat.Indices(
 		es.Cat.Indices.WithIndex([]string{a.indices}...),
@@ -90,7 +90,7 @@ func (a ElasticsearchAdapter) FetchTables() ([]table, error) {
 	}
 
 	for _, index := range r {
-		indexName := index.(map[string]interface{})["index"].(string)
+		indexName := index.(map[string]any)["index"].(string)
 
 		// skip system indices
 		if indexName[0] != '.' {
@@ -104,13 +104,13 @@ func (a ElasticsearchAdapter) FetchTables() ([]table, error) {
 func (a ElasticsearchAdapter) FetchTableData(table table, limit int) (*tableData, error) {
 	es := a.DB
 
-	var r map[string]interface{}
+	var r map[string]any
 
 	// TODO sample
 	var buf bytes.Buffer
-	query := map[string]interface{}{
-		"query": map[string]interface{}{
-			"match_all": map[string]interface{}{},
+	query := map[string]any{
+		"query": map[string]any{
+			"match_all": map[string]any{},
 		},
 		"size": limit,
 	}
@@ -140,9 +140,9 @@ func (a ElasticsearchAdapter) FetchTableData(table table, limit int) (*tableData
 
 	columnValues := make([][]string, 0)
 
-	for _, hit := range r["hits"].(map[string]interface{})["hits"].([]interface{}) {
+	for _, hit := range r["hits"].(map[string]any)["hits"].([]any) {
 		// TODO check _id
-		source := hit.(map[string]interface{})["_source"].(map[string]interface{})
+		source := hit.(map[string]any)["_source"].(map[string]any)
 		keyMap, columnValues = scanSource(source, "", keyMap, columnValues)
 	}
 
@@ -154,7 +154,7 @@ func (a ElasticsearchAdapter) FetchTableData(table table, limit int) (*tableData
 	return &tableData{columnNames, columnValues}, nil
 }
 
-func scanSource(object map[string]interface{}, prefix string, keyMap map[string]int, columnValues [][]string) (map[string]int, [][]string) {
+func scanSource(object map[string]any, prefix string, keyMap map[string]int, columnValues [][]string) (map[string]int, [][]string) {
 	for key, val := range object {
 		key = prefix + key
 		i, ok := keyMap[key]
@@ -165,13 +165,13 @@ func scanSource(object map[string]interface{}, prefix string, keyMap map[string]
 		}
 
 		switch typedVal := val.(type) {
-		case map[string]interface{}:
+		case map[string]any:
 			keyMap, columnValues = scanSource(typedVal, key+".", keyMap, columnValues)
-		case []interface{}:
+		case []any:
 			values := []string{}
 			for _, av := range typedVal {
 				switch av2 := av.(type) {
-				case map[string]interface{}:
+				case map[string]any:
 					keyMap, columnValues = scanSource(av2, key+".", keyMap, columnValues)
 				case string:
 					values = append(values, av2)
@@ -190,14 +190,14 @@ func scanSource(object map[string]interface{}, prefix string, keyMap map[string]
 
 func checkResult(res *esapi.Response) error {
 	if res.IsError() {
-		var e map[string]interface{}
+		var e map[string]any
 		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
 			return err
 		} else {
 			return fmt.Errorf("[%s] %s: %s",
 				res.Status(),
-				e["error"].(map[string]interface{})["type"],
-				e["error"].(map[string]interface{})["reason"],
+				e["error"].(map[string]any)["type"],
+				e["error"].(map[string]any)["reason"],
 			)
 		}
 	}

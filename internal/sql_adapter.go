@@ -130,7 +130,7 @@ func (a SqlAdapter) FetchTableData(table table, limit int) (*tableData, error) {
 		columnValues[i] = []string{}
 	}
 
-	dest := make([]interface{}, len(cols)) // A temporary interface{} slice
+	dest := make([]any, len(cols)) // A temporary interface{} slice
 	for i := range rawResult {
 		dest[i] = &rawResult[i] // Put pointers to each string in the interface slice
 	}

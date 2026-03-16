@@ -163,7 +163,7 @@ func TestMongodb(t *testing.T) {
 		panic(err)
 	}
 
-	docs := []interface{}{
+	docs := []any{
 		bson.D{{"email", "test@example.org"}},
 		bson.D{{"phone", "555-555-5555"}},
 		bson.D{{"street", "123 Main St"}, {"zip_code", "12345"}},

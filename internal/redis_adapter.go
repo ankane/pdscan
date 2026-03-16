@@ -56,7 +56,7 @@ func (a RedisAdapter) FetchTableData(table table, limit int) (*tableData, error)
 
 	columnValues := make([][]string, 0)
 
-	for j := 0; j < limit; j++ {
+	for range limit {
 		key, err := rdb.RandomKey(ctx).Result()
 		if err == redis.Nil {
 			break

@@ -252,7 +252,7 @@ func updateRules(matchConfig *MatchConfig, value string, except bool) error {
 	names := make(map[string]bool)
 	validNames := makeValidNames(matchConfig)
 
-	for _, name := range strings.Split(value, ",") {
+	for name := range strings.SplitSeq(value, ",") {
 		if name == "last_name" {
 			name = "surname"
 		}
