@@ -133,10 +133,6 @@ func scanDataStore(adapter DataStoreAdapter, scanOpts ScanOpts) ([]ruleMatch, er
 		var queryMutex sync.Mutex
 
 		for _, table := range tables {
-			// important - do not remove
-			// https://go.dev/doc/faq#closures_and_goroutines
-			table := table
-
 			g.Go(func() error {
 				start := time.Now()
 
@@ -203,10 +199,6 @@ func scanFiles(adapter FileAdapter, scanOpts ScanOpts) ([]ruleMatch, error) {
 		g.SetLimit(20)
 
 		for _, file := range files {
-			// important - do not remove
-			// https://go.dev/doc/faq#closures_and_goroutines
-			file := file
-
 			g.Go(func() error {
 				start := time.Now()
 
