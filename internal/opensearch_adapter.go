@@ -7,28 +7,28 @@ import (
 	"net/url"
 	"strings"
 
-	elasticsearch "github.com/opensearch-project/opensearch-go/v4"
-	esapi "github.com/opensearch-project/opensearch-go/v4/opensearchapi"
+	opensearch "github.com/opensearch-project/opensearch-go/v4"
+	opensearchapi "github.com/opensearch-project/opensearch-go/v4/opensearchapi"
 )
 
-type ElasticsearchAdapter struct {
-	client  *esapi.Client
+type OpensearchAdapter struct {
+	client  *opensearchapi.Client
 	indices string
 }
 
-func (a *ElasticsearchAdapter) TableName() string {
+func (a *OpensearchAdapter) TableName() string {
 	return "index"
 }
 
-func (a *ElasticsearchAdapter) RowName() string {
+func (a *OpensearchAdapter) RowName() string {
 	return "document"
 }
 
-func (a *ElasticsearchAdapter) Scan(scanOpts ScanOpts) ([]ruleMatch, error) {
+func (a *OpensearchAdapter) Scan(scanOpts ScanOpts) ([]ruleMatch, error) {
 	return scanDataStore(a, scanOpts)
 }
 
-func (a *ElasticsearchAdapter) Init(urlStr string) error {
+func (a *OpensearchAdapter) Init(urlStr string) error {
 	if after, ok := strings.CutPrefix(urlStr, "elasticsearch+"); ok {
 		urlStr = after
 	} else {
@@ -48,12 +48,12 @@ func (a *ElasticsearchAdapter) Init(urlStr string) error {
 	}
 	u.Path = ""
 
-	cfg := elasticsearch.Config{
+	cfg := opensearch.Config{
 		Addresses: []string{
 			u.String(),
 		},
 	}
-	client, err := esapi.NewClient(esapi.Config{Client: cfg})
+	client, err := opensearchapi.NewClient(opensearchapi.Config{Client: cfg})
 	if err != nil {
 		return err
 	}
@@ -63,15 +63,15 @@ func (a *ElasticsearchAdapter) Init(urlStr string) error {
 	return nil
 }
 
-func (a ElasticsearchAdapter) FetchTables() ([]table, error) {
+func (a OpensearchAdapter) FetchTables() ([]table, error) {
 	tables := []table{}
 
 	ctx := context.TODO()
 	res, err := a.client.Cat.Indices(
 		ctx,
-		&esapi.CatIndicesReq{
+		&opensearchapi.CatIndicesReq{
 			Indices: []string{a.indices},
-			Params:  esapi.CatIndicesParams{Sort: []string{"index"}},
+			Params:  opensearchapi.CatIndicesParams{Sort: []string{"index"}},
 		},
 	)
 	if err != nil {
@@ -90,7 +90,7 @@ func (a ElasticsearchAdapter) FetchTables() ([]table, error) {
 	return tables, nil
 }
 
-func (a ElasticsearchAdapter) FetchTableData(table table, limit int) (*tableData, error) {
+func (a OpensearchAdapter) FetchTableData(table table, limit int) (*tableData, error) {
 	// TODO sample
 	var buf bytes.Buffer
 	query := map[string]any{
@@ -106,7 +106,7 @@ func (a ElasticsearchAdapter) FetchTableData(table table, limit int) (*tableData
 	ctx := context.TODO()
 	res, err := a.client.Search(
 		ctx,
-		&esapi.SearchReq{
+		&opensearchapi.SearchReq{
 			Indices: []string{table.Name},
 			Body:    &buf,
 		},

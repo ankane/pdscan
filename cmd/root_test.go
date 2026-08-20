@@ -20,7 +20,7 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 
-	esapi "github.com/opensearch-project/opensearch-go/v4/opensearchapi"
+	opensearchapi "github.com/opensearch-project/opensearch-go/v4/opensearchapi"
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
@@ -88,17 +88,17 @@ func TestUrl(t *testing.T) {
 }
 
 func TestElasticsearch(t *testing.T) {
-	es, err := esapi.NewDefaultClient()
+	client, err := opensearchapi.NewDefaultClient()
 	if err != nil {
 		panic(err)
 	}
 
 	ctx := context.TODO()
-	_, err = es.Indices.Delete(
+	_, err = client.Indices.Delete(
 		ctx,
-		esapi.IndicesDeleteReq{
+		opensearchapi.IndicesDeleteReq{
 			Indices: []string{"pdscan_test_users"},
-			Params:  esapi.IndicesDeleteParams{IgnoreUnavailable: esapi.ToPointer(true)},
+			Params:  opensearchapi.IndicesDeleteParams{IgnoreUnavailable: opensearchapi.ToPointer(true)},
 		},
 	)
 	if err != nil {
@@ -136,13 +136,13 @@ func TestElasticsearch(t *testing.T) {
 	`
 
 	// TODO create separate documents like MongoDB
-	_, err = es.Index(
+	_, err = client.Index(
 		ctx,
-		esapi.IndexReq{
+		opensearchapi.IndexReq{
 			Index:      "pdscan_test_users",
 			Body:       strings.NewReader(str),
 			DocumentID: "1",
-			Params: esapi.IndexParams{
+			Params: opensearchapi.IndexParams{
 				Refresh: "true",
 			},
 		},

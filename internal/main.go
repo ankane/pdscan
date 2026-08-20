@@ -76,9 +76,9 @@ func Main(urlStr string, showData bool, showAll bool, limit int, processes int, 
 	} else if strings.HasPrefix(urlStr, "redis://") {
 		adapter = &RedisAdapter{}
 	} else if strings.HasPrefix(urlStr, "elasticsearch+http://") || strings.HasPrefix(urlStr, "elasticsearch+https://") {
-		adapter = &ElasticsearchAdapter{}
+		adapter = &OpensearchAdapter{}
 	} else if strings.HasPrefix(urlStr, "opensearch+http://") || strings.HasPrefix(urlStr, "opensearch+https://") {
-		adapter = &ElasticsearchAdapter{}
+		adapter = &OpensearchAdapter{}
 	} else {
 		adapter = &SqlAdapter{}
 	}
