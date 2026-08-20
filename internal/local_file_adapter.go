@@ -27,7 +27,7 @@ func (a LocalFileAdapter) FetchFiles() ([]string, error) {
 	var files []string
 
 	root := urlStr[7:]
-	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+	err := filepath.WalkDir(root, func(path string, info os.DirEntry, err error) error {
 		if err == nil && !info.IsDir() {
 			files = append(files, path)
 		}
