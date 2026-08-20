@@ -18,7 +18,7 @@ jobs:
       - uses: ankane/setup-sqlserver@v1
         with:
           accept-eula: true
-      - run: sqlcmd -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE pdscan_test'
+      - run: sqlcmd -U SA -P 'YourStrong!Passw0rd' -C -Q 'CREATE DATABASE pdscan_test'
       - uses: ankane/setup-mongodb@v1
       - uses: ankane/setup-elasticsearch@v1
       - run: |
