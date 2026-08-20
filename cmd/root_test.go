@@ -20,7 +20,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	elasticsearch "github.com/opensearch-project/opensearch-go/v2"
+	esapi "github.com/opensearch-project/opensearch-go/v4/opensearchapi"
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
@@ -88,12 +88,13 @@ func TestUrl(t *testing.T) {
 }
 
 func TestElasticsearch(t *testing.T) {
-	es, err := elasticsearch.NewDefaultClient()
+	es, err := esapi.NewDefaultClient()
 	if err != nil {
 		panic(err)
 	}
 
-	_, err = es.Indices.Delete([]string{"pdscan_test_users"})
+	ctx := context.TODO()
+	_, err = es.Indices.Delete(ctx, esapi.IndicesDeleteReq{Indices: []string{"pdscan_test_users"}})
 	if err != nil {
 		panic(err)
 	}
@@ -129,16 +130,20 @@ func TestElasticsearch(t *testing.T) {
 	`
 
 	// TODO create separate documents like MongoDB
-	res, err := es.Index(
-		"pdscan_test_users",
-		strings.NewReader(str),
-		es.Index.WithDocumentID("1"),
-		es.Index.WithRefresh("true"),
+	_, err = es.Index(
+		ctx,
+		esapi.IndexReq{
+			Index:      "pdscan_test_users",
+			Body:       strings.NewReader(str),
+			DocumentID: "1",
+			Params: esapi.IndexParams{
+				Refresh: "true",
+			},
+		},
 	)
 	if err != nil {
 		panic(err)
 	}
-	defer res.Body.Close()
 
 	stdout, _ := checkDocument(t, "elasticsearch+http://localhost:9200/pdscan_test_*")
 	assert.Contains(t, stdout, "users.nested_type.email:")

@@ -2,17 +2,17 @@ package internal
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
-	"fmt"
 	"net/url"
 	"strings"
 
-	elasticsearch "github.com/opensearch-project/opensearch-go/v2"
-	esapi "github.com/opensearch-project/opensearch-go/v2/opensearchapi"
+	elasticsearch "github.com/opensearch-project/opensearch-go/v4"
+	esapi "github.com/opensearch-project/opensearch-go/v4/opensearchapi"
 )
 
 type ElasticsearchAdapter struct {
-	DB      *elasticsearch.Client
+	DB      *esapi.Client
 	indices string
 }
 
@@ -53,7 +53,7 @@ func (a *ElasticsearchAdapter) Init(urlStr string) error {
 			u.String(),
 		},
 	}
-	es, err := elasticsearch.NewClient(cfg)
+	es, err := esapi.NewClient(esapi.Config{Client: cfg})
 	if err != nil {
 		return err
 	}
@@ -68,29 +68,20 @@ func (a ElasticsearchAdapter) FetchTables() ([]table, error) {
 
 	es := a.DB
 
-	var r []any
-
+	ctx := context.TODO()
 	res, err := es.Cat.Indices(
-		es.Cat.Indices.WithIndex([]string{a.indices}...),
-		es.Cat.Indices.WithS("index"),
-		es.Cat.Indices.WithFormat("json"),
+		ctx,
+		&esapi.CatIndicesReq{
+			Indices: []string{a.indices},
+			Params:  esapi.CatIndicesParams{Sort: []string{"index"}},
+		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
 
-	err = checkResult(res)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, fmt.Errorf("error parsing the response body: %s", err)
-	}
-
-	for _, index := range r {
-		indexName := index.(map[string]any)["index"].(string)
+	for _, index := range res.Indices {
+		indexName := index.Index
 
 		// skip system indices
 		if indexName[0] != '.' {
@@ -104,8 +95,6 @@ func (a ElasticsearchAdapter) FetchTables() ([]table, error) {
 func (a ElasticsearchAdapter) FetchTableData(table table, limit int) (*tableData, error) {
 	es := a.DB
 
-	var r map[string]any
-
 	// TODO sample
 	var buf bytes.Buffer
 	query := map[string]any{
@@ -118,31 +107,28 @@ func (a ElasticsearchAdapter) FetchTableData(table table, limit int) (*tableData
 		return nil, err
 	}
 
+	ctx := context.TODO()
 	res, err := es.Search(
-		es.Search.WithIndex(table.Name),
-		es.Search.WithBody(&buf),
+		ctx,
+		&esapi.SearchReq{
+			Indices: []string{table.Name},
+			Body:    &buf,
+		},
 	)
 	if err != nil {
 		return nil, err
-	}
-	defer res.Body.Close()
-
-	err = checkResult(res)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, fmt.Errorf("error parsing the response body: %s", err)
 	}
 
 	keyMap := make(map[string]int)
 
 	columnValues := make([][]string, 0)
 
-	for _, hit := range r["hits"].(map[string]any)["hits"].([]any) {
+	for _, hit := range res.Hits.Hits {
 		// TODO check _id
-		source := hit.(map[string]any)["_source"].(map[string]any)
+		var source map[string]any
+		if err := json.Unmarshal(hit.Source, &source); err != nil {
+			return nil, err
+		}
 		keyMap, columnValues = scanSource(source, "", keyMap, columnValues)
 	}
 
@@ -186,20 +172,4 @@ func scanSource(object map[string]any, prefix string, keyMap map[string]int, col
 		}
 	}
 	return keyMap, columnValues
-}
-
-func checkResult(res *esapi.Response) error {
-	if res.IsError() {
-		var e map[string]any
-		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
-			return err
-		} else {
-			return fmt.Errorf("[%s] %s: %s",
-				res.Status(),
-				e["error"].(map[string]any)["type"],
-				e["error"].(map[string]any)["reason"],
-			)
-		}
-	}
-	return nil
 }
