@@ -94,7 +94,7 @@ func TestElasticsearch(t *testing.T) {
 	}
 
 	ctx := context.TODO()
-	_, err = es.Indices.Delete(ctx, esapi.IndicesDeleteReq{Indices: []string{"pdscan_test_users"}})
+	_, err = es.Indices.Delete(ctx, esapi.IndicesDeleteReq{Indices: []string{"pdscan_test_users"}, Params: esapi.IndicesDeleteParams{IgnoreUnavailable: esapi.ToPointer(true)}})
 	if err != nil {
 		panic(err)
 	}
