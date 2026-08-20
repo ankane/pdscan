@@ -8,7 +8,7 @@ import (
 )
 
 type RedisAdapter struct {
-	DB *redis.Client
+	rdb *redis.Client
 }
 
 func (a *RedisAdapter) TableName() string {
@@ -29,12 +29,12 @@ func (a *RedisAdapter) Init(urlStr string) error {
 		return err
 	}
 
-	a.DB = redis.NewClient(opt)
+	a.rdb = redis.NewClient(opt)
 
-	// connect
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	_, err = a.DB.Ping(ctx).Result()
+
+	_, err = a.rdb.Ping(ctx).Result()
 	if err != nil {
 		return err
 	}
@@ -47,7 +47,7 @@ func (a RedisAdapter) FetchTables() ([]table, error) {
 }
 
 func (a RedisAdapter) FetchTableData(table table, limit int) (*tableData, error) {
-	rdb := a.DB
+	rdb := a.rdb
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
