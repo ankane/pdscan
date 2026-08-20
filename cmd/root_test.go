@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/fatih/color"
 	"github.com/jmoiron/sqlx"
@@ -93,7 +92,7 @@ func TestElasticsearch(t *testing.T) {
 		panic(err)
 	}
 
-	ctx := context.TODO()
+	ctx := context.Background()
 	_, err = client.Indices.Delete(
 		ctx,
 		opensearchapi.IndicesDeleteReq{
@@ -156,8 +155,7 @@ func TestElasticsearch(t *testing.T) {
 }
 
 func TestMongodb(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	ctx := context.Background()
 
 	client, err := mongo.Connect(options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
@@ -263,7 +261,7 @@ func TestPostgres(t *testing.T) {
 }
 
 func TestRedis(t *testing.T) {
-	var ctx = context.Background()
+	ctx := context.Background()
 
 	urlStr := "redis://localhost:6379/1"
 	opt, err := redis.ParseURL(urlStr)
