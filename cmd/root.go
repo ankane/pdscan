@@ -80,10 +80,9 @@ func NewRootCmd() *cobra.Command {
 				os.Exit(1)
 			}
 
-			// TODO uncomment in 0.2.0
-			// if len(args) > 1 {
-			// 	return fmt.Errorf("Too many arguments")
-			// }
+			if len(args) > 1 {
+				return fmt.Errorf("Too many arguments")
+			}
 
 			return internal.Main(args[0], showData, showAll, limit, processes, only, except, minCount, pattern, debug, format)
 		},
