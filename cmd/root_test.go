@@ -20,7 +20,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	elasticsearch "github.com/opensearch-project/opensearch-go"
+	elasticsearch "github.com/opensearch-project/opensearch-go/v2"
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"

@@ -14,10 +14,10 @@ require (
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/lib/pq v1.10.9
 	github.com/mattn/go-sqlite3 v1.14.27
-	github.com/opensearch-project/opensearch-go v1.1.0
+	github.com/opensearch-project/opensearch-go/v2 v2.3.0
 	github.com/redis/go-redis/v9 v9.7.3
 	github.com/spf13/cobra v1.9.1
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.8.2
 	github.com/xo/dburl v0.23.6
 	go.mongodb.org/mongo-driver v1.17.9
 	golang.org/x/sync v0.22.0
@@ -62,5 +62,3 @@ require (
 	golang.org/x/text v0.41.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace github.com/opensearch-project/opensearch-go v1.1.0 => github.com/ankane/opensearch-go v1.1.1-0.20220908011004-41d2f0a2143f
