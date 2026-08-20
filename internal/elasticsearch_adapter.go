@@ -12,7 +12,7 @@ import (
 )
 
 type ElasticsearchAdapter struct {
-	DB      *esapi.Client
+	client  *esapi.Client
 	indices string
 }
 
@@ -53,12 +53,12 @@ func (a *ElasticsearchAdapter) Init(urlStr string) error {
 			u.String(),
 		},
 	}
-	es, err := esapi.NewClient(esapi.Config{Client: cfg})
+	client, err := esapi.NewClient(esapi.Config{Client: cfg})
 	if err != nil {
 		return err
 	}
 
-	a.DB = es
+	a.client = client
 
 	return nil
 }
@@ -66,10 +66,8 @@ func (a *ElasticsearchAdapter) Init(urlStr string) error {
 func (a ElasticsearchAdapter) FetchTables() ([]table, error) {
 	tables := []table{}
 
-	es := a.DB
-
 	ctx := context.TODO()
-	res, err := es.Cat.Indices(
+	res, err := a.client.Cat.Indices(
 		ctx,
 		&esapi.CatIndicesReq{
 			Indices: []string{a.indices},
@@ -93,8 +91,6 @@ func (a ElasticsearchAdapter) FetchTables() ([]table, error) {
 }
 
 func (a ElasticsearchAdapter) FetchTableData(table table, limit int) (*tableData, error) {
-	es := a.DB
-
 	// TODO sample
 	var buf bytes.Buffer
 	query := map[string]any{
@@ -108,7 +104,7 @@ func (a ElasticsearchAdapter) FetchTableData(table table, limit int) (*tableData
 	}
 
 	ctx := context.TODO()
-	res, err := es.Search(
+	res, err := a.client.Search(
 		ctx,
 		&esapi.SearchReq{
 			Indices: []string{table.Name},
