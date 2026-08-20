@@ -16,7 +16,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.27
 	github.com/opensearch-project/opensearch-go/v4 v4.7.3
 	github.com/redis/go-redis/v9 v9.22.0
-	github.com/spf13/cobra v1.9.1
+	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.11.1
 	github.com/xo/dburl v0.23.6
 	go.mongodb.org/mongo-driver/v2 v2.8.0
@@ -49,7 +49,7 @@ require (
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/spf13/pflag v1.0.6 // indirect
+	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.2.0 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
