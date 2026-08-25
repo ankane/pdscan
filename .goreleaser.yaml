@@ -26,17 +26,10 @@ archives:
       {{- if eq .Arch "amd64" }}x86_64
       {{- else }}{{ .Arch }}{{ end }}-
       {{- .Os }}
-    formats: ['zip']
-dockers:
-  - goarch: amd64
-    use: buildx
-    image_templates:
-      - ankane/pdscan:latest
-      - ankane/pdscan:v{{ .Version }}
-    build_flag_templates:
-      - --platform=linux/amd64
-    extra_files:
-      - licenses
+    formats: ["tar.gz"]
+    format_overrides:
+      - goos: windows
+        formats: ["zip"]
 checksum:
   name_template: 'checksums.txt'
 snapshot:

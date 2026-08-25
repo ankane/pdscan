@@ -1,4 +1,6 @@
-.PHONY: install test lint format release snapshot
+.PHONY: install test lint format release snapshot docker
+
+VERSION = 0.2.0
 
 install:
 	go install
@@ -17,3 +19,6 @@ release:
 
 snapshot:
 	goreleaser --clean --snapshot
+
+docker:
+	docker build --push --pull --no-cache --platform linux/amd64 --build-arg VERSION=$(VERSION) -t ankane/pdscan:latest -t ankane/pdscan:v$(VERSION) .
