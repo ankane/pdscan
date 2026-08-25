@@ -28,7 +28,7 @@ Download the latest version:
 - Mac - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.2.0/pdscan-0.2.0-x86_64-darwin.tar.gz) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.2.0/pdscan-0.2.0-arm64-darwin.tar.gz)
 - Windows - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.2.0/pdscan-0.2.0-x86_64-windows.zip)
 
-You can also install it with [Homebrew](#homebrew) or [Docker](#docker).
+You can also install it with [Go](#go), [Homebrew](#homebrew), or [Docker](#docker).
 
 ## Data Stores
 
@@ -239,6 +239,14 @@ pdscan --format ndjson
 ```
 
 ## Additional Installation Methods
+
+### Go
+
+With Go, you can use:
+
+```sh
+go install github.com/ankane/pdscan@latest
+```
 
 ### Homebrew
 
