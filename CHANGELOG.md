@@ -1,5 +1,6 @@
 ## 0.2.0 (unreleased)
 
+- Changed IP and MAC addresses to be high confidence
 - Updated dependencies
 
 ## 0.1.9 (2025-04-12)
