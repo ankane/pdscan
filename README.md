@@ -24,9 +24,9 @@ Uses data sampling and naming, and works with compressed files
 
 Download the latest version:
 
-- Linux - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.9/pdscan-0.1.9-x86_64-linux.zip) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.1.9/pdscan-0.1.9-arm64-linux.zip)
-- Mac - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.9/pdscan-0.1.9-x86_64-darwin.zip) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.1.9/pdscan-0.1.9-arm64-darwin.zip)
-- Windows - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.1.9/pdscan-0.1.9-x86_64-windows.zip)
+- Linux - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.2.0/pdscan-0.2.0-x86_64-linux.tar.gz) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.2.0/pdscan-0.2.0-arm64-linux.tar.gz)
+- Mac - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.2.0/pdscan-0.2.0-x86_64-darwin.tar.gz) or [arm64](https://github.com/ankane/pdscan/releases/download/v0.2.0/pdscan-0.2.0-arm64-darwin.tar.gz)
+- Windows - [x86_64](https://github.com/ankane/pdscan/releases/download/v0.2.0/pdscan-0.2.0-x86_64-windows.zip)
 
 You can also install it with [Homebrew](#homebrew) or [Docker](#docker).
 

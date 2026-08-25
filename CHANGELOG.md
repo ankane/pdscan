@@ -1,4 +1,4 @@
-## 0.2.0 (unreleased)
+## 0.2.0 (2026-08-25)
 
 - Changed IP and MAC addresses to be high confidence
 - Updated dependencies
