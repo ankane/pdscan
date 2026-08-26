@@ -140,7 +140,7 @@ If your connection doesn’t use SSL, append to the URI:
 ?sslmode=disable
 ```
 
-For best sampling, enable the [tsm_system_rows](https://www.postgresql.org/docs/current/tsm-system-rows.html) extension (ships with Postgres 9.5+).
+For best sampling, enable the [tsm_system_rows](https://www.postgresql.org/docs/current/tsm-system-rows.html) extension (ships with Postgres).
 
 ```sql
 CREATE EXTENSION tsm_system_rows;
